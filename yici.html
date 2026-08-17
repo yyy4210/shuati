@@ -1,0 +1,5595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2563eb">
+<title>变电一次刷题</title>
+<style>
+  :root{
+    --primary:#2563eb; --primary-dark:#1d4ed8; --primary-soft:#eff6ff;
+    --green:#16a34a; --green-bg:#f0fdf4;
+    --red:#dc2626; --red-bg:#fef2f2;
+    --bg:#eef2f7; --card:#ffffff;
+    --text:#0f172a; --muted:#64748b;
+    --border:#e2e8f0; --border-strong:#cbd5e1;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(15,23,42,.05),0 4px 16px rgba(15,23,42,.07);
+    --shadow-lg:0 8px 24px rgba(37,99,235,.35);
+    --nav-bg:rgba(255,255,255,.95);
+    --disclaimer-bg:#fef3c7; --disclaimer-c:#92400e; --disclaimer-bd:#fde68a;
+    --explain-bg:#fffbeb; --explain-bd:#fde68a; --explain-c:#78350f;
+    --opt-letter-bg:#f1f5f9; --opt-letter-c:#475569;
+    --selected-bg:#eff6ff;
+    --grad-logo:linear-gradient(135deg,#2563eb,#4f46e5);
+    --grad-practice:linear-gradient(135deg,#10b981,#059669);
+    --grad-exam:linear-gradient(135deg,#f59e0b,#ea580c);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--text);
+    max-width:520px; margin:0 auto;
+    height:100dvh; display:flex; flex-direction:column;
+    position:relative;
+  }
+  .disclaimer{
+    font-size:11px; color:var(--disclaimer-c); background:var(--disclaimer-bg);
+    text-align:center; padding:5px 10px; flex-shrink:0;
+    border-bottom:1px solid var(--disclaimer-bd);
+  }
+  .view{display:none; flex:1; flex-direction:column; overflow:hidden;}
+  .view.active{display:flex;}
+
+  /* ---------- 通用 ---------- */
+  .btn{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    border:none; border-radius:12px; padding:14px 16px;
+    font-size:16px; font-weight:600; cursor:pointer;
+    transition:transform .05s, filter .15s, background .15s;
+    color:#fff; background:var(--primary);
+  }
+  .btn:active{transform:scale(.97);}
+  .btn.ghost{background:transparent; color:var(--primary); box-shadow:inset 0 0 0 1.5px var(--primary);}
+  .btn.gray{background:#e2e8f0; color:#475569;}
+  .btn.big{font-size:18px; padding:16px 20px; border-radius:14px;}
+  .btn[disabled]{opacity:.5; pointer-events:none;}
+  .card{
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:18px;
+  }
+
+  /* ---------- 首页 ---------- */
+  #home{padding:0 16px; overflow-y:auto; align-items:stretch;}
+  .home-hero{text-align:center; margin:auto 0 32px;}
+  .home-menu{margin-bottom:auto;}
+  .home-hero .logo{
+    width:72px;height:72px;border-radius:20px;background:var(--grad-logo);
+    color:#fff;font-size:34px;font-weight:800;display:flex;align-items:center;justify-content:center;
+    margin:0 auto 16px; box-shadow:var(--shadow-lg);
+  }
+  .home-hero h1{font-size:24px;margin:0 0 6px;}
+  .home-hero p{color:var(--muted);margin:0;font-size:14px;}
+  .home-stats{display:flex;justify-content:center;gap:14px;margin:18px 0 28px;flex-wrap:wrap;}
+  .stat{background:var(--card);border-radius:12px;padding:10px 16px;text-align:center;box-shadow:var(--shadow);}
+  .stat b{display:block;font-size:20px;color:var(--primary);}
+  .stat span{font-size:12px;color:var(--muted);}
+  .home-menu{display:flex;flex-direction:column;gap:14px;}
+  .mode-btn{
+    display:flex;align-items:center;gap:16px;text-align:left;
+    background:var(--card);border:none;border-radius:var(--radius);
+    padding:20px; box-shadow:var(--shadow); cursor:pointer;
+  }
+  .mode-btn:active{transform:scale(.98);}
+  .mode-btn .icon{width:48px;height:48px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;}
+  .mode-btn.practice .icon{background:var(--grad-practice);}
+  .mode-btn.exam .icon{background:var(--grad-exam);}
+  .mode-btn b{font-size:17px;display:block;margin-bottom:3px;}
+  .mode-btn span{font-size:13px;color:var(--muted);}
+
+  /* ---------- 设置页 ---------- */
+  #setup{padding:16px; overflow-y:auto;}
+  .setup-group{margin-bottom:22px;}
+  .setup-group>label{font-size:13px;color:var(--muted);display:block;margin-bottom:10px;font-weight:600;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    border:1.5px solid var(--border); background:#fff; border-radius:999px;
+    padding:9px 16px; font-size:14px; color:#475569; cursor:pointer; transition:all .15s;
+  }
+  .chip.on{background:var(--primary); border-color:var(--primary); color:#fff; font-weight:600;}
+
+  /* ---------- 答题头部 ---------- */
+  .topbar{
+    display:flex;align-items:center;gap:10px;padding:12px 14px 10px;
+    background:var(--bg);
+  }
+  .topbar .back{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;padding:2px 8px;border-radius:8px;}
+  .topbar .back:active{background:#e2e8f0;}
+  .topbar .title{flex:1;font-size:15px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .topbar .fav{background:none;border:none;font-size:22px;line-height:1;cursor:pointer;padding:2px 8px;color:#94a3b8;transition:color .15s;}
+  .topbar .fav.on{color:#f59e0b;}
+  .topbar .badge{font-size:11px;font-weight:700;padding:4px 8px;border-radius:999px;}
+  .badge.single{background:#dbeafe;color:#1d4ed8;}
+  .badge.multi{background:#fef3c7;color:#b45309;}
+  .badge.judge{background:#dcfce7;color:#15803d;}
+  .badge.short{background:#ede9fe;color:#6d28d9;}
+  .exam-time{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;flex-shrink:0;font-variant-numeric:tabular-nums;}
+  .exam-time.warn{color:var(--red);}
+  .progress-track{height:4px;background:#e2e8f0;border-radius:2px;margin:0 14px 10px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--primary);border-radius:2px;transition:width .2s;}
+
+  /* ---------- 题目区 ---------- */
+  #quiz-area{flex:1;overflow-y:auto;padding:0 14px 96px;}
+  .q-count{font-size:13px;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+  .q-stem{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:18px;font-size:17px;line-height:1.75;margin-bottom:16px;white-space:pre-wrap;word-break:break-word;
+  }
+  .q-stem .q-num{color:var(--primary);font-weight:800;margin-right:4px;}
+  .opts{display:flex;flex-direction:column;gap:10px;}
+  .opt{
+    display:flex;align-items:flex-start;gap:12px;
+    background:var(--card);border:1.5px solid var(--border);border-radius:12px;
+    padding:14px 16px;font-size:16px;line-height:1.6;cursor:pointer;transition:all .12s;text-align:left;width:100%;
+  }
+  .opt:active{background:#f8fafc;}
+  .opt .letter{
+    width:28px;height:28px;border-radius:8px;background:var(--opt-letter-bg);color:var(--opt-letter-c);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;margin-top:1px;
+  }
+  .opt .txt{flex:1;}
+  /* 练习模式作答后状态 */
+  .opt.correct{background:var(--green-bg);border-color:var(--green);}
+  .opt.correct .letter{background:var(--green);color:#fff;}
+  .opt.wrong{background:var(--red-bg);border-color:var(--red);}
+  .opt.wrong .letter{background:var(--red);color:#fff;}
+  .opt.dim{opacity:.45;}
+  /* 考试模式选中态 */
+  .opt.selected{border-color:var(--primary);background:var(--selected-bg);}
+  .opt.selected .letter{background:var(--primary);color:#fff;}
+
+  /* ---------- 反馈/解析 ---------- */
+  .feedback{margin-top:16px;}
+  .result-banner{
+    border-radius:12px;padding:14px 16px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px;
+  }
+  .result-banner.ok{background:var(--green-bg);color:var(--green);}
+  .result-banner.no{background:var(--red-bg);color:var(--red);}
+  .explain{
+    margin-top:12px;background:var(--explain-bg);border:1px solid var(--explain-bd);border-radius:12px;
+    padding:14px 16px;font-size:14px;line-height:1.7;color:var(--explain-c);white-space:pre-wrap;
+  }
+  .explain b{display:block;margin-bottom:4px;}
+
+  /* ---------- 底部导航 ---------- */
+  .bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;max-width:520px;margin:0 auto;
+    background:var(--nav-bg);backdrop-filter:blur(8px);
+    border-top:1px solid var(--border);padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    display:flex;gap:10px;align-items:center;
+  }
+  .bottom-nav .btn{flex:1;}
+  .bottom-nav .btn.small-flex{flex:1;}
+  .bottom-nav .btn.mid{flex:1.4;}
+
+  /* ---------- 答题卡 ---------- */
+  .sheet{
+    position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:50;
+    display:none;align-items:flex-end;justify-content:center;
+  }
+  .sheet.open{display:flex;}
+  .sheet-panel{
+    background:#fff;width:100%;max-width:520px;max-height:75dvh;overflow-y:auto;overflow-x:hidden;
+    border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+  }
+  .sheet-title{font-weight:700;font-size:16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+  .sheet-close{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;}
+  .sheet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:7px;}
+  .sheet-cell{
+    aspect-ratio:1;border-radius:9px;border:1.5px solid var(--border);background:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#475569;cursor:pointer;
+  }
+  .sheet-cell.current{border-color:var(--primary);color:var(--primary);background:#eff6ff;}
+  .sheet-cell.answered{background:var(--primary);border-color:var(--primary);color:#fff;}
+  .sheet-cell.correct{background:var(--green);border-color:var(--green);color:#fff;}
+  .sheet-cell.wrong{background:var(--red);border-color:var(--red);color:#fff;}
+  .sheet-cell.missed{background:#e2e8f0;border-color:#e2e8f0;color:#64748b;}
+  .sheet-group-title{grid-column:1/-1;font-size:12px;font-weight:700;color:var(--muted);margin:8px 0 2px;display:flex;align-items:center;gap:8px;}
+  .sheet-group-title::after{content:"";flex:1;height:1px;background:var(--border);}
+  .sheet-group-title:first-child{margin-top:0;}
+
+  /* ---------- 成绩页 ---------- */
+  #result{padding:16px; overflow-y:auto; align-items:stretch;}
+  .score-card{text-align:center;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 18px;margin-bottom:16px;}
+  .score-num{font-size:52px;font-weight:800;color:var(--primary);line-height:1;}
+  .score-num small{font-size:20px;color:var(--muted);font-weight:600;}
+  .score-label{font-size:14px;color:var(--muted);margin-top:8px;}
+  .score-sub{margin-top:12px;font-size:14px;color:var(--muted);display:flex;justify-content:center;gap:18px;}
+  .score-sub b{color:var(--text);font-size:17px;}
+  .score-sub .g{color:var(--green);} .score-sub .r{color:var(--red);} .score-sub .m{color:#94a3b8;}
+  .result-grid{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:16px;}
+  .result-grid h3{margin:0 0 12px;font-size:15px;}
+
+  .toast{
+    position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:99;
+    background:rgba(15,23,42,.9);color:#fff;font-size:14px;padding:10px 18px;border-radius:999px;
+    opacity:0;transition:opacity .25s;pointer-events:none;max-width:90%;text-align:center;
+  }
+  .toast.show{opacity:1;}
+  .fade-in{animation:fadeIn .18s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+
+  /* ---------- 切题过渡 ---------- */
+  @keyframes quizInL{from{opacity:0;transform:translateX(-16px);}to{opacity:1;transform:none;}}
+  @keyframes quizInR{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:none;}}
+  .quiz-in-l{animation:quizInL .2s ease;}
+  .quiz-in-r{animation:quizInR .2s ease;}
+
+  /* ---------- 反馈强化 ---------- */
+  @keyframes bannerPop{0%{opacity:0;transform:scale(.92);}60%{opacity:1;transform:scale(1.03);}100%{opacity:1;transform:scale(1);}}
+  .banner-pop{animation:bannerPop .22s ease;}
+  .explain .explain-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;margin-bottom:4px;}
+  .explain .explain-body{line-height:1.7;}
+  .explain .explain-toggle::after{content:"▾";color:var(--explain-c);}
+  .explain.open .explain-toggle::after{content:"▴";color:var(--explain-c);}
+
+  /* ---------- 考试历史趋势 ---------- */
+  .trend-card{margin:18px 0 4px;}
+  .trend-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .trend-head b{font-size:14px;}
+  .trend-head span{font-size:12px;color:var(--muted);}
+  .trend-note{font-size:12px;color:var(--muted);margin-top:6px;}
+</style>
+</head>
+<body>
+
+<div class="disclaimer">解析由 DeepSeek 生成，不保证准确性</div>
+
+<div id="home" class="view active">
+  <div class="home-hero">
+    <div class="logo">一</div>
+    <h1>变电一次刷题</h1>
+    <p>单选 · 多选 · 判断</p>
+    <div class="home-stats" id="home-stats"></div>
+    <div id="home-trend"></div>
+  </div>
+  <div class="home-menu">
+    <button class="mode-btn practice" onclick="openSetup('practice')">
+      <div class="icon">✏️</div>
+      <div><b>练习模式</b><span>顺序/随机刷题 · 即时对错 · 答案解析</span></div>
+    </button>
+    <button class="mode-btn exam" onclick="startExam()">
+      <div class="icon">📝</div>
+      <div><b>考试模式</b><span>单选50+多选15+判断20 · 60分钟 · 满分100</span></div>
+    </button>
+  </div>
+</div>
+
+<div id="setup" class="view">
+  <div class="topbar">
+    <button class="back" onclick="goHome()">‹</button>
+    <div class="title" id="setup-title">练习设置</div>
+  </div>
+  <div style="padding:16px;">
+    <div id="resume-wrap" style="margin-bottom:4px;"></div>
+    <div class="setup-group">
+      <label>题型范围</label>
+      <div class="chip-row" id="chips-type"></div>
+    </div>
+    <div class="setup-group">
+      <label>出题顺序</label>
+      <div class="chip-row" id="chips-order">
+        <button class="chip on" data-o="seq">顺序</button>
+        <button class="chip" data-o="rand">随机</button>
+      </div>
+    </div>
+    <div class="setup-group">
+      <label>答案解析</label>
+      <div class="chip-row" id="chips-explain">
+        <button class="chip on" data-e="1">显示解析</button>
+        <button class="chip" data-e="0">不显示</button>
+      </div>
+    </div>
+    <button class="btn big" style="margin-top:8px;width:100%;" onclick="startPractice()">开始练习</button>
+  </div>
+</div>
+
+<div id="quiz" class="view">
+  <div class="topbar">
+    <button class="back" id="quiz-back" onclick="quizBack()">‹</button>
+    <div class="title" id="quiz-title">练习模式</div>
+    <button class="fav" id="fav-btn" onclick="toggleFav()">☆</button>
+    <span class="badge" id="quiz-badge"></span>
+    <span class="exam-time" id="exam-time" style="display:none;"></span>
+    <button class="btn" id="quiz-submit" onclick="submitExam()" style="display:none;padding:9px 14px;font-size:14px;border-radius:999px;flex-shrink:0;">交卷</button>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="quiz-progress"></div></div>
+  <div id="quiz-area"></div>
+  <div class="bottom-nav" id="quiz-nav"></div>
+</div>
+
+<div id="result" class="view">
+  <div class="score-card">
+    <div class="score-num" id="score-num">0</div>
+    <div class="score-label" id="score-label">考试得分</div>
+    <div class="score-sub" id="score-sub"></div>
+  </div>
+  <div class="result-grid">
+    <h3>答题情况</h3>
+    <div class="sheet-grid" id="result-grid"></div>
+  </div>
+  <button class="btn gray" style="width:100%;margin-bottom:10px;" onclick="startExam()">再考一次</button>
+  <button class="btn ghost" style="width:100%;" onclick="goHome()">返回首页</button>
+</div>
+
+<div class="sheet" id="sheet">
+  <div class="sheet-panel">
+    <div class="sheet-title"><span>答题卡</span><button class="sheet-close" onclick="closeSheet()">×</button></div>
+    <div class="sheet-grid" id="sheet-grid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// 题库数据（由 变电一次题库.xls 构建，379题）
+const QUESTION_BANK = [
+ {
+  "id": 1,
+  "type": "single",
+  "stem": "测量高压开关柜主回路对地、相间绝缘电阻需用(____)V摇表，且绝缘电阻应≥500MΩ。",
+  "options": {
+   "A": "500",
+   "B": "1000",
+   "C": "1500",
+   "D": "2500"
+  },
+  "answer": "D",
+  "explain": "答案 D。测量高压开关柜主回路对地、相间绝缘需用2500V摇表：高压设备绝缘良好时电阻极大，需施加接近额定相电压的直流试验电压才能真实反映绝缘状况，2500V档正合适；500V、1000V档电压太低，只用于低压回路、控制回路测绝缘，用来测高压主回路会误判绝缘合格。1500V档虽在市场产品上并不少见，但传统电力规程与考题不将其作为高压设备绝缘测试的标准档位，故不选。规程要求主回路绝缘电阻≥500MΩ为合格下限。记忆点：试验电压要随设备电压等级走，高压主回路需2500V才够，电压不足会把绝缘好坏看错。"
+ },
+ {
+  "id": 2,
+  "type": "single",
+  "stem": "高压开关柜内手车开关拉出后，隔离带电部位的(____)应可靠封闭，禁止开启。",
+  "options": {
+   "A": "橡胶板",
+   "B": "绝缘板",
+   "C": "隔板",
+   "D": "挡板"
+  },
+  "answer": "D",
+  "explain": "答案 D。手车开关拉出后，隔离带电部位的专用隔离件叫挡板（活门挡板），它随手车位置联动自动关闭，把带电的母线侧、线路侧静触头隔开，必须可靠封闭、禁止开启，防止人员误触带电部位。A橡胶板、B绝缘板、C隔板都不是该装置的标准名称，反措原文用词就是挡板。记忆点：手车拉出→活门挡板落下封闭，把带电触头完全隔开。"
+ },
+ {
+  "id": 3,
+  "type": "single",
+  "stem": "开关柜触头镀银层厚度检测试验中，新建变电工程每个厂家每种型号的开关柜触头抽取一相的(____)触头进行检测，接触面为必检部位。",
+  "options": {
+   "A": "全部",
+   "B": "部分",
+   "C": "一个",
+   "D": "三个"
+  },
+  "answer": "A",
+  "explain": "答案 A。镀银层厚度直接决定触头接触电阻和长期通流能力，DL/T1424规定新建变电工程每个厂家每种型号的开关柜，触头抽取一相的全部触头进行检测，接触面为必检部位，这样样本才能代表该型号整批的镀层质量。B部分、C一个、D三个抽取数量偏少，检出局部漏镀、镀层偏薄的几率低，样本代表性不足。记忆点：样本要能代表整批质量，故抽一相全部触头检测、接触面必检，镀层好坏直接决定接触电阻和通流。"
+ },
+ {
+  "id": 4,
+  "type": "single",
+  "stem": "依据变电安规，SF6配电装置发生大量泄漏等紧急情况时，人员应迅速撤出现场，开启所有排风机进行排风。未佩戴(____)人员禁止入内。",
+  "options": {
+   "A": "防毒面具或口罩",
+   "B": "防毒面具或正压式空气呼吸器",
+   "C": "口罩或正压式空气呼吸器",
+   "D": "护目眼镜或正压式空气呼吸器"
+  },
+  "answer": "B",
+  "explain": "答案 B。SF6大量泄漏属紧急情况，泄漏产生的SF6分解物（HF、SO2、SF4等）有毒，人员进入现场必须戴防毒面具或正压式空气呼吸器，才能隔离毒气、保证呼吸安全。A中普通口罩对有毒气体几乎无防护作用，C同此；D中护目眼镜只能护眼、不能护呼吸。只有防毒面具或正压式空气呼吸器两者兼备呼吸防护功能。记忆点：防毒面具/正压呼吸器护呼吸，口罩不顶用。"
+ },
+ {
+  "id": 5,
+  "type": "single",
+  "stem": "依据变电安规，使用金属外壳的电气工具时应戴(____)。",
+  "options": {
+   "A": "线手套",
+   "B": "绝缘手套",
+   "C": "口罩",
+   "D": "护目眼镜"
+  },
+  "answer": "B",
+  "explain": "答案 B。金属外壳的电气工具一旦内部绝缘损坏，外壳即可能带电，使用人戴绝缘手套可阻断经手、身、地的触电回路，故安规明确要求使用金属外壳电气工具时戴绝缘手套，使用前还应检查工具本体及导线绝缘完好。A线手套不绝缘，戴上与裸手无异；C口罩、D护目眼镜分别防粉尘和飞溅，均与防触电无关。记忆点：金属外壳可能带电，绝缘手套保命。"
+ },
+ {
+  "id": 6,
+  "type": "single",
+  "stem": "依据“五级五控”要求，组合电器就位、组部件更换、筒体对接、密封面处理工序风险等级属于(____)",
+  "options": {
+   "A": "高",
+   "B": "中",
+   "C": "低"
+  },
+  "answer": "A",
+  "explain": "答案 A。组合电器（GIS）就位、组部件更换、筒体对接、密封面处理属于设备解体暴露与关键装配工序，一旦异物混入气室或密封面处理不当，会造成内部放电、气体泄漏等重大缺陷，故五级五控将其工序风险等级定为高。B中、C低估了这类解体装配作业的后果严重性，管控级别上不去。记忆点：GIS开仓对接=高风险工序，异物防控第一要务。"
+ },
+ {
+  "id": 7,
+  "type": "single",
+  "stem": "隔离开关关键点见证装配验收导电回路装配各转动部位灵活、平衡装置调整(____)；轴承（轴套）润滑良好、密封工艺符合要求。",
+  "options": {
+   "A": "到位",
+   "B": "良好",
+   "C": "圆滑",
+   "D": "有效"
+  },
+  "answer": "A",
+  "explain": "答案 A。隔离开关导电回路装配验收中，平衡装置用于平衡传动链的重力矩，必须调整到位，否则分合闸时三相受力不均、易出现合闸不到位，调整到位是验收标准卡原文。B良好不用于描述调整的结果，与调整搭配不当；C圆滑、D有效均非验收术语。记忆点：平衡装置调到位，分合才稳不卡涩。"
+ },
+ {
+  "id": 8,
+  "type": "single",
+  "stem": "高压开关柜验收包括(____)、厂内验收、到货验收、隐蔽工程验收、中间验收、竣工（预）验收、启动验收等七个关键环节。",
+  "options": {
+   "A": "可研初设审查",
+   "B": "关键点验证",
+   "C": "出厂验收",
+   "D": "可研初设审核"
+  },
+  "answer": "A",
+  "explain": "答案 A。高压开关柜验收的七个关键环节为：可研初设审查、厂内验收、到货验收、隐蔽工程验收、中间验收、竣工（预）验收、启动验收，可研初设审查在设备招标前就把源头关。C出厂验收是厂家自行试验，与厂内验收（运维方进厂验收）环节重叠，不是独立环节；D可研初设审核与A仅一字之差，但规程用词是审查；B关键点验证是验收过程的管控手段而非独立环节。记忆点：七环节覆盖设备从可研审查到启动投运的全链条，可研审查在源头把关、启动验收是投运前的总把关。"
+ },
+ {
+  "id": 9,
+  "type": "single",
+  "stem": "当GIS所有的气室全部安装完后，通过真空机对气室进行抽真空达到50Pa之后，保持时间不小于(____)。",
+  "options": {
+   "A": "1h",
+   "B": "2h",
+   "C": "3h",
+   "D": "1.5h"
+  },
+  "answer": "B",
+  "explain": "答案 B。GIS各气室全部安装完成后，用真空机抽真空至50Pa，保持时间不小于2h，期间真空度不回升说明密封良好、无漏点，这是安装阶段真空检漏的标准工艺。抽真空的目的在于去除气室内水汽和杂质，为充入合格SF6创造条件。A1h、C3h、D1.5h均非规程规定值。记忆点：抽到50Pa保2h，真空不降即不漏。"
+ },
+ {
+  "id": 10,
+  "type": "single",
+  "stem": "高压隔离开关操动机构的验收检查时，操动机构在进行手动操作时，应(____)电动操作。",
+  "options": {
+   "A": "闭锁",
+   "B": "可以",
+   "C": "具备",
+   "D": "伴随"
+  },
+  "answer": "A",
+  "explain": "答案 A。操动机构进行手动操作时，应闭锁电动操作回路，防止手动与电动同时动作造成机构冲突、方向干涉或误动，这是防误闭锁的基本要求。B可以、C具备、D伴随都意味着手动时电动回路仍可能动作，违背防误原则。记忆点：手动操作必先闭锁电动，防止双重操作打架。"
+ },
+ {
+  "id": 11,
+  "type": "single",
+  "stem": "机构箱进水，各部轴销、连杆、拐臂、底架甚至底座轴承锈蚀，造成分合不到位。连杆、传动连接部位、闸刀触头架支撑件等强度不足断裂，造成分合闸不到位，处理方法为(____)。",
+  "options": {
+   "A": "对机构及锈蚀部件进行解体检修，更换不合格元件。加强防锈措施，采用二硫化钼锂。更换带注油孔的传动底座",
+   "B": "对机构及锈蚀部件进行解体检修，更换不合格元件",
+   "C": "当按分合闸按钮不启动时，要首先检查操作电源是否完好，然后检查各相关元件。发现元件损坏时应更换，并查明原因",
+   "D": "当按分合闸按钮不启动时，检查各相关元件。发现元件损坏时应更换，并查明原因。二次回路的关键是各个元件的可靠性，必须选择质量可靠的二次元件"
+  },
+  "answer": "A",
+  "explain": "答案 A。机构箱进水造成轴销、连杆、拐臂、底座轴承锈蚀，分合不到位，处理须对症：对机构及锈蚀部件解体检修、更换不合格元件，并加强防锈措施（采用二硫化钼锂润滑脂），更换带注油孔的传动底座以便今后注油防锈。B只提解体检修更换，漏掉防锈和换底座两个治本措施，不完整；C、D讲的是按分合闸按钮不启动时查操作电源和二次元件，属二次回路故障，与本例的机械锈蚀断裂不对症。记忆点：锈蚀→解体检修+防锈+换带注油孔底座，一次治本。"
+ },
+ {
+  "id": 12,
+  "type": "single",
+  "stem": "现场检查发现开关柜面板绿灯亮，且测量开关柜继电器室内端子排断路器合闸控制回路接点有负电，则故障原因可能为(____)。",
+  "options": {
+   "A": "合闸线圈烧毁",
+   "B": "分闸线圈烧毁",
+   "C": "弹簧未储能",
+   "D": "自动化装置误发信号"
+  },
+  "answer": "D",
+  "explain": "答案 D。绿灯亮说明断路器处于分闸位置、位置指示正常；此时测得合闸控制回路接点有负电，说明合闸回路被异常接通带电，最可能是自动化装置（测控装置）误发合闸信号，其出口接点误闭合把负电位送到合闸回路。A合闸线圈烧毁则合闸回路断线，绿灯串在该回路中不会亮，也测不到负电；B分闸线圈烧毁影响分闸回路，与该接点电位无关；C弹簧未储能时储能监视接点会断开合闸回路，同样测不到负电。记忆点：分位绿灯亮+合闸回路带负电=外部误发合闸命令。"
+ },
+ {
+  "id": 13,
+  "type": "single",
+  "stem": "大电流开关柜（2500A及以上）、PT柜活门档板采用(____)材料。",
+  "options": {
+   "A": "金属",
+   "B": "机械型SMC制品",
+   "C": "电气型SMC制品",
+   "D": "通用型SMC制品"
+  },
+  "answer": "C",
+  "explain": "答案 C。SMC制品分机械型、电气型和通用型，电气型SMC绝缘性能、耐电弧性能最好。大电流开关柜（2500A及以上）和PT柜的活门挡板长期承受高场强、高温和电弧作用，故规定采用电气型SMC制品。A金属导电，作挡板会破坏绝缘、引发对地短路，绝对禁用；B机械型侧重机械强度、绝缘等级低；D通用型性能居中，均不满足高绝缘要求。记忆点：活门挡板长期处在高场强下，电气型SMC绝缘耐弧最好，所以大电流柜和PT柜必用它，金属板导电绝对禁用。"
+ },
+ {
+  "id": 14,
+  "type": "single",
+  "stem": "从原理上讲，对SF6断路器应监视SF6气体的密度，而不是监视气体的压力。但是在工程实践中要监视其密度是非常困难的事情。只能测量气体的压力，再通过一定的(____)，比较粗略地估计SF6气体是否漏气。",
+  "options": {
+   "A": "压力—温度修正",
+   "B": "压力—湿度修正",
+   "C": "压力—海拔修正",
+   "D": "压力—纯度修正"
+  },
+  "answer": "A",
+  "explain": "答案 A。SF6断路器的灭弧、绝缘性能取决于气体密度而非压力，但密度不易直接测量，工程上只能测压力，再通过压力—温度修正，把不同温度下测得的压力折算到标准温度的压力，粗略估计是否漏气。B湿度修正针对的是水分含量，与漏气判断无关；C海拔修正影响大气压基准，不是密度折算的主要对象；D纯度修正针对气体质量，不用于监测漏气。记忆点：测压力+温度修正≈估密度，密、压、温三者联动。"
+ },
+ {
+  "id": 15,
+  "type": "single",
+  "stem": "隔离开关因分、合闸定位螺钉调整不当、辅助开关及限位开关行程调整不当、连杆弯曲变形使其长度改变等原因造成传动不到位时，处理方法为(____)。",
+  "options": {
+   "A": "检查定位螺钉和辅助开关等元件，发现异常进行调整，对有变形的连杆，应查明原因及时消除",
+   "B": "对机构及锈蚀部件进行解体检修，更换不合格元件。加强防锈措施，采用二硫化钼锂。更换带注油孔的传动底座",
+   "C": "当按分合闸按钮不启动时，检查各相关元件。发现元件损坏时应更换，并查明原因",
+   "D": "当按分合闸按钮不启动时，要首先检查操作电源是否完好，然后检查各相关元件。发现元件损坏时应更换，并查明原因"
+  },
+  "answer": "A",
+  "explain": "答案 A。传动不到位是定位螺钉调整不当、辅助开关及限位开关行程不当、连杆弯曲变形改变长度等调整性、机械性原因造成，处理方法是对症：检查定位螺钉和辅助开关等元件，发现异常进行调整，对有变形的连杆查明原因及时消除，即先调整、后消缺。B是机构锈蚀断裂的处理方案，与传动调整无关；C、D是分合闸按钮不启动（二次回路问题）的排查办法，不对应机械传动不到位。记忆点：传动不到位→查定位螺钉、辅助开关行程和连杆变形。"
+ },
+ {
+  "id": 16,
+  "type": "single",
+  "stem": "真空断路器灭弧室屏蔽罩的作用之一是可以改善灭弧室内部电场分布的均匀性，有利于(____)局部场强，促进真空灭弧室小型化。",
+  "options": {
+   "A": "扩散",
+   "B": "增加",
+   "C": "降低",
+   "D": "增强"
+  },
+  "answer": "C",
+  "explain": "答案 C。真空灭弧室屏蔽罩的作用有两方面：一是阻挡并冷凝分闸时触头间喷出的金属蒸气和电弧生成物，防止污染绝缘件；二是改善灭弧室内部电场分布的均匀性，降低局部场强，从而提高耐压水平、缩小绝缘距离，促进真空灭弧室小型化。A扩散、B增加、D增强与降低局部场强的意思完全相反。记忆点：屏蔽罩均电场、降局部场强，灭弧室才能做小。"
+ },
+ {
+  "id": 17,
+  "type": "single",
+  "stem": "对未纳入国家特种设备管理范围的车辆，应实行“(____)”制度",
+  "options": {
+   "A": "持证上岗",
+   "B": "准驾证",
+   "C": "登记在册",
+   "D": "上级审批"
+  },
+  "answer": "B",
+  "explain": "答案 B。十八项反措规定，对未纳入国家特种设备管理范围的车辆（如厂内机动车辆），应实行准驾证制度，即由本单位考核发证、凭证驾驶，把住驾驶资格关。A持证上岗针对纳入特种设备管理的车辆，须持特种设备作业证；C登记在册只是台账管理，不解决驾驶资格问题；D上级审批不是日常驾驶管理制度。记忆点：两类车辆两套证，纳入特种设备管理的持特种作业证，未纳入的用单位准驾证，本质都是把住驾驶资格关。"
+ },
+ {
+  "id": 18,
+  "type": "single",
+  "stem": "GIS局部放电超声波检测结果，判断为电晕放电缺陷的依据是(____)。",
+  "options": {
+   "A": "信号水平高、峰值/有效值高、50Hz频率相关性低、100Hz频率相关性高、相位无",
+   "B": "信号水平低、峰值/有效值低、50Hz频率相关性高、100Hz频率相关性低、相位关系有",
+   "C": "信号水平高、峰值/有效值高、50Hz频率相关性低、100Hz频率相关性高、相位关系有",
+   "D": "信号水平低、峰值/有效值低、50Hz频率相关性高、100Hz频率相关性低、相位无"
+  },
+  "answer": "B",
+  "explain": "答案 B。超声波法测GIS局放，不同类型缺陷频谱特征不同。电晕放电（针尖毛刺类）信号水平低、峰值/有效值比低，与50Hz工频相关性高、与100Hz相关性低，且相位关系存在，B完全对应。A、C描述的是信号水平高、100Hz相关高，那是悬浮电位放电或自由金属微粒的特征，不是电晕；D相位无也不符合电晕放电有相位关系的特征。记忆点：电晕=弱信号、跟50Hz走、有相位；悬浮/颗粒=强信号、跟100Hz走。"
+ },
+ {
+  "id": 19,
+  "type": "single",
+  "stem": "依据变电安规，电焊机的外壳应可靠接地，接地电阻不得大于(____)。",
+  "options": {
+   "A": "4Ω",
+   "B": "6Ω",
+   "C": "8Ω",
+   "D": "10Ω"
+  },
+  "answer": "A",
+  "explain": "答案 A。变电安规规定，电焊机外壳应可靠接地，接地电阻不得大于4Ω。4Ω是低压电气设备保护接地的通用限值，接地电阻过大时电焊机一旦漏电，外壳电位抬高、故障电流泄流不畅，接触外壳会触电。B6Ω、C8Ω、D10Ω均超过4Ω合格线，不能保证漏电时人身安全。记忆点：外壳接地电阻≤4Ω，漏电有去处、外壳不带电。"
+ },
+ {
+  "id": 20,
+  "type": "single",
+  "stem": "断路器失灵保护动作的条件是：(____)和断路器中还有电流。",
+  "options": {
+   "A": "保护动作未返回",
+   "B": "保护动作已返回",
+   "C": "保护未动作",
+   "D": "保护动作中"
+  },
+  "answer": "A",
+  "explain": "答案 A。断路器失灵保护（BFP）的启动条件：保护装置动作发出跳闸命令后故障仍未切除，即保护动作未返回（保护仍在动作状态）且断路器中仍有电流（断路器拒动、故障未隔离），经延时后起动失灵保护跳开相邻断路器并闭锁重合闸。B保护动作已返回说明保护已复归，不构成失灵；C保护未动作则谈不上断路器失灵；D保护动作中表述不准确，关键是未返回且电流持续。记忆点：失灵=保护动作未返回+仍有电流，双条件缺一不可。"
+ },
+ {
+  "id": 21,
+  "type": "single",
+  "stem": "依据“五级五控”要求，工作票发送签发时校验是否关联(____)。",
+  "options": {
+   "A": "计划",
+   "B": "勘察",
+   "C": "方案",
+   "D": "标准作业卡"
+  },
+  "answer": "C",
+  "explain": "答案 C。五级五控要求工作票发送签发时，系统校验是否关联方案（即四措一案等检修、施工方案），把两票与方案绑在一起，确保先编审方案、再开工作票，防止无方案施工。A计划是开工前的任务来源，在更前端的环节关联；B勘察为方案编制提供依据，也属前端环节；D标准作业卡是现场执行层面的工具，签发校验的对象是方案而非作业卡。记忆点：方案是施工的前提，两票要挂在方案之下，签发时校验关联方案就是防止无方案就开票施工。"
+ },
+ {
+  "id": 22,
+  "type": "single",
+  "stem": "隔离开关出厂验收试验验收机械特性试验和机械操作隔离开关和所配接地开关间机械闭锁应(____)。",
+  "options": {
+   "A": "可靠",
+   "B": "实用",
+   "C": "快速",
+   "D": "缓慢"
+  },
+  "answer": "A",
+  "explain": "答案 A。隔离开关和所配接地开关之间设有机械闭锁，其作用是防止带电合接地开关、也防止带接地开关合隔离开关，验收试验要求该机械闭锁可靠，即动作到位、无卡涩、逻辑正确。B实用、C快速、D缓慢都不是对闭锁功能的考核指标，机械闭锁的核心要求就是可靠二字。记忆点：地刀与刀闸互锁，闭锁必须可靠，防误操作就靠它。"
+ },
+ {
+  "id": 23,
+  "type": "single",
+  "stem": "开关柜内空气绝缘净距离：12kV≥(____)mm，24kV≥180mm，40.5kV≥(____)mm。",
+  "options": {
+   "A": "75；125",
+   "B": "125；180",
+   "C": "180；300",
+   "D": "125；300"
+  },
+  "answer": "D",
+  "explain": "答案 D。开关柜内相间及对地空气绝缘净距离按电压等级确定：12kV不小于125mm，24kV不小于180mm，40.5kV不小于300mm，故两空分别填125、300。A中75是低压值，不符合12kV≥125mm；B中180是24kV的限值，用在40.5kV上不够；C中180又不满足12kV≥125mm。记忆点：空气净距本质是防击穿，电压等级越高所需空气距离越大，12/24/40.5kV依次加大，40.5kV档要300mm才够。"
+ },
+ {
+  "id": 24,
+  "type": "single",
+  "stem": "隔离开关整体更换项目中传动部件组装时，转动轴承、拐臂等部件，安装位置正确固定牢固，齿轮咬合准确(____)。",
+  "options": {
+   "A": "转动方便",
+   "B": "操作轻便灵活",
+   "C": "操作方便",
+   "D": "部件清洁"
+  },
+  "answer": "B",
+  "explain": "答案 B。隔离开关整体更换传动部件组装时，要求转动轴承、拐臂等安装位置正确、固定牢固，齿轮咬合准确，操作轻便灵活，即分合闸操作手感平稳、无卡涩，这是检修质量验收标准原文。A转动方便、C操作方便语义相近但非标准用词，且转动方便一般针对轴承、拐臂等转动件本身；D部件清洁与齿轮咬合是否准确无关。记忆点：齿轮咬合准→操作轻便灵活，验收看手感。"
+ },
+ {
+  "id": 25,
+  "type": "single",
+  "stem": "数字万用表在测量未知的量程时应尽量选择(____)的量程测量。",
+  "options": {
+   "A": "较大",
+   "B": "较小",
+   "C": "最大",
+   "D": "最小"
+  },
+  "answer": "C",
+  "explain": "答案 C。数字万用表测量未知大小的量程时，应尽量选择最大量程，防止被测值超过量程损坏表计；先按最大量程测出大概值，再逐步切换到较小量程提高读数精度。A较大虽然比最小保险，但未达最大仍可能超量程；B较小、D最小会直接导致过载烧表。记忆点：先打最大档是防超量程损坏表计，测出大概值再降档提高精度，顺序反了容易烧表。"
+ },
+ {
+  "id": 26,
+  "type": "single",
+  "stem": "绝缘电阻表试品表面脏污、油渍等会使其表面泄漏电流增大，表面绝缘下降，为获得正确的测量结果，应确保试品表面洁净，必要时加装(____)。",
+  "options": {
+   "A": "接地线",
+   "B": "屏蔽线",
+   "C": "个人保安线",
+   "D": "防尘罩"
+  },
+  "answer": "B",
+  "explain": "答案 B。绝缘电阻表测量时，试品表面脏污、油渍会使表面泄漏电流增大、表面绝缘下降，使测得的绝缘电阻偏小失真。消除办法是加装屏蔽线：把兆欧表G（屏蔽）端接到试品表面的屏蔽环，使表面泄漏电流直接回表而不经测量机构，从而测得真实绝缘电阻。A接地线把泄漏电流短路入地，但不能把它从测量回路分离；C个人保安线是检修时的人身防护用品；D防尘罩防尘但不解决已存在的表面泄漏。记忆点：表面脏→加屏蔽线接G端，泄漏电流绕开测量机构。"
+ },
+ {
+  "id": 27,
+  "type": "single",
+  "stem": "SF6湿度检测应在良好的天气下进行，风力大于(____)级时，不宜在室外进行该项工作。",
+  "options": {
+   "A": "3",
+   "B": "4",
+   "C": "5",
+   "D": "6"
+  },
+  "answer": "C",
+  "explain": "答案 C。SF6湿度（微水）检测对气象条件敏感，规定在良好天气下进行，风力大于5级时不宜在室外作业：大风携带水汽和尘埃，既影响气体取样与仪器稳定，又干扰微水测量结果，还不安全。A3、B4级风尚在允许范围；D6级及以上更不符合。此外环境相对湿度也不宜过大，还应避开雷、雨、雾、雪天。记忆点：微水测量怕外界水汽混入，风力大时空气含水汽和尘埃会干扰取样，故规定风超5级不宜在室外测。"
+ },
+ {
+  "id": 28,
+  "type": "single",
+  "stem": "分合闸指示灯更换时，选取的新指示灯安装匹配，安装前，用万用表测量新指示灯电阻值，电阻值满足要求，避免因新指示灯短路接入二次回路后造成(____)。",
+  "options": {
+   "A": "直流短路",
+   "B": "交流短路",
+   "C": "交直流短路",
+   "D": "断路"
+  },
+  "answer": "A",
+  "explain": "答案 A。分合闸指示灯接在直流控制回路中，更换前必须用万用表测新指示灯电阻，确认不是短路件；若新指示灯内部短路接入，等于把直流控制母线短接，造成直流短路，烧熔断器甚至烧毁电源模块。B交流短路不对，因为分合闸控制回路是直流；C交直流短路同理不成立；D断路与短路接入造成故障的题意相反。记忆点：指示灯装前测电阻，防直流短路烧控制电源。"
+ },
+ {
+  "id": 29,
+  "type": "single",
+  "stem": "测得断路器分闸时相间最大不同期时间，以下数据合格的是(____)ms。",
+  "options": {
+   "A": "3.6",
+   "B": "3.5",
+   "C": "2.9",
+   "D": "3.1"
+  },
+  "answer": "C",
+  "explain": "答案 C。Q/GDW1168规定，除制造厂另有规定外，断路器分闸相间最大不同期时间不大于3ms为合格，四个选项中只有2.9ms≤3ms，故合格的是C。A3.6、B3.5、D3.1均超过3ms合格线，视为不合格，说明三相分闸不同步，易造成非全相分闸、烧损触头。记忆点：不同期反映三相分闸同步性，开距差异过大则三相燃弧时间不一致、易烧触头，所以分闸相间不同期必须≤3ms。"
+ },
+ {
+  "id": 30,
+  "type": "single",
+  "stem": "开关柜柜体与基础间的垫铁不超过(____)片，各片间焊接牢固。",
+  "options": {
+   "A": "2",
+   "B": "3",
+   "C": "4",
+   "D": "5"
+  },
+  "answer": "B",
+  "explain": "答案 B。开关柜柜体与基础之间用垫铁找平调整水平，标准要求垫铁不超过3片，且各片间焊接牢固。片数过多会造成垫铁层间接触不良、受力不均，运行中易松动变形、影响柜体稳定。A2片虽然安全但限制过严、不利于调整；C4、D5片超过规定片数。记忆点：垫铁层数越多越易受力不均、接触不良，故限3片并逐片焊牢，保证柜体承载均匀稳定。"
+ },
+ {
+  "id": 31,
+  "type": "single",
+  "stem": "变压器的故障性质为木质故障时，说明运行中的变压器轻瓦斯保护动作收集的为(  )气体。",
+  "options": {
+   "A": "黄色不易燃",
+   "B": "无色易燃气体",
+   "C": "蓝色易燃气体",
+   "D": "粉色气体"
+  },
+  "answer": "A",
+  "explain": "答案 A。变压器内部故障产气颜色可判断故障部位：木质（绝缘木件）故障分解产生的气体呈黄色且不易燃，轻瓦斯继电器收集到这种气体即说明故障性质为木质故障。B无色易燃多为油过热分解的碳氢气体特征，C蓝色易燃、D粉色均非瓦斯气体的典型判色。记忆点：木故障气体黄而不易燃、油故障黑而易燃、纸故障浅黄可燃，看色闻味一点便知。"
+ },
+ {
+  "id": 32,
+  "type": "single",
+  "stem": "对比磁路和电路，磁路中的磁感应强度相当于电路中的(  )。",
+  "options": {
+   "A": "电流",
+   "B": "电动势",
+   "C": "电流密度",
+   "D": "电压"
+  },
+  "answer": "C",
+  "explain": "答案 C。磁路与电路对偶：磁通Φ对应电流I，而磁感应强度B=Φ/S表示单位截面通过的磁通，恰好对应电路中电流密度J=I/S（单位截面电流），故B相当于电流密度。A电流对应的是磁通量，B电动势对应磁动势IN（建立磁通的源），D电压对应磁压降。记忆点：磁路里的磁通除以截面就是B，电路里的电流除以截面就是J，两者天然对应。"
+ },
+ {
+  "id": 33,
+  "type": "single",
+  "stem": "现场检修变压器有载分接开关，应选在无尘土飞扬及其他污染的（  ）时进行，施工环境清洁。",
+  "options": {
+   "A": "阴天",
+   "B": "雨天",
+   "C": "雪天",
+   "D": "晴天"
+  },
+  "answer": "D",
+  "explain": "答案 D。有载分接开关解体检修对清洁度要求极高，现场作业必须选在无尘土飞扬及其他污染的晴天进行，保证施工环境清洁，防止灰尘、水分进入切换开关油室污染绝缘油和触头。A阴天湿度大易结露，B雨天、C雪天带水汽，都会污染油室，不宜开盖检修。记忆点：有载开关开盖就是污染风险时刻，晴天无尘是检修的前提条件。"
+ },
+ {
+  "id": 34,
+  "type": "single",
+  "stem": "油浸式互感器的油位指示器应采用(  )。",
+  "options": {
+   "A": "绝缘材料",
+   "B": "耐高温材料",
+   "C": "耐腐蚀材料",
+   "D": "荧光材料"
+  },
+  "answer": "D",
+  "explain": "答案 D。油浸式互感器油位指示器采用荧光材料，利用荧光暗处发光的特性，让运维人员在夜间或光线不足时也能清晰观察油位，及时发现油位异常。A绝缘材料是外罩材质要求，B耐高温、C耐腐蚀是耐用性指标，都与便于观察油位的出发点无关。记忆点：油位指示器用荧光就是为了夜里看得清油位，防缺油发现不及时。"
+ },
+ {
+  "id": 35,
+  "type": "single",
+  "stem": "金属氧化物避雷器本体巡视的要点中规定复合外套及瓷外套表面无(  )、烧伤痕迹。",
+  "options": {
+   "A": "放电",
+   "B": "锈蚀",
+   "C": "脏污",
+   "D": "变形"
+  },
+  "answer": "A",
+  "explain": "答案 A。金属氧化物避雷器本体巡视要点规定复合外套及瓷外套表面无放电、烧伤痕迹：放电（爬电、闪络）留下的烧伤痕迹是避雷器受潮、电位分布异常的征兆。B锈蚀针对金属部件，外套是瓷或复合绝缘不锈蚀；C脏污是正常积尘可通过清扫处理；D变形一般指均压环、金具。记忆点：外套上找放电烧伤痕迹，那是受潮闪络的烙印。"
+ },
+ {
+  "id": 36,
+  "type": "single",
+  "stem": "胶囊式储油柜安装前应检查胶囊应无(  )现象，密封性能良好。",
+  "options": {
+   "A": "老化开裂",
+   "B": "变形",
+   "C": "渗漏",
+   "D": "变色"
+  },
+  "answer": "A",
+  "explain": "答案 A。胶囊式储油柜的胶囊是阻隔油与空气的橡胶膜，安装前必须检查其无老化开裂、密封性能良好，否则空气、水汽进入油中使油质劣化。B变形可恢复不一定失效；C渗漏是对整体密封性的检查，胶囊本体用老化开裂描述；D变色只是外观现象。记忆点：胶囊是储油柜的呼吸膜，老化开裂等于把油直接暴露给空气。"
+ },
+ {
+  "id": 37,
+  "type": "single",
+  "stem": "MR公司的M型有载分接开关是切换开关和选择开关分离的有载分接开关，开关为(  )电阻式。",
+  "options": {
+   "A": "双",
+   "B": "单",
+   "C": "三",
+   "D": "四"
+  },
+  "answer": "A",
+  "explain": "答案 A。MR公司M型有载分接开关是切换开关与选择开关分离的组合式结构，采用双电阻过渡（两个过渡电阻交替投入），先接入限流电阻限制循环电流再完成切换，弧触头在油中熄弧。B单电阻过渡级容量小，C三、D四电阻非M型标准配置。记忆点：M型等于组合式加双电阻，选择与切换分离是有载开关的主流结构。"
+ },
+ {
+  "id": 38,
+  "type": "single",
+  "stem": "变压器负载试验时，变压器的二次绕组短路，一次绕组分头应放在(  )位置。",
+  "options": {
+   "A": "最大",
+   "B": "额定",
+   "C": "最小",
+   "D": "任意"
+  },
+  "answer": "B",
+  "explain": "答案 B。变压器负载试验时二次绕组短路，一次绕组分头应放在额定位置：只有在额定分接下测得的阻抗电压、负载损耗才代表变压器标准参数，能与出厂值和标准限值比较。A最大、C最小分接下匝数变化使测值偏离标准，D任意则不具可比性。记忆点：负载试验必须在额定分接做，测出的阻抗电压和负载损耗才有标尺意义。"
+ },
+ {
+  "id": 39,
+  "type": "single",
+  "stem": "变压器绕组的感应电动势E，频率f，绕组匝数N，磁通F和幅值Φm的关系式是(  )。",
+  "options": {
+   "A": "E＝4.44fNΦm",
+   "B": "E＝2.22fNΦm",
+   "C": "E＝4.44fNΦ",
+   "D": "E＝fNΦm"
+  },
+  "answer": "A",
+  "explain": "答案 A。变压器绕组感应电动势E=4.44fNΦm，系数4.44由2π/√2得来：正弦感应电动势最大值Em=2πfNΦm，有效值E=Em/√2=√2πfNΦm≈4.44fNΦm。B把系数写成2.22漏了√2关系，C用平均磁通Φ而非幅值Φm，D缺4.44系数。记忆点：4.44等于√2乘π，公式源自正弦电动势有效值与幅值的关系。"
+ },
+ {
+  "id": 40,
+  "type": "single",
+  "stem": "当雷电波传播到变压器绕组时，传播端部相邻两匝间的电位差比运行时工频电压作用下(  )。",
+  "options": {
+   "A": "小",
+   "B": "差不多",
+   "C": "大很多",
+   "D": "不变"
+  },
+  "answer": "C",
+  "explain": "答案 C。雷电波波头陡、频率高，沿绕组传播时受对地电容影响，起始电压分布极不均匀地集中在首端，端部相邻两匝间电位差比工频电压下大很多，故绕组端部易匝间击穿。A小、B差不多、D不变都与雷电波陡波头造成严重不均匀分布相矛盾。记忆点：雷电波高频陡波头使电压压向端部，端部匝间电压远高于工频，端部绝缘要加厚。"
+ },
+ {
+  "id": 41,
+  "type": "single",
+  "stem": "固体介质的沿面放电是指沿固体介质表面的气体发生放电，沿面闪络是指沿面放电贯穿两电极间，介质所处电场越均匀，沿面放电电压(  )。",
+  "options": {
+   "A": "越高",
+   "B": "越低",
+   "C": "越小",
+   "D": "为零"
+  },
+  "answer": "A",
+  "explain": "答案 A。固体介质沿面放电电压与电场均匀程度正相关：电场越均匀，各处场强越接近，局部不易先达到起始放电条件，故沿面放电电压越高。电场越不均匀，尖端、边缘场强集中，放电电压越低。B越低、C越小与规律相反，D为零显然错误。记忆点：均匀电场没有短板，沿面放电电压就高；不均匀电场靠尖端先放电，电压上不去。"
+ },
+ {
+  "id": 42,
+  "type": "single",
+  "stem": "变压器的绝缘电阻随温度的变化而变化，大约温度每变化10℃，绝缘电阻R60相差(  )倍。",
+  "options": {
+   "A": "2",
+   "B": "1",
+   "C": "3",
+   "D": "4"
+  },
+  "answer": "B",
+  "explain": "答案 B。变压器绝缘电阻随温度升高而降低，约温度每升高10℃绝缘电阻降低为原来的一半（即相差约1倍），反之降低10℃约增加1倍，故测量绝缘电阻必须记录温度并换算到同一温度比较。A2、C3、D4倍都不是规程承认的10℃变化幅度。记忆点：升10℃减半、降10℃翻倍，测绝缘必记温度再同比，否则把受潮当正常或误判。"
+ },
+ {
+  "id": 43,
+  "type": "single",
+  "stem": "变压器负载损耗测量，应施加相应的额定电流，受设备限制时，可以施加不小于相应额定电流的(  )。",
+  "options": {
+   "A": "25%；",
+   "B": "10%；",
+   "C": "50%；",
+   "D": "75%。"
+  },
+  "answer": "C",
+  "explain": "答案 C。变压器负载损耗测量应施加相应额定电流，受设备限制时可不小于相应额定电流的50%，再按损耗与电流平方成正比的关系换算到额定电流并校正温度。A25%、B10%电流太低测量误差大换算不可靠，D75%不是规程给出的下限。记忆点：负载损耗下限50%额定电流，低于50%测不准、换不算。"
+ },
+ {
+  "id": 44,
+  "type": "single",
+  "stem": "充气运输的变压器运到现场后，必须密切监视气体压力，压力过低时要补干燥气体，现场放置时间超过(  )月应注油保存。",
+  "options": {
+   "A": "3",
+   "B": "4",
+   "C": "6",
+   "D": "12"
+  },
+  "answer": "A",
+  "explain": "答案 A。充气运输变压器运到现场须密切监视气体压力，压力过低补干燥气体；现场放置时间超过3个月应注油保存并装储油柜、胶囊，防止长期充气存放水分从密封薄弱处渗入。B4、C6、D12个月都超过3个月期限，期间绝缘受潮风险大增。记忆点：充气运输只适合短期，超3个月必须注油保存，防绝缘吸潮。"
+ },
+ {
+  "id": 45,
+  "type": "single",
+  "stem": "对电容型绝缘结构的电流互感器进行(  )时，不可能发现绝缘末屏引线在内部发生的断线或不稳定接地缺陷。",
+  "options": {
+   "A": "绕组主绝缘及末屏绝缘的tanδ和绝缘电阻测量",
+   "B": "油中溶解气体色谱分析",
+   "C": "局部放电测量",
+   "D": "一次绕组直流电阻测量及变比检查试验"
+  },
+  "answer": "D",
+  "explain": "答案 D。末屏是电容型互感器最外层电容屏的引出线，其在内部断线或不稳定接地时，tanδ、绝缘电阻测量（末屏接地状态直接影响）、油中色谱（放电产气）、局放测量都可能发现；而一次绕组直流电阻和变比试验只反映一次导电回路，电流不流经末屏，故不可能发现末屏问题。记忆点：末屏故障从绝缘、油、局放里找，直流电阻和变比摸不到末屏。"
+ },
+ {
+  "id": 46,
+  "type": "single",
+  "stem": "对于普通双绕组有载调压电力变压器，如果调压范围在10%及以下，其调压电路适合于采用(  )。",
+  "options": {
+   "A": "线性调压",
+   "B": "正反调压",
+   "C": "粗细调压",
+   "D": "单独调压器调压"
+  },
+  "answer": "A",
+  "explain": "答案 A。调压范围10%及以下的普通双绕组有载调压变压器，调压绕组在线性段抽头即可满足，采用结构最简单的线性调压即可，级容量小、经济性好。B正反调压用于扩大调压范围（10%以上），C粗细调压用于大范围高精度场合，D单独调压器不是变压器本体调压电路。记忆点：范围不超10%用线性，范围大才用正反、粗细，调压型式跟范围走。"
+ },
+ {
+  "id": 47,
+  "type": "single",
+  "stem": "接在电网中的变压器绝缘承受的大气过电压的幅值主要取决于(  )。",
+  "options": {
+   "A": "电网额定电压",
+   "B": "电网元件参数",
+   "C": "变压器本身容量",
+   "D": "雷电参数和防雷措施"
+  },
+  "answer": "D",
+  "explain": "答案 D。变压器绝缘承受的大气过电压来自外部雷电，其幅值主要由雷电参数（雷电流幅值、陡度、波头时间）和防雷措施（避雷线、避雷器限制水平、接地阻抗、进线保护）决定。A电网额定电压、B元件参数只影响过电压传播与绝缘配合，C变压器容量更无关。记忆点：大气过电压老天定幅值、防雷去限制，设备自身参数改不了雷电压大小。"
+ },
+ {
+  "id": 48,
+  "type": "single",
+  "stem": "三相三柱式电力变压器铁芯磁路不对称，中柱励磁电流较小，这(  )。",
+  "options": {
+   "A": "将影响变压器的正常运行",
+   "B": "对变压器不会产生显著影响",
+   "C": "不会影响变压器空载试验数据",
+   "D": "不会影响变压器的电流大小"
+  },
+  "answer": "B",
+  "explain": "答案 B。三相三柱式铁芯磁路不对称是结构固有属性：中柱磁路短、磁阻小，励磁电流较小，三相空载电流略有差异属正常现象，对变压器运行不会产生显著影响，不必当缺陷处理。A认为影响正常运行过于夸大，C说不会影响空载试验数据不准确（三相空载电流本来就有差异），D表述含糊。记忆点：三柱铁芯中柱磁路短所以励磁电流小，是正常现象不是缺陷。"
+ },
+ {
+  "id": 49,
+  "type": "single",
+  "stem": "为防止出口及近区短路，10kV 的线路、变电站出口 (  )公里内宜考虑采用绝缘导线。",
+  "options": {
+   "A": "1",
+   "B": "2",
+   "C": "3",
+   "D": "4"
+  },
+  "answer": "B",
+  "explain": "答案 B。反措要求10kV线路、变电站出口2公里内宜考虑采用绝缘导线：出口近区短路时短路电流极大、电动力强，导线剧烈摆动易相间放电混线，绝缘导线可降低近区短路概率、保护变压器。A1公里是早期局部实践值，C3、D4公里过长、经济性差。记忆点：出口2km是反措划的保护带，绝缘化专治近区短路混线。"
+ },
+ {
+  "id": 50,
+  "type": "single",
+  "stem": "吸湿器安装后，应保证呼吸顺畅且油杯内有可见气泡。寒冷地区的冬季，变压器本体及有载分接开关吸湿器硅胶受潮达到2/3时，应及时进行更换，避免因结冰融化导致变压器(  )。",
+  "options": {
+   "A": "瓦斯动作",
+   "B": "轻瓦斯误动作",
+   "C": "重瓦斯动作",
+   "D": "跳闸"
+  },
+  "answer": "C",
+  "explain": "答案 C。寒冷地区冬季吸湿器硅胶受潮达2/3时，水分结冰堵塞呼吸通道，温度回升冰融化、油枕呼吸受阻，油枕内气体空间压力异常冲击瓦斯继电器挡板，导致重瓦斯动作（误跳闸），故受潮2/3必须及时更换硅胶。A瓦斯动作、B轻瓦斯误动作不如重瓦斯后果典型，D跳闸是重瓦斯动作的后果而非故障类别。记忆点：呼吸器结冰堵气、油枕憋气、重瓦斯误跳，硅胶受潮2/3必须换。"
+ },
+ {
+  "id": 51,
+  "type": "single",
+  "stem": "油量在2500kg及以上的变压器与油量在600kg及以上的充油电气设备之间，其防火距离不应小于(  )。",
+  "options": {
+   "A": "3米",
+   "B": "10米",
+   "C": "5米",
+   "D": "8米"
+  },
+  "answer": "C",
+  "explain": "答案 C。GB50229-2019规定：油量在2500kg及以上的变压器与油量在600kg及以上的充油电气设备之间防火距离不应小于5米；油量均较小时（变压器低于2500kg）与其他充油设备间不小于3米。A3米是低油量情形的限值，B10米无此规定，D8米也不是规范值。记忆点：大油量对大油量看5m、油量都小看3m，防火距离按油量分级。"
+ },
+ {
+  "id": 52,
+  "type": "single",
+  "stem": "中性点不接地的10kV系统,当C相断线接地时,10kV系统中性点电压是多少(  )。",
+  "options": {
+   "A": "6kV",
+   "B": "10kV",
+   "C": "0kV",
+   "D": "17kV"
+  },
+  "answer": "A",
+  "explain": "答案 A。10kV为线电压，相电压等于10/√3约5.77kV，工程取6kV。中性点不接地系统一相接地（含C相断线后接地）时，接地相电压下降，中性点电压升高至相电压约6kV，非接地相对地电压升至线电压10kV。B10kV是线电压或非接地相电压，C0kV是正常运行值，D17kV无依据。记忆点：一相接地中性点电位被拉到相电压，6kV就是10/√3的工程值。"
+ },
+ {
+  "id": 53,
+  "type": "single",
+  "stem": "并联电容器安装及拆除工序风险等级属于(  )",
+  "options": {
+   "A": "高",
+   "B": "中",
+   "C": "低",
+   "D": "中低"
+  },
+  "answer": "A",
+  "explain": "答案 A。并联电容器安装及拆除工序风险等级属于高：电容器内部储存大量电荷，拆除前放电不充分残余电荷可致触电，安装时引线对地电容耦合也易感应带电，属高风险作业，须严格执行放电、接地、验电等管控。B中、C低、D中低都低估了电容器残余电荷伤人风险。记忆点：电容器是电老虎，拆装前必须先放电，工序风险定为高。"
+ },
+ {
+  "id": 54,
+  "type": "single",
+  "stem": "新充油电气设备投入运行后，此时已充入的油称为“（     ）变压器油”。",
+  "options": {
+   "A": "运行中",
+   "B": "新",
+   "C": "运行前",
+   "D": "巳分解"
+  },
+  "answer": "A",
+  "explain": "答案 A。新充油电气设备投入运行后，已充入的油即称为运行中变压器油，执行运行油质量标准（按运行油管理监督），不再按新油验收。B新油指投运前未用过的油，C运行前、D已分解都不是标准术语。记忆点：油一投入运行就转正为运行油，此后按运行油标准监督，与新油验收分开。"
+ },
+ {
+  "id": 55,
+  "type": "single",
+  "stem": "变压器本体保护宜采用就地跳闸方式，即将变压器本体保护通过两个较大启动功率中间继电器的两副触点分别直接接入断路器的(  )个跳闸回路。",
+  "options": {
+   "A": "1",
+   "B": "2",
+   "C": "3",
+   "D": "4"
+  },
+  "answer": "B",
+  "explain": "答案 B。变压器本体保护（非电量保护）宜采用就地跳闸方式，通过两个较大启动功率中间继电器的两副触点分别直接接入断路器的2个跳闸回路，双触点双回路互为冗余，防止拒动误动。A1个跳闸回路无冗余，C3、D4不是该配置。记忆点：本体保护就地跳闸等于双继电器双触点进双跳闸回路，多一份冗余多一分可靠。"
+ },
+ {
+  "id": 56,
+  "type": "single",
+  "stem": "铁芯、夹件分别引出接地的变压器，应将接地引线引至(   )，以便在运行时监测接地线中是否有环流，当运行中环流异常变化时，应尽快查明原因，严重时应采取措施及时处理。",
+  "options": {
+   "A": "油箱顶部",
+   "B": "油箱中部",
+   "C": "下部汇流管",
+   "D": "便于测量的适当位置"
+  },
+  "answer": "D",
+  "explain": "答案 D。铁芯、夹件分别引出接地的变压器，接地引线应引至便于测量的适当位置，使运维人员运行时能方便测量接地电流（环流），监测铁芯、夹件是否存在两点接地等异常。A油箱顶部、B油箱中部不便测环流，C下部汇流管不是接地引线位置。记忆点：引到便于测量处就是为了随时测环流，环流异常尽快查因处理。"
+ },
+ {
+  "id": 57,
+  "type": "single",
+  "stem": "电容器组投切试验验收每次投切时间隔必须(  )分钟以上。",
+  "options": {
+   "A": "2",
+   "B": "3",
+   "C": "5",
+   "D": "10"
+  },
+  "answer": "C",
+  "explain": "答案 C。电容器组投切试验验收时每次投切时间间隔必须5分钟以上：电容器切除后残压需时间泄放，间隔过短再次投入，残余电荷叠加冲击会损伤电容器与开关，故间隔不少于5min。A2、B3分钟残压可能未放完，D10分钟虽安全但非规程规定值。记忆点：电容器退场后要喘5分钟的气，残压放完再投切才安全。"
+ },
+ {
+  "id": 58,
+  "type": "single",
+  "stem": "变压器空载合闸电流之所以很大是由于变压器(  )现象引起的。",
+  "options": {
+   "A": "铜损耗",
+   "B": "涡流",
+   "C": "无负载",
+   "D": "铁心饱和"
+  },
+  "answer": "D",
+  "explain": "答案 D。变压器空载合闸电流大是因为铁心饱和：合闸瞬间磁通有暂态偏置，铁心瞬时饱和，励磁电流急剧增大，形成冲击涌流（可达额定电流数倍以上）。A铜损耗是负载时电阻损耗，B涡流是铁芯感应涡旋电流，C无负载是空载的前提而非原因。记忆点：合闸瞬间磁通跑偏使铁芯饱和，励磁电流猛增成涌流，饱和是根。"
+ },
+ {
+  "id": 59,
+  "type": "single",
+  "stem": "变压器油的酸价（酸值）随使用时间的增长而(  )。",
+  "options": {
+   "A": "不变",
+   "B": "增高",
+   "C": "下降",
+   "D": "减小"
+  },
+  "answer": "B",
+  "explain": "答案 B。变压器油在使用中受热和氧化作用生成有机酸，酸值（酸价）随使用时间增长而增高，酸值高加速油泥生成、腐蚀绝缘和金属，是油老化的重要指标。A不变、C下降、D减小都与油氧化老化规律相反。记忆点：油越用越酸，酸值是油老化的体温计，定期测酸值判断油还能不能撑。"
+ },
+ {
+  "id": 60,
+  "type": "single",
+  "stem": "电力变压器铁心用热轧硅钢片制造时，磁通密度应选择1.4～1.5T；用冷轧钢片制造时，磁通密度应选择(  )。",
+  "options": {
+   "A": "1.4～1.5T",
+   "B": "1.6～1.7T",
+   "C": "1.39～1.45T",
+   "D": "1.2～1.3T"
+  },
+  "answer": "B",
+  "explain": "答案 B。冷轧硅钢片导磁性好、损耗低，磁通密度选1.6～1.7T；热轧硅钢片性能差，只选1.4～1.5T。A是热轧片范围，C1.39～1.45、D1.2～1.3偏低，未充分利用冷轧片导磁能力、浪费材料。记忆点：冷轧片胃口大能吃1.6～1.7T，热轧片只能吃1.4～1.5T，磁密越高铁芯越省料。"
+ },
+ {
+  "id": 61,
+  "type": "single",
+  "stem": "避雷器顶端加装均压环主要作用是（    ）。",
+  "options": {
+   "A": "均匀电场分布",
+   "B": "改善分布电压",
+   "C": "平衡机械力",
+   "D": "美观"
+  },
+  "answer": "B",
+  "explain": "答案 B。避雷器阀片存在对地杂散电容，使靠近高压端的阀片承担电压偏高，顶端加装均压环利用其与阀片间分布电容补偿杂散电容，主要作用是改善沿阀片串的电压分布，防止顶端阀片过电压老化。A均匀电场分布侧重绝缘子场合的电场形状，C平衡机械力、D美观都不是均压环功能。记忆点：均压环治的是高压端阀片吃得多导致的电压分布不均，保住顶端阀片不老化。"
+ },
+ {
+  "id": 62,
+  "type": "single",
+  "stem": "变电站接地网的接地电阻大小与（）无关。",
+  "options": {
+   "A": "土壤电阻率",
+   "B": "接地网面积",
+   "C": "站内设备数量",
+   "D": "接地体尺寸"
+  },
+  "answer": "C",
+  "explain": "答案 C。接地网接地电阻R与土壤电阻率、接地网面积、接地体尺寸及埋深直接相关，与站内设备数量无关：设备数量影响接地电流、接触电压和跨步电压校核，但不改变接地网的电阻特性。A土壤电阻率是主导因素，B面积越大R越小，D接地体尺寸影响散流。记忆点：接地电阻是地的属性，由土壤和地网几何决定，设备多少管电流不管电阻。"
+ },
+ {
+  "id": 63,
+  "type": "single",
+  "stem": "电流表、电流互感器及其他测量仪表的接线和拆卸，需要断开(____)者，应将此回路所连接的设备和仪器全部停电后，始能进行。",
+  "options": {
+   "A": "低压回路",
+   "B": "高压回路",
+   "C": "控制回路",
+   "D": "二次回路"
+  },
+  "answer": "B",
+  "explain": "答案 B。安规规定电流表、电流互感器及其他测量仪表的接线和拆卸，需要断开高压回路者，应将此回路所连接的设备和仪器全部停电后始能进行，防止拆装时触碰带电高压回路触电。A低压回路、C控制回路、D二次回路都不需断开高压，不是该条规定前提。记忆点：拆装测量仪表要碰高压回路就必须整体停电，二次低压侧则无此限制。"
+ },
+ {
+  "id": 64,
+  "type": "single",
+  "stem": "根据《国家电网公司变电检测管理规定第44分册：接地引下线导通测试细则》，接地引下线导通测试值在50mΩ以下的设备，初步判断为（）。",
+  "options": {
+   "A": "设备状况良好",
+   "B": "设备状况尚可",
+   "C": "设备状况不佳",
+   "D": "与主地网未连接，应尽快检查处理"
+  },
+  "answer": "A",
+  "explain": "答案 A。接地引下线导通测试值在50mΩ以下，初步判断设备状况良好；50～200mΩ为尚可、宜关注变化，200mΩ～1Ω为不佳、重要设备尽快处理，大于1Ω判为与主地网未连接、尽快检查处理。A对应良好档。记忆点：导通值四档按50mΩ、200mΩ、1Ω划分，越往大越严重，超1Ω就是断头。"
+ },
+ {
+  "id": 65,
+  "type": "single",
+  "stem": "使用携带型仪器在高压回路上进行工作，至少由两人进行。需要高压设备停电或做安全措施的，应填用变电站（发电厂）(____)。",
+  "options": {
+   "A": "带电作业工作票",
+   "B": "第一种工作票",
+   "C": "第二种工作票",
+   "D": "电力电缆工作票"
+  },
+  "answer": "B",
+  "explain": "答案 B。使用携带型仪器在高压回路上工作，需要高压设备停电或做安全措施的，应填用变电站（发电厂）第一种工作票，且至少两人进行。A带电作业工作票用于带电作业，C第二种工作票用于不需停电的工作，D电力电缆工作票针对电缆工作。记忆点：要停电就用第一种票，携带仪器上高压回路也不例外。"
+ },
+ {
+  "id": 66,
+  "type": "single",
+  "stem": "铁磁材料在反复磁化过程中，磁通密度B的变化始终落后于磁场强度H的变化，这种现象称为（ ）。",
+  "options": {
+   "A": "磁滞",
+   "B": "磁化",
+   "C": "剩磁",
+   "D": "磁阻"
+  },
+  "answer": "A",
+  "explain": "答案 A。铁磁材料反复磁化时，磁通密度B的变化滞后于磁场强度H的变化，此现象称为磁滞，B-H曲线形成磁滞回线，回线面积即磁滞损耗。B磁化是泛指被磁化过程，C剩磁是撤去外场后仍保留的磁性（磁滞的表现之一），D磁阻是磁路对磁通的阻碍量。记忆点：磁滞就是B慢半拍跟不上H，回线面积就是损耗。"
+ },
+ {
+  "id": 67,
+  "type": "single",
+  "stem": "110（66）kV-220kV变压器出厂及交接验收时，要求提供被测绕组对地及绕组间介质损耗因数和电容量的（）。",
+  "options": {
+   "A": "设计值",
+   "B": "计算值",
+   "C": "实测值",
+   "D": "额定值"
+  },
+  "answer": "C",
+  "explain": "答案 C。DL/T 272-2022要求110（66）kV～220kV变压器出厂及交接验收时提供被测绕组对地及绕组间介质损耗因数和电容量的实测值，用于与出厂值、历史值比较，判断绝缘受潮进水情况。A设计值、B计算值、D额定值都不是试验应提供的数值类型。记忆点：介质损耗和电容量看实测值，靠初值对比查受潮进水。"
+ },
+ {
+  "id": 68,
+  "type": "single",
+  "stem": "接地引下线与电气设备的连接可用螺栓或者焊接，用螺栓连接时应设防松螺帽或防松垫片，焊接应采用（），牢固无虚焊，搭接长度符合规定。",
+  "options": {
+   "A": "缝焊",
+   "B": "点焊",
+   "C": "搭接焊",
+   "D": "对焊"
+  },
+  "answer": "C",
+  "explain": "答案 C。接地引下线与电气设备连接用螺栓或焊接，焊接应采用搭接焊，牢固无虚焊，搭接长度符合规定（扁钢为宽度的2倍且不少于3面施焊，圆钢为直径的6倍），保证接地回路电气连续。A缝焊、B点焊多用于薄板且强度不足，D对焊是对接连接无从谈搭接长度。记忆点：接地焊接用搭接焊，扁钢两倍宽、圆钢六倍径，虚焊断点会出大事。"
+ },
+ {
+  "id": 69,
+  "type": "single",
+  "stem": "SF6断路器SF6气体分解物20℃正常值为(____)",
+  "options": {
+   "A": "SO2≤4且H2S≤4",
+   "B": "SO2≤3且H2S≤3",
+   "C": "SO2≤1且H2S≤1",
+   "D": "SO2≤2且H2S≤2"
+  },
+  "answer": "C",
+  "explain": "答案 C。SF6断路器气体分解物在20℃时正常值为SO2≤1且H2S≤1 μL/L（Q/GDW 1896—2013：SO2≤1为正常、注意值1～5，H2S≤1为正常、注意值1～2），分解物升高说明内部存在放电或过热，应结合电气试验综合判断。A、B阈值放宽到3、4不符合标准，D含SO2≤2也不及1严格。记忆点：分解物越少越好，SO2和H2S双双不超1才正常，超了就要查放电。注意：本题题库中选项C文本显示异常（为分号），正确文本应为SO2≤1且H2S≤1，建议核对原数据。"
+ },
+ {
+  "id": 70,
+  "type": "single",
+  "stem": "特高频检测时应与设备带电部位保持足够的安全距离，并避开设备（）。",
+  "options": {
+   "A": "密度继电器",
+   "B": "带电部位",
+   "C": "防爆口或压力释放口",
+   "D": "气体管路"
+  },
+  "answer": "C",
+  "explain": "答案 C。特高频局放检测时传感器应避开设备的防爆口或压力释放口：这些部位在内部异常时可能喷出气体或油雾，既危及人身安全又干扰检测信号，还应与带电部位保持足够安全距离。A密度继电器、B带电部位、D气体管路都不是特高频检测需要避开的安装点。记忆点：特高频检测避开防爆口、压力释放口，防喷气伤人又防信号干扰。"
+ },
+ {
+  "id": 71,
+  "type": "single",
+  "stem": "《变电检测管理规定第36分册主回路电阻测量细则》：在进行主回路电阻测量时，待试主回路应处于（ ）状态",
+  "options": {
+   "A": "热备用",
+   "B": "闭合导通",
+   "C": "运行",
+   "D": "冷备用"
+  },
+  "answer": "B",
+  "explain": "答案 B。主回路电阻测量反映导电回路接触状况，待试主回路必须处于闭合导通状态（断路器合闸、隔离开关接通），回路有电流通路才能测出实际接触电阻。A热备用、D冷备用开关多为分位，回路不通；C运行状态不严谨（运行通常带负荷，测量需退出运行）。记忆点：测回路电阻前先确认开关合到位、回路闭合导通，否则测的是空气。"
+ },
+ {
+  "id": 72,
+  "type": "single",
+  "stem": "超声波局部放电检测设备的测试点宜在（ ）及第1次测试时进行标注,以便今后的测试及比较。",
+  "options": {
+   "A": "出厂",
+   "B": "交接",
+   "C": "例行",
+   "D": "各个阶段"
+  },
+  "answer": "A",
+  "explain": "答案 A。超声波局放检测细则要求设备测试点在出厂及第1次测试时进行标注，以便今后各次检测在同一测点复测，保证数据可比性。B交接、C例行、D各个阶段都不是首次标注时点，后续测试只是复测同一测点。记忆点：测点出厂就定坐标、第1次测试复核标注，此后年年测同一点才有比较意义。"
+ },
+ {
+  "id": 73,
+  "type": "single",
+  "stem": "采用电解法进行SF6湿度检测时，气样流经分子筛或五氧化二磷干燥器后导入仪器，并按规定的流量吹洗（同时电解）至达到（）的数值，即为仪器的本底值（通常可达5μL/L以下）。",
+  "options": {
+   "A": "低而稳定",
+   "B": "高而变化",
+   "C": "低而变化",
+   "D": "高而稳定"
+  },
+  "answer": "A",
+  "explain": "答案 A。电解法SF6湿度检测时，气样经分子筛或五氧化二磷干燥器后导入仪器，按规定流量吹洗（同时电解）至达到低而稳定的数值即为仪器本底值（通常5μL/L以下），本底低且稳说明仪器基线干净，测量结果可信。B高而变化、C低而变化、D高而稳定都不符合本底要求。记忆点：本底值低而稳才是好基线，5μL/L以下，基线不净测值没谱。"
+ },
+ {
+  "id": 74,
+  "type": "single",
+  "stem": "直流偏磁水平测量在检测数据分析与处理时，将直流偏磁电流测量数据与（）相比较，结合铁心结构等信息综合判断直流偏磁电流对变压器的影响。",
+  "options": {
+   "A": "制造厂给定值",
+   "B": "交接试验值",
+   "C": "厂家保证值",
+   "D": "出厂值"
+  },
+  "answer": "C",
+  "explain": "答案 C。直流偏磁水平测量数据分析时，将直流偏磁电流测量数据与厂家保证值相比较，结合铁心结构等信息综合判断直流偏磁电流对变压器的影响，厂家保证值是该型变压器承受直流偏磁的设计依据。A制造厂给定值、B交接试验值、D出厂值都不是该细则指定比较对象。记忆点：直流偏磁看厂家保证值，超了就要警惕铁心饱和、噪声振动增大。"
+ },
+ {
+  "id": 75,
+  "type": "single",
+  "stem": "电容器电容量测量,单台电容器电容量与额定值的相对偏差应在-5%~10%之间，且初值差不超过（___）。",
+  "options": {
+   "A": "正负5%",
+   "B": "正负10%",
+   "C": "正负15%",
+   "D": "正负20%"
+  },
+  "answer": "A",
+  "explain": "答案 A。单台电容器电容量与额定值的相对偏差应在-5%～10%之间，且初值差不超过±5%；电容量偏差过大反映内部元件断容或击穿，导致三相不平衡。B±10%、C±15%、D±20%都放宽了初值差要求，不能及时发现电容内部故障。记忆点：电容量初值差正负5%，偏差再大就要查是否内部断容或击穿。"
+ },
+ {
+  "id": 76,
+  "type": "judge",
+  "stem": "例行检查是指定期在现场对设备进行的状态检查，含各种简单保养和维修。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。Q/GDW 1168-2013定义例行检查为定期在现场对设备进行的状态检查，含各种简单保养和维修，如外观检查、清扫、紧固、简单调试等，与例行试验配套构成状态检修基础工作，题目表述与规程一致。记忆点：例行检查等于定期现场状态检查加简单保养维修，是状态检修的例行公事。"
+ },
+ {
+  "id": 77,
+  "type": "judge",
+  "stem": "高压开关柜柜体检修维护时应检查各电气连接部分可靠、无过热变色变形等现象，各闭锁装置正常并涂抹凡士林。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。高压开关柜柜体检修维护时应检查各电气连接部分可靠、无过热变色变形等现象，各闭锁装置正常并涂抹凡士林：转动、传动部位涂凡士林防腐润滑，保证闭锁动作灵活可靠、防锈，是检修教材对柜体检修内容的明确规定。记忆点：柜体检修查连接（不过热不变形）加闭锁（动作正常涂凡士林防锈）。"
+ },
+ {
+  "id": 78,
+  "type": "judge",
+  "stem": "开关柜及电缆管道安装完后，应作好封堵。柜门密封完好，可能结冰的地区还应有防止管内积水结冰的措施。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。开关柜及电缆管道安装完后应作好封堵，防止小动物进入和潮气侵入；柜门密封完好，可能结冰的地区还应有防止管内积水结冰的措施，防止电缆管内积水冬季结冰胀裂管道或损伤电缆，表述正确。记忆点：封堵加密封加防结冰，三防都为了防潮、防小动物、防冻胀。"
+ },
+ {
+  "id": 79,
+  "type": "judge",
+  "stem": "触电者神志不清，判断意识无，有心跳，但呼吸停止或极微弱时，应立即用仰头抬颏法，使气道开放，并对触电者施行心脏按压。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。触电者神志不清、判断意识无、有心跳但呼吸停止或极微弱时，应立即用仰头抬颏法开放气道，并施行人工呼吸（口对口吹气），而不是心脏按压；心脏按压只用于心跳骤停（无脉搏）者，题目把人工呼吸错写成心脏按压，故错误。记忆点：有心跳没呼吸就吹气做人工呼吸，没心跳才按压做胸外心脏按压，对症施救。"
+ },
+ {
+  "id": 80,
+  "type": "judge",
+  "stem": "初值指能够代表状态量原始值的试验值，是指设备交接试验的测试值。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。Q/GDW 1168-2013中初值指能够代表状态量原始值的试验值，可取设备投运前的出厂试验值、交接试验值或投运初期的首次例行试验值，并非特指交接试验值，题目把初值限定为交接试验测试值过于绝对，故错误。记忆点：初值是状态量的基准档案，出厂、交接、首次例行都能入档，不一定是交接值。"
+ },
+ {
+  "id": 81,
+  "type": "judge",
+  "stem": "接地装置例行试验项目包括设备接地引下线导通检查和接地网接地阻抗测量。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。接地装置例行试验项目包括设备接地引下线导通检查和接地网接地阻抗测量：导通检查判断各设备接地引下线与主地网连接是否良好，接地阻抗测量判断接地网整体散流性能，两者均为例行项目，表述正确。记忆点：接地装置例行就两项——引下线导通加地网阻抗，一查连接一查散流。"
+ },
+ {
+  "id": 82,
+  "type": "judge",
+  "stem": "10kV真空断路器高压开关柜母线平直时，贯穿螺栓应由下向上穿，其余情况，母线应置于维护侧，螺栓长度宜露出螺母5～6个丝牙。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按GB50149与检修教材，母线平置（水平）时贯穿螺栓应由下向上穿、螺母在上方，题目由下向上穿正确；但螺栓长度宜露出螺母2～3个丝牙（不是5～6个），且其余情况是螺母置于维护侧而非母线置于维护侧，两处表述均错，故整体错误。记忆点：螺栓穿向平置由下向上、螺母朝维护侧，露牙只留2～3扣。"
+ },
+ {
+  "id": 83,
+  "type": "judge",
+  "stem": "开关柜防误连锁装置失灵是开关柜故障的重要原因之一，防误连锁失灵主要由机械连锁原因造成。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。开关柜防误连锁装置由机械闭锁和电气闭锁组成，失灵原因既有机件锈蚀卡涩、变形等机械原因，也有电气回路接线松动、元件损坏、五防装置故障等原因，题目说主要由机械连锁原因造成以偏概全，故错误。记忆点：防误连锁失灵机械电气原因都有，不能只怪机械连锁。"
+ },
+ {
+  "id": 84,
+  "type": "judge",
+  "stem": "有警示值要求的状态量，若当前试验值超过警示值或接近警示值的趋势明显，可以结合停电进行试验。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。Q/GDW 1168-2013规定，对有警示值要求的状态量，当前试验值超过警示值或接近警示值的趋势明显时，应尽快安排停电试验（强制性要求），题目用可以结合停电进行试验弱化成可选项，表述错误。记忆点：超警示值或趋势明显是应尽快停电试验，不是可以，一字之差含义相反。"
+ },
+ {
+  "id": 85,
+  "type": "judge",
+  "stem": "压力释放装置进行检查时，一般要求开启压力与出厂值的偏差在±10%以内或符合设备技术文件要求",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。压力释放装置检查时，一般要求开启压力与出厂值的偏差在±10%以内或符合设备技术文件要求，防止开启压力漂移导致装置误动或拒动，与Q/GDW 1168-2013规定一致，表述正确。记忆点：压力释放装置开启压力偏差正负10%内，超了就要调或换。"
+ },
+ {
+  "id": 86,
+  "type": "judge",
+  "stem": "短路阻抗测试中，注意值为初值差不超过±3％。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。短路阻抗测试中注意值为初值差不超过±3%，即与初值比较偏差超过3%应引起注意、缩短试验周期并查明原因，绕组发生变形、匝间短路时短路阻抗会明显改变，与Q/GDW 1168-2013规定一致，表述正确。记忆点：短路阻抗初值差正负3%是注意值，绕组变形会让它明显变化，是诊断绕组变形的一双眼睛。"
+ },
+ {
+  "id": 87,
+  "type": "judge",
+  "stem": "高压开关柜安装后，调整手车与柜体间的接地触头是否接触紧密，当手车推入柜内时，其触头应比主触头先接触，拉出时应比主触头后断开。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。手车开关推入柜内时接地触头应比主触头先接触、拉出时比主触头后断开，即先接地后接主、先断主后断地，保证主触头接通过程外壳始终可靠接地，是检修教材对安装调整的要求，表述正确。记忆点：接地触头先接后断，主触头后接先断，接地永远走在前。"
+ },
+ {
+  "id": 88,
+  "type": "judge",
+  "stem": "高压开关柜二次回路连接插件与开关设备应有可靠的机械连锁，当开关设备在工作位置时，插头可以拔出来。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。高压开关柜二次回路连接插件与开关设备应有可靠机械连锁，当开关设备在工作位置时插头不能拔出：工作位置断路器带电运行，拔插头会断开二次回路造成保护失灵、控制中断，只有试验位置或检修位置才能拔插，题目说法错误。记忆点：工作位置带电，二次插头必须锁死；试验位置才能拔插。"
+ },
+ {
+  "id": 89,
+  "type": "judge",
+  "stem": "隔离开关分闸行程开关接线断线或松动接触不良是造成控制回路分闸部分故障的原因之一。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。隔离开关分闸行程开关接线断线或松动接触不良，会使分闸到位后位置信号不能正确返回、控制回路分闸部分异常，是造成控制回路分闸部分故障的原因之一，表述正确。记忆点：行程开关接点断线、松动都是分闸回路故障的常见根因，巡检重点查接点紧固和信号返回。"
+ },
+ {
+  "id": 90,
+  "type": "judge",
+  "stem": "断路器手车位置不对应、不到位，是导致接地开关不能正常分、合闸操作的主要原因之一。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。断路器手车位置不对应、不到位，会使接地开关操作闭锁条件不满足（如手车不在试验或检修位置），导致接地开关不能正常分合闸操作，是主要原因之一，表述正确。记忆点：地刀能不能动先看手车位置对不对，位置不对地刀就闭锁，操作前先核对位置。"
+ },
+ {
+  "id": 91,
+  "type": "judge",
+  "stem": "依据反措要求，对双母线接线方式下间隔内一组母线侧隔离开关检修时，应将另一组母线侧隔离开关的电机电源及检修电源断开。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。十八项反措规定，对双母线接线方式下间隔内一组母线侧隔离开关检修时，应将另一组母线侧隔离开关的电机电源及控制电源断开，防止检修中误合隔离开关造成运行母线接地，题目把控制电源写成检修电源，故错误。记忆点：另一组母线侧隔离开关断的是电机电源和控制电源，防误合是核心。"
+ },
+ {
+  "id": 92,
+  "type": "judge",
+  "stem": "依据“五级五控”要求，对于因耐压、吊装、作业空间不满足等原因，必须扩大停电范围的陪停设备，且陪停设备本身无工作的，一并纳入分级中的作业范围。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。五级五控要求，因耐压、吊装、作业空间不满足等原因必须扩大停电范围的陪停设备，且陪停设备本身无工作的，一并纳入停电范围管理，不纳入分级中的作业范围（因其无作业活动，不进入作业风险分级），题目说纳入作业范围错误。记忆点：陪停设备只扩大停电不作业，纳入停电范围，不占作业风险分级。"
+ },
+ {
+  "id": 93,
+  "type": "judge",
+  "stem": "开关柜可研初设审查验收标准卡SF6充气柜三工位刀闸在接通、断开、接地三个位置，在完成每种预定切换功能位置时均应设置可靠地固定措施。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。SF6充气柜三工位刀闸在接通、断开、接地三个位置，完成每种预定切换功能位置时均应设置可靠固定措施，防止位置漂移、操作到位后松动，是开关柜可研初设审查验收标准卡的明确要求，表述正确。记忆点：三工位刀闸三个位置都要可靠固定，防位置漂移误操作。"
+ },
+ {
+  "id": 94,
+  "type": "judge",
+  "stem": "避雷器、电压互感器等柜内设备经隔离开关（隔离手车）与母线相连，严禁与母线直接连接。开关柜的母线室、断路器室、电缆室相互串联。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。避雷器、电压互感器等柜内设备经隔离开关（隔离手车）与母线相连、严禁与母线直接连接是正确的，但开关柜的母线室、断路器室、电缆室相互隔离（独立小室、互不贯通），并非相互串联，后半句错误。记忆点：开关柜三室相互隔离防故障蔓延，不是串联贯通。"
+ },
+ {
+  "id": 95,
+  "type": "judge",
+  "stem": "断路器手车工作位置插入深度符合要求，手车开关静触头逐个检查，确保连接紧固并留有复检标记。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。断路器手车工作位置插入深度符合要求，手车开关静触头逐个检查，确保连接紧固并留有复检标记，防止运行中触头松动发热，是手车开关验收的明确要求，表述正确。记忆点：手车插到位、静触头逐个查、复检标记留痕，验收三连防触头发热。"
+ },
+ {
+  "id": 96,
+  "type": "judge",
+  "stem": "隔离开关整体更换时各绝缘子间安装时可用调节垫片校正其水平或垂直偏差，垫片不宜超过5片，总厚度不应超过10mm。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。隔离开关整体更换时各绝缘子间安装可用调节垫片校正其水平或垂直偏差，垫片不宜超过3片（不是5片），总厚度不应超过10mm，垫片过多会造成支撑不稳、受力不均，题目不宜超过5片错误。记忆点：绝缘子间垫片限3片、总厚10mm，垫多不稳影响分合闸精度。"
+ },
+ {
+  "id": 97,
+  "type": "judge",
+  "stem": "测量感抗电路中的电压后，必须先把万用表断开再关电源。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。测量感抗电路中的电压后，必须先把万用表断开再关电源：感性负载断电瞬间会产生自感高压（反电动势），若万用表仍接在回路中，高压可能损坏表计，故先断开表再关电源，表述正确。记忆点：感性回路先摘表再关电源，防自感高压打坏万用表。"
+ },
+ {
+  "id": 98,
+  "type": "judge",
+  "stem": "对于未开展带电检测设备，检修周期不大于基准周期的1.4倍；未开展带电检测老旧设备（大于20年运龄），检修周期不小于基准周期。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。国网检修管理规定：未开展带电检测设备检修周期不大于基准周期的1.4倍；未开展带电检测老旧设备（大于20年运龄），检修周期不大于基准周期（按基准周期执行、不能延长），题目说不小于基准周期方向反了，故错误。记忆点：老旧设备只缩短不延长，检修周期不大于基准周期。"
+ },
+ {
+  "id": 99,
+  "type": "judge",
+  "stem": "若操动机构（弹簧）低电压试验合闸脱扣器不满足在额定电压的90%～110%范围内可靠动作的要求，应开展C类检修，进行调整，必要时更换部件。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。操动机构（弹簧）低电压试验中，合闸脱扣器应在额定电压的85%～110%范围内可靠动作（分闸脱扣器为65%～110%），题目把下限写成90%不符合规程，故错误。记忆点：合闸脱扣器低电压85%到110%可靠动作，90%起算会把本该合格的机构判不合格。"
+ },
+ {
+  "id": 100,
+  "type": "judge",
+  "stem": "若开关柜断路器本体导电回路电阻超过出厂值的20%但小于50%,且不大于厂家规定值，应开展C类检修，检查分析原因，进行相应处理。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。开关柜断路器本体导电回路电阻超过出厂值的20%但小于50%，且不大于厂家规定值时，应开展B类检修（停电检修、检查分析原因进行相应处理），只有超过出厂值不超过20%时才开展C类检修，题目写成C类检修错误。记忆点：回路电阻超20%到50%属较明显异常要B类检修，超20%以内才C类。"
+ },
+ {
+  "id": 101,
+  "type": "judge",
+  "stem": "按照2022年变电站一键顺控标准化改造方案，隔离开关位置“双确认”现场改造微动开关/磁感应传感器的安装位置应尽量靠近传动链首端，安装结构及布置应满足易安装、易维护、易拆卸的要求。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。2022年一键顺控标准化改造方案要求，微动开关/磁感应传感器作为隔离开关分合闸位置的辅助判据，安装位置应尽量靠近传动链末端，才能真实反映刀闸本体分合闸执行机构的最终位置，并与传统辅助接点构成非同源的双确认信号；题干说首端方向反了。装在传动链首端只能反映机构箱内电机、蜗杆的起始动作，刀闸本体是否真正到位反映不出来，双确认就失去意义。记忆点：位置传感器越靠近本体触头越能反映真实位置，双确认要的就是本体末端信号。"
+ },
+ {
+  "id": 102,
+  "type": "judge",
+  "stem": "GIS设备断路器隔室的SF6气体微水含量（20℃）不应超过500μL/L。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按Q/GDW 1168—2013，SF6设备有电弧分解物隔室（断路器灭弧室）运行中微水含量应≤300μL/L（20℃），500μL/L是无电弧分解物隔室（如GIS母线、CT、PT）的运行限值，断路器隔室套用这个值就被放宽了，故说法错误。交接及大修后断路器灭弧室微水要求更严（≤150μL/L）。记忆点：有电弧分解物要求更严（运行≤300），无电弧分解物放宽（运行≤500），断路器隔室属前者，不能按500执行。"
+ },
+ {
+  "id": 103,
+  "type": "judge",
+  "stem": "配VD4－12型真空断路器高压开关柜小车底盘丝杠底座固定螺丝松动，可能会引起VD4真空断路器合闸线圈烧毁。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。VD4手车底盘丝杠底座固定螺丝松动后，手车摇进摇出过程中丝杠、底盘产生位移或偏斜，可能使手车定位不准确、联锁挡块不到位，断路器合闸时机构闭锁件不能可靠复位，合闸线圈带电后因合闸保持不上而长时间通电，最终烧毁合闸线圈。培训教材明确指出该松动可引起合闸线圈烧毁。记忆点：底盘丝杠松动→手车位置不正→合闸不能保持→线圈长期通电烧毁，底盘固定螺丝是合闸可靠性的根基。"
+ },
+ {
+  "id": 104,
+  "type": "judge",
+  "stem": "金属封闭式高压开关柜的主回路的一切组件均安装在金属外壳内，外壳（含通风、排气口、作为外壳一部分的盖板及门）的防护等级应满足IP3X的要求；打开门后应满足IP1X的要求。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按DL/T 404—2018（GB 3906）规定，金属封闭高压开关柜外壳（含通风、排气口、盖板及门）的防护等级应满足IP4X，打开门后应满足IP2X；题干给的IP3X、IP1X都低于标准。IP4X防直径≥1mm异物，IP3X只防≥2.5mm异物；IP2X防直径≥12.5mm球体（约手指），IP1X只防≥50mm。外壳等级低了小动物和异物易进入造成短路，开门后等级低了人手易触及带电部分。记忆点：外壳IP4X、开门后IP2X，数字越小防护越差，别与IP3X/IP1X混淆。"
+ },
+ {
+  "id": 105,
+  "type": "judge",
+  "stem": "在系统运行方式和倒闸操作中，为避免出现电压互感器谐振，应用带断口电容的断路器投切带有电磁式电压互感器的空母线。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。带断口电容（均压电容）的断路器投切带电磁式电压互感器的空母线时，断口电容C与PT励磁电感L构成串联谐振回路，操作冲击下PT铁心饱和、感抗骤降，满足ωL＝1/ωC即激发铁磁谐振，PT过激磁发热甚至烧毁。所以反措规定应避免用带断口电容的断路器投切带电磁式PT的空母线，题干说成应用正好相反。无断口电容或先合断路器再合PT刀闸可破坏L-C谐振条件。记忆点：断口电容+电磁PT=串联谐振温床，投切空母线要躲开它。"
+ },
+ {
+  "id": 106,
+  "type": "judge",
+  "stem": "磁路磁通Φm、磁阻Rm和磁动势F之间的关系是Φm＝F／Rm。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。磁路欧姆定律与电路欧姆定律形式对应：磁动势F（单位安匝）是产生磁通的源，磁阻Rm反映磁路导磁难易，磁通Φm＝F/Rm，即磁动势除以磁阻。它和电路U=IR一一对应，只是磁通沿闭合磁路成环、无电荷流动。记忆点：磁路三量对应电路三量，磁通=磁动势/磁阻，形似欧姆定律，记住F=NI、Rm=L/(μS)就能推出。"
+ },
+ {
+  "id": 107,
+  "type": "judge",
+  "stem": "描述磁场中各点磁场强弱及方向的物理量是磁感应强度，符号是B，单位是韦伯。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。磁感应强度B是描述磁场强弱和方向的物理量，但单位是特斯拉（T），1T=1Wb/m²；韦伯（Wb）是磁通Φ的单位，Φ=BS。题干把B的单位写成韦伯，是把磁通和磁感应强度的单位张冠李戴。记忆点：B（磁感应强度）单位特斯拉，Φ（磁通）单位韦伯，B乘面积得Φ，两个量、两个单位别混。"
+ },
+ {
+  "id": 108,
+  "type": "judge",
+  "stem": "气体继电器按动作原理不同，可分为两种结构，一是浮筒式气体继电器，二是挡板式气体继电器；按其接点形式不同，又有水银接点的气体继电器和干簧接点的气体继电器两种。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。气体继电器按动作原理分两种：浮筒式（旧式，靠浮筒随油面下降动作）和挡板式（靠油流冲击挡板动作，抗振动性能好，现广泛使用）；按接点形式又分水银接点式和干簧接点式。题干对结构分类和接点分类的表述与教材一致。记忆点：原理看浮筒/挡板，接点看水银/干簧，两个维度正交组合。"
+ },
+ {
+  "id": 109,
+  "type": "judge",
+  "stem": "在拧变压器油箱上的阀门螺丝时，为了保证密封性能，将螺丝拧得越紧越好。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。拧紧阀门螺丝是为密封，但并非越紧越好：过度拧紧会使密封垫圈过度压缩失去弹性、甚至挤裂，反而密封失效；还会使螺栓拉伸过载、丝扣损坏或阀体变形，照样漏油。正确做法是按规定的紧固力矩对称、均匀、分几次拧紧，使密封垫均匀受力。记忆点：密封靠垫圈均匀受压而不是蛮力，拧过头垫圈先坏、油照漏。"
+ },
+ {
+  "id": 110,
+  "type": "judge",
+  "stem": "避雷器检修工作过程中严禁攀爬避雷器、踩踏均压环。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。避雷器检修时严禁攀爬避雷器、踩踏均压环：均压环是薄壁金属环，承重能力差，踩踏会使其变形、失去均压作用；且瓷套、硅橡胶表面光滑易滑跌，人身和设备都有风险。检修应使用检修平台、升降车或梯子，工具材料用传递绳传递。记忆点：均压环不承重、踩就变形，检修用平台不爬本体。"
+ },
+ {
+  "id": 111,
+  "type": "judge",
+  "stem": "更换计数器（在线监测装置）前，应将避雷器与计数器的连接线对地绝缘。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。更换计数器（在线监测装置）前，应将避雷器与计数器的连接线对地放电并短接接地，因为避雷器带电运行后连接线上有残余电荷，若只做绝缘隔离，电荷无处泄放，拆卸时仍可能放电伤人；对地短接接地才能泄放残余电荷、防止人身触电。题干说对地绝缘，做法反了。记忆点：拆带电连接线先放电接地，绝缘只能挡电不能泄电。"
+ },
+ {
+  "id": 112,
+  "type": "judge",
+  "stem": "当变压器有载调压开关动作次数或运行时间达到制造厂规定值时，应返厂检修。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。有载调压开关动作次数或运行时间达到制造厂规定值时，应按规定进行检修（吊芯检修、大修），地点一般在现场结合变压器停电进行，严重损坏时才考虑返厂；题干一刀切说返厂检修不正确。按DL/T 574等规程，到周期应吊芯检查、处理切换开关和触头，检修后还应做切换程序与时间试验。记忆点：到周期先考虑现场检修，返厂是特殊情况不是必然。"
+ },
+ {
+  "id": 113,
+  "type": "judge",
+  "stem": "互感器可直接空气中注油，并满足大气注油的工艺要求，油量大小和注油速度应按制造厂规定进行。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。互感器注油必须采用真空注油工艺，防止油中混入空气和水分——空气和水汽会使绝缘油击穿电压下降、加速绝缘老化；题干说可直接在空气中注油并满足大气注油工艺要求，违背了真空注油这一基本原则。注油前对互感器抽真空、注油时维持真空是对的，油量大小和注油速度按制造厂规定，但前提是真空环境。记忆点：变压器类设备注油一律真空注油，空气进水是绝缘大敌。"
+ },
+ {
+  "id": 114,
+  "type": "judge",
+  "stem": "消弧线圈检修策略要求油浸式接地变压器短路阻抗测量初值差超过±5%，开展B类检修，更换接地变压器。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。油浸式接地变压器与电力变压器同属油浸式变压器，绕组短路阻抗初值差是诊断绕组变形的项目，注意值应为±3%（Q/GDW 1168），超过±3%即应查明原因、开展诊断分析；题干给的±5%是电抗器阻抗与出厂值比较的允许偏差，套到接地变压器上不对。且处置是结合直流电阻、频响法综合分析后必要时安排检修，不是一超标就更换接地变压器。记忆点：短路阻抗初值差变压器看±3%、电抗器看±5%，对象别串。"
+ },
+ {
+  "id": 115,
+  "type": "judge",
+  "stem": "变压器接线组别不同而并联运行，将产生很大的环流，所以接线组别不同，绝对不能并联运行。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。并联运行要求各变压器接线组别（联结组标号）相同，否则二次侧电压相位不同，产生很大的电压差，在闭合回路中形成巨大环流，环流可达额定电流的数倍，绕组立即过载发热烧毁，所以接线组别不同的变压器绝对不允许并联运行。并联运行还需电压比相等、短路阻抗标幺值相近等条件。记忆点：接线组别是并联的硬门槛，相位对不上就形成环流烧绕组。"
+ },
+ {
+  "id": 116,
+  "type": "judge",
+  "stem": "变压器中使用的是A级绝缘材料，运行中， 只要控制变压器的上层油温不超过A级绝缘材料的极限温度，就不影响变压器的使用寿命。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。变压器A级绝缘的极限温度针对的是绕组最热点（热点温度），运行中上层油温远低于热点温度，仅控制上层油温不超过105℃并不能保证绕组热点不超限；且绝缘老化是温度、时间、氧气、水分共同作用的累积过程，同一温度下运行时间不同老化程度不同，还有其它劣化因素。所以只控上层油温就不影响寿命的说法不成立。记忆点：绝缘寿命看热点温度，上层油温只是间接反映，且老化是温度加时间的累积。"
+ },
+ {
+  "id": 117,
+  "type": "judge",
+  "stem": "如某变压器瓦斯继电器动作而跳闸，并经检验证明是可燃性气体所致时，则变压器可在短时间内再行强送一次，若强送不成，则应汇报上级领导派员来检查处理。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。变压器重瓦斯（气体继电器）动作跳闸，经检验是可燃性气体，说明内部发生了严重故障（如匝间短路、绝缘放电分解），此时不允许再行强送电——强送会扩大故障、损坏变压器甚至引发火灾。按DL/T 572等规定，瓦斯保护动作后应尽快查明原因、取气样化验并停电检查处理，严禁未经查明就强送。题干说可强送一次再报上级，违背了严禁强送的原则。记忆点：瓦斯动、气可燃=内部已受伤，查明原因前严禁强送。"
+ },
+ {
+  "id": 118,
+  "type": "judge",
+  "stem": "总部管控中心对Ⅰ级、Ⅱ级检修开展远程督查，省公司管控中心对Ⅰ～Ⅲ级检修开展远程督查。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。按国网检修（作业）过程管控要求，总部管控中心对Ⅰ级、Ⅱ级检修开展远程督查，省公司管控中心对Ⅰ～Ⅲ级检修开展远程督查，地市公司对更大范围分级逐级管控。题干分级与管控层级的对应关系正确。记忆点：级别越高越要上级看——Ⅰ、Ⅱ级总部看，Ⅰ～Ⅲ级省公司看，地市看更宽。"
+ },
+ {
+  "id": 119,
+  "type": "judge",
+  "stem": "SF6电压互感器补气时，若环境温度较低，液态SF6气体不易气化，可对气瓶加热（不能超过40℃），提高充气速度。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。SF6气体以液态储存在气瓶中，补气时液态SF6气化需要吸收热量，环境温度低时气化慢、补气速度慢，可对气瓶适当加热促进气化，但严禁用明火或火焰直接加热，加热温度不能超过40℃，防止瓶内压力过高发生危险，通常用温水或加热带。题干说法符合规程要求。记忆点：气瓶加热限40℃、严禁明火，液态气化吸热是补气慢的原因。"
+ },
+ {
+  "id": 120,
+  "type": "judge",
+  "stem": "根据《变压器油中溶解气体分析和判断导则》当气体含量低于注意值，但产气速率超过注意值，也应缩短检测周期。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。按DL/T 722《变压器油中溶解气体分析和判断导则》，判断设备状态要同时看气体含量和产气速率两个指标：气体含量虽低于注意值，但产气速率（绝对或相对产气速率）超过注意值时，说明内部故障仍在快速发展，应缩短检测周期、加强跟踪；反之含量高但产气速率平稳也不急于停运。题干说法正确。记忆点：含量看现状、产气速率看趋势，趋势超标一样要加密跟踪。"
+ },
+ {
+  "id": 121,
+  "type": "judge",
+  "stem": "变压器后备保护整定时间不应超过变压器短路承受能力承载短路电流的持续时间（2s）。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。变压器设计热稳定承受短路电流的持续时间为2s（GB 1094.5），短路电流流过绕组产生的热量与电流平方和持续时间成正比，若后备保护切除时间大于2s，绕组累积热量就可能超过允许值造成热损坏。因此后备保护整定时间不应超过变压器短路承受能力对应的持续时间（2s），题干说法正确。记忆点：变压器耐短路的2s是热稳定底线，后备保护必须在这之前把故障切掉。"
+ },
+ {
+  "id": 122,
+  "type": "judge",
+  "stem": "新购有载分接开关的选择开关应有机械限位功能，束缚电阻应采用常接方式。新投或检修后的有载分接开关，不应对切换程序与时间进行测试。当开关动作次数或运行时间达到生产厂家规定值时，应按照生产厂家的检修规程进行检修。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。题干前两句正确（选择开关应有机械限位、束缚电阻应常接），错在中间一句：新投运或检修后的有载分接开关，正应进行切换程序与时间的测试，验证切换开关动作顺序和切换时间符合要求，题干说不应对切换程序与时间进行测试，方向反了。达到厂家规定动作次数或运行时间后按厂家检修规程检修也是对的。记忆点：新投/检修后必测切换程序与时间，这是验证切换可靠性的关键试验。"
+ },
+ {
+  "id": 123,
+  "type": "judge",
+  "stem": "中性点电容隔直装置旁路开关验收电子式旁路开关的切换时间应小于200μs。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。按Q/GDW 11517—2016，中性点电容隔直装置的电子式旁路开关切换时间应小于200μs，并要求满足80kA（峰值）60ms动稳定能力。电子式旁路开关（晶闸管回路）导通速度快，才能在毫秒级时间内把隔直电容旁路，避免电容承受过电压。题干数值与标准一致。记忆点：电子式旁路是微秒级动作（<200μs），机械式旁路是毫秒级，速度差源于开关元件本质。"
+ },
+ {
+  "id": 124,
+  "type": "judge",
+  "stem": "耦合电容器叠装时，应单节吊装，严禁叠加后吊装。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。耦合电容器（含电容式电压互感器的电容器）由多节电容单元叠装组成，吊装时严禁先叠装成整体再整体吊装——整体吊装易造成各节法兰受力不均、瓷套或法兰损伤，且重心不稳有坠落风险。正确做法是逐节（单节）吊装到位后依次叠装，每节单独承重才安全。记忆点：耦合电容器单节吊装，整体吊装受力不均易伤瓷套。"
+ },
+ {
+  "id": 125,
+  "type": "judge",
+  "stem": "金属氧化物避雷监测装置与避雷器如果采用硬导体连接，其表面应无变形、松动、烧伤，两端连接螺栓无松动、锈蚀，固定硬导体的绝缘支柱无松动、破损，无明显积污。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。金属氧化物避雷器监测装置与避雷器采用硬导体连接时，硬导体及其两端连接螺栓是监测回路的一部分，要求表面无变形、松动、烧伤，两端螺栓无松动锈蚀，固定硬导体的绝缘支柱无松动破损，无明显积污——这些缺陷会改变监测装置取样信号或造成放电，影响泄漏电流监测准确性。题干描述与验收要求一致。记忆点：硬连接是取样通路，变形锈蚀污秽都会让监测失准。"
+ },
+ {
+  "id": 126,
+  "type": "judge",
+  "stem": "电流互感器SF6气体压力异常的检修策略是开展D类检修，进行补气；必要时安排C类检修，进行密封性、密度继电器检查，根据检查结果做相应处理。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。按电流互感器状态检修策略，SF6气体压力异常属轻微缺陷，开展D类检修（消缺性检修）进行补气即可；若补气频繁或压力持续异常，说明密封或密度继电器可能有问题，必要时安排C类检修（例行检修），检查密封性、密度继电器，根据结果做相应处理。题干分级处置符合策略。记忆点：压力低先补气（D类），补了还漏查密封和密度继电器（C类）。"
+ },
+ {
+  "id": 127,
+  "type": "judge",
+  "stem": "油浸式电流互感器整体更换，接地点连接牢固可靠；底座接地螺栓用两根接地引下线与地网不同网格可靠连接。接地引下线截面应满足安装地点短路电流的要求。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。油浸式电流互感器整体更换时，本体及底座必须可靠接地：接地点连接牢固可靠，底座接地螺栓用两根接地引下线分别与地网不同网格连接（双点、双路径接地），保证任一路失效另一路仍可靠；接地引下线截面应满足安装地点短路电流的热稳定要求，防止短路电流烧断接地线。题干表述符合验收要求。记忆点：CT接地要双引下线、不同网格、截面够，保护人身和二次回路。"
+ },
+ {
+  "id": 128,
+  "type": "judge",
+  "stem": "串补装置阻尼电阻值相同测量条件下，直流电阻的初始差超过5%时，应进行计算分析，必要时开展B类检修，更换阻尼电阻。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。串补装置阻尼电阻的阻值反映其状态，在相同测量条件下直流电阻初始差超过5%时，说明阻尼电阻可能存在老化、断丝等异常，应先进行计算分析（校核其对阻尼性能的影响），必要时开展B类检修更换阻尼电阻，防止阻尼电阻失效导致电容器过电压。题干处置策略正确。记忆点：阻尼电阻阻值变了影响抑制过电压能力，先分析后换，超5%是触发线。"
+ },
+ {
+  "id": 129,
+  "type": "judge",
+  "stem": "进行变压器直流偏磁水平测量时，测量仪器卡口口径应能钳住变压器铁心接地引下线，形成闭合回路。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。测量变压器直流偏磁水平时，测量仪器（钳形电流表/霍尔传感器）卡口应能钳住铁心接地引下线，但铁心接地引下线必须保持单点接地，不能形成闭合回路——形成闭合回路会使铁心接地回路出现环流或分流，既改变被测电流又可能影响铁心接地状态，测量结果失真。题干说应形成闭合回路，正好说反。记忆点：钳形表钳住导线测电流正常，但被测的接地引下线本身不能多点接地成环。"
+ },
+ {
+  "id": 130,
+  "type": "judge",
+  "stem": "3~66kV 中性点不接地系统发生单相接地故障时，一次设备应能快速切除故障，从而降低人身触电风险。变电站 3~66kV 各段母线，因地制宜配置主动干预型消弧装置。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。3~66kV中性点不接地系统单相接地时，若长时间带故障运行，故障点人员接触可能触电，且可能发展为相间短路，故要求一次设备能快速切除故障，降低人身触电风险；变电站3~66kV各段母线因地制宜配置主动干预型消弧装置（能快速转移熄弧或选线跳闸），符合国网反措方向。题干表述正确。记忆点：小电流接地系统也要快切，主动干预型消弧装置是3~66kV母线的新配置。"
+ },
+ {
+  "id": 131,
+  "type": "judge",
+  "stem": "当起吊物离地1米时必须停吊检查，确认安全性，吊装中的吊物不得长期悬在空中。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。起重作业的试吊检查应在吊物离地约100~200mm（0.1~0.2m）时就暂停，检查吊机稳定、制动可靠、吊物平衡、捆绑牢固后再继续起吊，而不是等吊到1米高才检查——吊得越高越难控制、一旦有问题处置越危险。题干把试吊高度说成1米，数值错误。吊物也不得长时间悬空。记忆点：试吊高度100~200mm，低处检查稳了再升，吊物严禁长期悬空。"
+ },
+ {
+  "id": 132,
+  "type": "judge",
+  "stem": "运行中的环氧浇注干式互感器外绝缘如有裂纹、沿面放电、局部变色、变形，应检查。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。环氧浇注干式互感器外绝缘出现裂纹、沿面放电、局部变色、变形，说明绝缘已明显劣化甚至接近失效，可能随时发生绝缘击穿或沿面闪络，正确处置是立即停止运行并安排更换、处理，而不是仅仅应检查——仅检查会贻误时机、扩大故障。其中沿面放电本身已说明绝缘失效，是必须退出运行的条件。记忆点：裂纹放电变色变形=绝缘已坏，应退出运行，光检查不顶用。"
+ },
+ {
+  "id": 133,
+  "type": "judge",
+  "stem": "变压器的电流速断保护能瞬时切除变压器一侧次（指单侧电源的电源侧）引出线及部分绕组的故障，但不能保护变压器全部二次绕组及变压器二次侧主连接线上的短路故障。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。电流速断保护按躲过变压器二次侧母线短路最大电流整定，只能保护电源侧引出线及靠近电源侧的一部分绕组，二次侧（负荷侧）绕组及二次侧主连接线（低压母线）上的短路因电流不足以达到速断定值而处于保护死区，需由瓦斯、差动或后备过流保护切除。题干对速断保护保护范围的描述正确。记忆点：速断按躲最大短路电流整定，离电源越远短路电流越小越够不着，所以有死区。"
+ },
+ {
+  "id": 134,
+  "type": "judge",
+  "stem": "110kV及以上电压等级电流互感器运输应安装三维冲撞记录仪（或振动子），卸货前、就位后两个节点应检查三维冲撞记录仪（振动子）的冲击值，运维单位应留存三维冲撞记录纸和押运记录的复印件。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。规程要求的是220kV及以上电压等级电流互感器运输应安装三维冲撞记录仪（或振动子），题干写成110kV及以上，电压等级门限不对。220kV及以上CT运输冲击风险高，才规定装三维冲撞记录仪，并在卸货前、就位后两个节点检查冲击值、留存记录纸和押运记录复印件。110kV CT不在此列。记忆点：三维冲撞记录仪针对220kV及以上大CT，记录运输冲击防隐性损伤。"
+ },
+ {
+  "id": 135,
+  "type": "judge",
+  "stem": "并联电容器装置中电容器端子间或端子与汇流母线间的连接，应采用带绝缘护套的软铜线。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。按GB 50227《并联电容器装置设计规范》，电容器端子间及端子与汇流母线间的连接应采用带绝缘护套的软连接（软铜线）：带绝缘护套可防止端子间意外短路、防止异物搭接放电，软连接可适应电容器的热胀冷缩和安装偏差，避免硬连接应力损坏瓷套端子。题干表述正确。记忆点：电容器端子间软线连接+绝缘护套，防短路、防应力、适应温变。"
+ },
+ {
+  "id": 136,
+  "type": "judge",
+  "stem": "避雷器均压环在安装时应注意检查无划痕、毛刺及变形，宜在最低处打排水孔。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。避雷器均压环安装前应检查无划痕、毛刺及变形：划痕毛刺会在高场强下引发电晕放电、干扰避雷器电压分布；变形会破坏均压环的均压作用。均压环宜在最低处打排水孔，防止环内积水，积水在冬季结冰膨胀会胀裂均压环，雨水也会使环表面锈蚀。题干表述符合验收要求。记忆点：均压环查毛刺变形、最低处开排水孔，环内不积水才不会冻裂。"
+ },
+ {
+  "id": 137,
+  "type": "judge",
+  "stem": "电缆绝缘的缺陷可分为集中性和分布性两大类。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。按Q/GDW 1168，电缆绝缘的缺陷按分布形态分为两大类：集中性缺陷（局部性的，如绝缘中的气泡、杂质、机械损伤点）和分布性缺陷（整体性的，如绝缘整体受潮、老化）。两类缺陷对试验方法的选择影响大：集中性缺陷用局部放电、耐压试验易发现，分布性缺陷用绝缘电阻、介质损耗等更敏感。题干分类正确。记忆点：集中性=局部点、分布性=整体面，两类缺陷要用不同试验去抓。"
+ },
+ {
+  "id": 138,
+  "type": "judge",
+  "stem": "合成绝缘子在绝缘良好和绝缘劣化的结合处出现局部过热，随着时间的延长，过热部位会移动。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。合成绝缘子（复合绝缘子）的芯棒与护套或伞裙粘接不良时，在绝缘良好与劣化的结合处会出现局部过热，红外测温能发现；由于缺陷沿界面发展，随着时间延长，过热部位会沿芯棒界面移动、扩展，这是合成绝缘子缺陷发展的特征。题干符合Q/GDW 1168红外检测的规定。记忆点：合成绝缘子内部缺陷会沿界面爬，热点会移动，所以要跟踪红外测温。"
+ },
+ {
+  "id": 139,
+  "type": "judge",
+  "stem": "绝缘子超声波探伤为带电检测，被检设备处于运行状态。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。绝缘子超声波探伤检测瓷质绝缘子内部（瓷体）的裂纹、气孔等缺陷，需要把探头紧贴绝缘子表面并施加耦合剂，属于停电（离线）检测，被检设备应退出运行；题干说它是带电检测、设备处于运行状态，不对。绝缘子的带电检测通常指紫外、红外、无人机巡检等。记忆点：超声波探伤要贴瓷件加耦合剂，得停电做，带电的是红外紫外。"
+ },
+ {
+  "id": 140,
+  "type": "judge",
+  "stem": "泄漏电流带电检测主要是测量避雷器的全电流和阻性电流基波有效值，根据这两个值的变化来判断避雷器内部是否受潮、金属氧化物阀片是否发生劣化等。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按第16分册泄漏电流检测细则，泄漏电流带电检测主要是测量避雷器的全电流和阻性电流基波峰值（不是有效值），根据这两个值的变化判断避雷器是否受潮、阀片是否劣化。题干把峰值写成有效值，测量量不对。阻性电流占全电流比例很小（约10%~20%），用峰值更能灵敏反映阀片伏安特性的变化。记忆点：泄漏电流看全电流和阻性电流基波峰值，阻性电流增大说明受潮或劣化。"
+ },
+ {
+  "id": 141,
+  "type": "judge",
+  "stem": "在开展避雷针验收时，测得其导通电阻为150mmΩ，接地电阻为10.5Ω，其它要求均满足要求，故判断该避雷针验收合格。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按GB 50065—2011及GB 50150，独立避雷针的接地电阻（接地阻抗）不宜大于10Ω，题干测得的接地电阻10.5Ω已超过10Ω合格线，其余项目再合格也不能判定避雷针验收合格；导通电阻150mΩ（0.15Ω）虽在导通合格范围内，但接地电阻超标已使结论不成立。记忆点：独立避雷针接地电阻≤10Ω，10.5Ω就差这一点也不合格，验收按线走。"
+ },
+ {
+  "id": 142,
+  "type": "judge",
+  "stem": "测量接地阻抗的直线法、夹角法、电位降法均属于电流-电压表三级法，其接线相同",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。测量接地阻抗的三极法（电流-电压表法）中，直线法、夹角法、电位降法（0.618法）是按电流极与电压极布极位置不同而划分的不同测试方法：直线法把电压极打在电流极与地网连线的0.618处，夹角法按一定夹角布极，电位降法用多次打点找电位平坦区。三者布极方式不同、接线也不同，题干说接线相同错误。记忆点：直线、夹角、电位降都是三极法，区别就在极怎么摆。"
+ },
+ {
+  "id": 143,
+  "type": "judge",
+  "stem": "《变电检测管理规定附录A》：变压器局部放电带电检测的方法包括哪几种？高频局部放电检测、超声波局部放电检测、特高频局部放电检测",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。按《变电检测管理规定附录A》，变压器局部放电带电检测方法包括高频局部放电检测、超声波局部放电检测、特高频局部放电检测三种：高频法在末屏或接地线取信号，超声法靠声传感器，特高频法靠天线接收电磁波。题干列举三种方法正确。记忆点：变压器局放带电检测三件套=高频+超声+特高频，分别抓电、声、电磁波信号。"
+ },
+ {
+  "id": 144,
+  "type": "judge",
+  "stem": "110kV电压等级的绝缘油运行中的击穿电压满足≥30kV时认为合格",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。110kV属于66~220kV电压等级档，按绝缘油监督标准，运行中绝缘油击穿电压合格值应为≥35kV，投入运行前的新油应为≥40kV；题干给的≥30kV是15~35kV电压等级运行油的合格值，套到110kV上放宽了，故不合格。记忆点：绝缘油击穿电压随电压等级走，110kV运行油≥35kV，30kV是35kV设备的档。"
+ },
+ {
+  "id": 145,
+  "type": "judge",
+  "stem": "SF6 电磁式电流互感器一次绕组对二次绕组及外壳、各二次绕组间及其对外壳的绝缘电阻与出厂值比较，不应有显著变化",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。按Q/GDW 11447—2015《10kV-500kV输变电设备交接试验规程》7.2.1，SF6电磁式电流互感器一次绕组对二次绕组及外壳、各二次绕组之间及其对外壳的绝缘电阻，与出厂值比较不应有显著变化，这是判断运输、安装过程中绝缘是否受损的依据。题干表述与规程一致。记忆点：交接绝缘电阻要和出厂值比，显著变化说明运输安装弄伤了。"
+ },
+ {
+  "id": 146,
+  "type": "judge",
+  "stem": "SF6气体分解产物检测过程中，可采用电化学检测方法、气体检测管检测法、气相色谱检测法、电解法。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按第8分册SF6分解产物检测细则，SF6气体分解产物检测方法有电化学检测法、气体检测管（检测管）检测法、气相色谱检测法等，没有电解法——电解法是测定油中水分等物质的化学方法，张冠李戴。分解产物（SO2、H2S、HF等）用传感器或检测管、色谱测定含量，判断设备内部放电过热。记忆点：SF6分解产物查SO2/H2S/HF，用电化学、检测管、色谱，无电解法。"
+ },
+ {
+  "id": 147,
+  "type": "judge",
+  "stem": "超声波检测中对于电晕放电，毛刺一般在导体上，但壳体上的毛刺危害更大",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按第4分册超声波局放检测细则，对于电晕放电，毛刺一般在导体上，且导体上的毛刺危害更大——导体（高压导体）上的毛刺直接处于高场强区，尖端放电形成电晕，能量集中、持续发展，还会腐蚀导体；壳体（低压）上的毛刺场强低、危害相对小。题干说壳体上的毛刺危害更大，说反了。记忆点：毛刺在导体上才危险，因为导体电位高、尖端场强集中。"
+ },
+ {
+  "id": 148,
+  "type": "judge",
+  "stem": "电压互感器二次电缆如未加装固定头，应由内向外电缆孔洞封堵，保证良好的防水性能。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。电压互感器二次电缆进入端子箱或汇控柜时，如电缆未加装固定头，应采用由内向外的方式对电缆孔洞进行封堵，并保证良好的防水性能——由内向外封堵可阻止外部雨水、潮气顺电缆缝隙渗入，封堵材料与电缆紧密贴合。题干表述符合验收要求。记忆点：电缆孔洞由内向外封堵，防水防潮，未加固定头更要封严实。"
+ },
+ {
+  "id": 149,
+  "type": "judge",
+  "stem": "断路器设备交接试验验收时，110kVSF6断路器交接试验应进行合闸对地和断口间耐压试验。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按GB 50150—2016第12.0.4条，交接试验规定110kV以下SF6断路器应进行合闸对地和断口间耐压试验；对110kV及以上的瓷柱式（变开距）断路器，对地及断口间耐压并未规定为交接必做项目，只有罐式断路器和500kV定开距瓷柱式断路器才明确要求做合闸对地和断口间耐压。题干笼统说110kV SF6断路器应做合闸对地和断口间耐压，不准确。记忆点：合闸对地+断口间耐压是110kV以下和罐式的交接要求，普通110kV瓷柱式不强制作断口耐压。"
+ },
+ {
+  "id": 150,
+  "type": "judge",
+  "stem": "三次谐波法是基于氧化锌避雷器的总阻性电流与阻性电流三次谐波在大小上存在一定函数关系，通过检测氧化锌避雷器三相总泄漏电流中阻性电流三次谐波分量来判断其总阻性电流的变化。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。三次谐波法基于氧化锌避雷器阻性电流与其三次谐波分量之间存在确定的函数关系：阀片劣化时阻性电流增大，其三次谐波分量随之按规律变化，通过检测三相总泄漏电流中阻性电流的三次谐波分量，可反推总阻性电流的变化，从而判断阀片是否劣化。该方法适合110kV及以上谐波干扰小的系统。题干表述正确。记忆点：阻性电流的三次谐波和总阻性电流挂钩，测三次谐波就能看出阀片劣化趋势。"
+ },
+ {
+  "id": 151,
+  "type": "multi",
+  "stem": "开关柜各高压隔室均应设有(____)或(____)。",
+  "options": {
+   "A": "泄压通道",
+   "B": "压力释放装置",
+   "C": "温控器",
+   "D": "加热器"
+  },
+  "answer": "AB",
+  "explain": "答案 AB。十八项反措要求开关柜各高压隔室均应设有泄压通道或压力释放装置，两者具备其一即可，作用是在内部发生电弧故障时快速释放高压气体，防止柜体爆炸伤人。C温控器、D加热器是控制柜内温度、防凝露的元件，与泄压无关，起不到释放内部压力的作用。记忆点：高压隔室怕内弧爆炸，泄压通道或压力释放装置给高压气体找出路。"
+ },
+ {
+  "id": 152,
+  "type": "multi",
+  "stem": "新安装开关柜禁止使用绝缘隔板，即使母线加装(____)，也应满足空气绝缘净距离要求。",
+  "options": {
+   "A": "屏蔽线",
+   "B": "绝缘护套",
+   "C": "热缩绝缘材料",
+   "D": "挡板"
+  },
+  "answer": "BC",
+  "explain": "答案 BC。反措规定新安装开关柜禁止使用绝缘隔板（靠空气绝缘），即使母线加装绝缘护套或热缩绝缘材料来缩小相间距离，也必须满足空气绝缘净距离要求——护套和热缩材料只是加强绝缘、不能替代净距。A屏蔽线、D挡板不在此列：屏蔽线用于抗干扰、挡板用于隔离带电触头，都不是反措原文说的母线加装物。记忆点：新柜禁绝缘隔板，加护套热缩也不能省空气净距，绝缘和净距各算各的账。"
+ },
+ {
+  "id": 153,
+  "type": "multi",
+  "stem": "手车式、固定式开关柜电缆室巡视时，应检查电缆室应无异响、异味；(____)绝缘表面无凝露、破损、放电痕迹。",
+  "options": {
+   "A": "电缆终端头",
+   "B": "电流互感器",
+   "C": "避雷器",
+   "D": "电压互感器"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。手车式、固定式开关柜电缆室巡视时，应检查电缆室无异响异味，电缆终端头、电流互感器、避雷器、电压互感器的绝缘表面无凝露、破损、放电痕迹——电缆室内装的就是电缆终端头、CT、PT和避雷器，这些设备绝缘表面异常（凝露会引发沿面放电，破损放电痕迹说明已有放电）都要及时发现。四项都是电缆室内的绝缘设备，全选。记忆点：电缆室里的绝缘件就这四类，外观凝露破损放电痕迹都要查。"
+ },
+ {
+  "id": 154,
+  "type": "multi",
+  "stem": "开关柜通过(____)实现“防止带电误合接地开关”的连锁功能。",
+  "options": {
+   "A": "断路器手车处于试验位置或移开时，接地开关才能合闸",
+   "B": "断路器手车在工作位置时，接地开关操动机构处的操作压板不能动作，接地开关无法合闸，可防止带电关合接地开关的误操作事故",
+   "C": "接地开关合闸后，手车不能从试验位置移至工作位置",
+   "D": "采用高压带电显示装置，防止带电关合接地开关"
+  },
+  "answer": "ABD",
+  "explain": "答案 ABD。防止带电误合接地开关的连锁逻辑核心是：只有在手车退出工作位置（试验位置或移开）、母线不带电时接地开关才允许合闸——A是手车在试验位置或移开时地刀才能合，B是手车在工作位置时操作压板被锁住、地刀合不上，D用高压带电显示装置（柜内带电时闭锁地刀操作），三者从不同环节实现防带电合地刀。C说的是地刀合闸后手车不能从试验位摇到工作位，那是防止带接地开关合闸送电（另一类误操作），不是防带电合地刀，故不选。记忆点：防带电合地刀管的是合闸侧，地刀合了不让送电管的是送电侧，别把两道锁混在一起。"
+ },
+ {
+  "id": 155,
+  "type": "multi",
+  "stem": "依据反措要求，认真落实安全生产各项组织措施和技术措施，(____)、经国家认证认可的、(____)安全工器具和防护用品。",
+  "options": {
+   "A": "配备充足的",
+   "B": "经国家认证认可的",
+   "C": "经质检机构检测合格",
+   "D": "试验合格的"
+  },
+  "answer": "AC",
+  "explain": "答案 AC。反措原句是：认真落实安全生产各项组织措施和技术措施，配备充足的、经国家认证认可的、经质检机构检测合格的安全工器具和防护用品。两空分别填配备充足的（A）和经质检机构检测合格（C）。B经国家认证认可的是题干已给的定语，不是第二个空；D试验合格与质检机构检测合格语义有重叠但非原文用词。记忆点：安全工器具要充足、认证认可、质检合格三个定语，题干已给一个，另选充足和质检合格。"
+ },
+ {
+  "id": 156,
+  "type": "multi",
+  "stem": "依据“五级五控”要求，针对变电站内不停电工作和带电作业，各单位根据(____)等多个维度，结合生产现场实际情况开展风险辨识和定级，并制定相应的风险管控措施。",
+  "options": {
+   "A": "人身风险",
+   "B": "设备重要程度",
+   "C": "作业管控难度",
+   "D": "工艺技术难度"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。按国家电网设备〔2022〕89号五级五控要求，针对变电站内不停电工作和带电作业，各单位根据人身风险、设备重要程度、作业管控难度、工艺技术难度等多个维度，结合现场实际开展风险辨识和定级并制定管控措施。四个维度都是题干列举的风险辨识维度，全选。记忆点：风险辨识四维度=人身+设备重要度+管控难度+工艺难度。"
+ },
+ {
+  "id": 157,
+  "type": "multi",
+  "stem": "高压开关柜电气回路故障的主要类型有(____)。",
+  "options": {
+   "A": "不能电动合闸",
+   "B": "电缆故障",
+   "C": "不能电动分闸",
+   "D": "互感器故障",
+   "E": "不能储能"
+  },
+  "answer": "ACE",
+  "explain": "答案 ACE。高压开关柜电气回路（二次控制回路）故障的主要类型是不能电动合闸、不能电动分闸、不能储能三类，均属控制回路故障，处理时查操作电源、熔断器、控制开关、合分闸线圈、储能回路等。B电缆故障、D互感器故障属主回路或一次设备故障，不是电气（二次控制）回路故障的类型，故不选。记忆点：电气回路故障三件套=不能合、不能分、不能储，电缆互感器是一次侧的事。"
+ },
+ {
+  "id": 158,
+  "type": "multi",
+  "stem": "依据变电安规，一级动火在首次动火时，各级审批人和动火工作票签发人均应到现场检查(____)后方可动火。",
+  "options": {
+   "A": "防火安全措施是否正确完备",
+   "B": "测定可燃气体的含量是否合格",
+   "C": "测定易燃液体的可燃蒸汽含量是否合格",
+   "D": "在监护下做明火试验确无问题"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。变电安规规定，一级动火在首次动火时，各级审批人和动火工作票签发人均应到现场检查防火安全措施是否正确完备、测定可燃气体含量是否合格、测定易燃液体可燃蒸汽含量是否合格、在监护下做明火试验确无问题后方可动火。四项是首次动火前的四道检查关，全选。记忆点：一级动火首火四查=措施完备+可燃气体合格+易燃蒸汽合格+明火试验，全过了才动火。"
+ },
+ {
+  "id": 159,
+  "type": "multi",
+  "stem": "依据变电安规，纤维绳出现下列(____)情况者禁止使用。",
+  "options": {
+   "A": "松股",
+   "B": "散股",
+   "C": "严重磨损",
+   "D": "断股"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。变电安规规定，纤维绳出现松股、散股、严重磨损、断股情况之一者禁止使用——纤维绳受力时这些缺陷会使其强度骤降甚至突然断裂，吊物坠落伤人。四种缺陷都直接危及绳的承载能力，全选。记忆点：纤维绳松股散股磨损断股都不能用，绳断了吊物就砸下来了。"
+ },
+ {
+  "id": 160,
+  "type": "multi",
+  "stem": "隔离开关电动机构电机检修时，电机固定牢固，(____)等部位应做好标记，原拆原装。",
+  "options": {
+   "A": "联轴器",
+   "B": "垫片",
+   "C": "地角",
+   "D": "包装"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。隔离开关电动机构电机检修时，电机固定应牢固，联轴器、垫片、地脚（地角）等部位应做好标记、原拆原装——联轴器位置错了对不正轴、垫片错位改变中心高、地脚垫片错乱都会造成电机振动或装配错位，原拆原装保证复位。D包装是运输包装材料，与装配定位无关，不选。记忆点：联轴器、垫片、地脚三处定位件要做记号原拆原装，错位就振动。"
+ },
+ {
+  "id": 161,
+  "type": "multi",
+  "stem": "开关柜断路器操动机构（电磁）二次回路绝缘电阻低于(____)值，需开展C类检修，必要时更换元件。",
+  "options": {
+   "A": "2MΩ",
+   "B": "3MΩ",
+   "C": "1MΩ"
+  },
+  "answer": "AC",
+  "explain": "答案 AC。开关柜断路器（电磁）操动机构二次回路绝缘电阻应不低于2MΩ（用500V或1000V兆欧表测量），当低于2MΩ时即超出合格下限、绝缘水平不足，需开展C类检修；若进一步低于1MΩ，说明绝缘已明显劣化（受潮、老化、破损），更应开展C类检修并视情况更换元件，故2MΩ和1MΩ两档都是检修触发值，均选。B 3MΩ不是规程规定的触发值，不选。记忆点：二次回路绝缘电阻合格下限2MΩ，跌破1MΩ更严重，两档都触发检修。"
+ },
+ {
+  "id": 162,
+  "type": "multi",
+  "stem": "依据输变电设备状态检修试验规程，关于家族性缺陷的说法，正确的是(____)。",
+  "options": {
+   "A": "家族性缺陷设备一定是同一厂家的设备",
+   "B": "家族性缺陷设备一定是同一批次的设备",
+   "C": "家族性缺陷可能由于结构设计不当引起",
+   "D": "家族性缺陷设备可能是不同类型的设备"
+  },
+  "answer": "CD",
+  "explain": "答案 CD。家族性缺陷指同厂家、同批次或同结构设计的设备因共同原因（如结构设计不当、材质工艺缺陷）出现的类似缺陷，可能由于结构设计不当引起（C对）；它强调一定范围内的共性，设备可以是不同厂家、不同类型但同设计原理的（D对）。但它不一定限于同一厂家（A错）、也不一定同一批次（B错），题干用一定二字太绝对。记忆点：家族性缺陷看的是设计结构的共性，不限定厂家批次，结构设计不当是典型根源。"
+ },
+ {
+  "id": 163,
+  "type": "multi",
+  "stem": "10kV真空断路器高压开关柜安装后的验收项目包括(____)。",
+  "options": {
+   "A": "设备安装水平度、垂直度在规定的合格范围内",
+   "B": "所有辅助设施安装完毕，功能正常",
+   "C": "柜门开闭良好，所有隔板、侧板、顶板、底板的螺栓齐全、紧固",
+   "D": "对照原理接线图仔细检查一次母线和二次控制操作线的接线是否正确、可靠、牢固，同时应用500V绝缘电阻表测试二次线的绝缘电阻，一般应大于2M"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。10kV真空断路器高压开关柜安装后的验收项目包括：设备安装水平度、垂直度在规定的合格范围内（A），所有辅助设施安装完毕、功能正常（B），柜门开闭良好、所有隔板侧板顶板底板螺栓齐全紧固（C）。D的对照原理图检查一次母线和二次控制操作线接线、用500V绝缘电阻表测二次线绝缘电阻，属交接试验（调试）范畴，不属于安装后验收项目；且二次回路绝缘电阻合格值按规程应为不小于1MΩ（500V兆欧表），题干说一般应大于2M不准确，故不选D。记忆点：安装后验收看安装质量和外观紧固，二次接线与绝缘测试归交接试验。"
+ },
+ {
+  "id": 164,
+  "type": "multi",
+  "stem": "下列属于开关柜中间验收标准卡中开关柜验收开关柜闭锁逻辑要求的是(____)。",
+  "options": {
+   "A": "手车在工作位置/中间位置，接地刀闸不能合闸，机械闭锁可靠",
+   "B": "手车在中间位置，断路器不能合闸，电气及机械闭锁可靠",
+   "C": "断路器在合位，手车不能摇进/摇出，机械闭锁可靠",
+   "D": "接地刀闸在合位，手车不能摇进，机械闭锁可靠"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。开关柜中间验收闭锁逻辑要求：手车在工作或中间位置时接地刀闸不能合闸（防带电合地刀）、手车在中间位置时断路器不能合闸（防误合）、断路器合位时手车不能摇进摇出（防带负荷拉合）、接地刀闸合位时手车不能摇进（防带接地刀闸送电），四项都是柜体五防联锁逻辑的验收点，全选。记忆点：四条锁对应四类误操作，手车位置、地刀、断路器三者互相制约。"
+ },
+ {
+  "id": 165,
+  "type": "multi",
+  "stem": "下列关于开关柜带电显示装置更换叙述正确的是(____)。",
+  "options": {
+   "A": "拆除时记录二次线标号",
+   "B": "新带电显示装置与原基础相符",
+   "C": "新带电显示装置安装按旧标号接线，接线牢固可靠，带电显示装置安装牢固",
+   "D": "校验带电显示装置正常，带电显示装置与柜体的联锁装置正常"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。开关柜带电显示装置更换要求：拆除时记录二次线标号（A），新装置与原基础相符（B），新装置按旧标号接线、接线牢固可靠、安装牢固（C），校验带电显示正常、与柜体联锁装置正常（D）——记录标号保证接线不错，联锁正常保证带电闭锁有效，四步缺一不可，全选。记忆点：换带电显示器拆时记标号、装时按标号、装后校验联锁，闭环四步。"
+ },
+ {
+  "id": 166,
+  "type": "multi",
+  "stem": "变压器保护装置包括储油柜、安全气道、吸湿器和（  ）等。",
+  "options": {
+   "A": "气体继电器",
+   "B": "油箱",
+   "C": "油流速动继电器",
+   "D": "测温装置"
+  },
+  "answer": "ACD",
+  "explain": "答案 ACD。变压器保护装置（保护性附件）包括储油柜、安全气道（防爆管）、吸湿器、气体继电器、油流速动继电器（压力释放装置）、测温装置等。B油箱是变压器的本体结构件，不是保护装置，故不选。气体继电器和油流速动继电器在油箱内部故障时动作跳闸，测温装置监视油温超限发信，都是保护类附件。记忆点：油箱是壳体不是保护，气体继电器、油流速动、测温才是保护装置。"
+ },
+ {
+  "id": 167,
+  "type": "multi",
+  "stem": "变压器有载调压分接开关（  ）、（  ）后应进行切换特性试验。",
+  "options": {
+   "A": "交接",
+   "B": "吊检",
+   "C": "例行检修",
+   "D": "调档"
+  },
+  "answer": "AB",
+  "explain": "答案 AB。有载调压分接开关在交接（新投运前）和吊检（吊芯检修后）后应进行切换特性试验，验证切换开关的动作顺序、切换时间、过渡电阻等是否符合要求——交接验证出厂质量，吊检验证检修质量。C例行检修、D调档一般不需要做切换特性试验：例行检修做外观与电气检查即可，调档是运行操作。记忆点：切换特性试验在交接和吊检两个节点做，是验证切换质量的关键试验。"
+ },
+ {
+  "id": 168,
+  "type": "multi",
+  "stem": "关于金属波纹储油柜检修的关键工艺质量控制描述正确的是（  ）。",
+  "options": {
+   "A": "通过观察金属隔膜膨胀情况，调整油位指示与之对应，确保指示清晰正确，无假油位现象",
+   "B": "更换后在限定体积时压力0.01MPa～0.03MPa，时间12h应无渗漏",
+   "C": "内油式需充压",
+   "D": "储油柜复装时保持连接法兰的平行和同心"
+  },
+  "answer": "AD",
+  "explain": "答案 AD。金属波纹储油柜检修关键工艺：通过观察金属隔膜膨胀情况调整油位指示与之对应，确保指示清晰正确、无假油位（A对）；复装时保持连接法兰平行和同心，防止密封面受力不均渗漏（D对）。B给出的更换后压力0.01~0.03MPa、12h无渗漏不是金属波纹储油柜密封试验的通用标准参数，试验压力与保持时间应按制造厂规定，故不选。C内油式靠油自重使波纹伸展，不需充压，需充压的是外油式，故C错。记忆点：波纹储油柜看油位与隔膜对应、法兰平行同心；充压的是外油式不是内油式。"
+ },
+ {
+  "id": 169,
+  "type": "multi",
+  "stem": "进行冷却装置联动试验：主供、备供电源投切正常；在冷却器故障状态下备用冷却器应能正确启动；依次开启所有油泵，延时间隔应在30s以上，不应出现（  ）的误动。",
+  "options": {
+   "A": "气体继电器",
+   "B": "压力释放阀",
+   "C": "密度继电器",
+   "D": "温度计"
+  },
+  "answer": "AB",
+  "explain": "答案 AB。冷却装置联动试验：主供备供电源投切正常，冷却器故障时备用冷却器应能正确启动，依次开启所有油泵时延时间隔应在30s以上，防止油流冲击引起气体继电器、压力释放阀误动——多台油泵同时或间隔过短启动会造成油流涌动，重瓦斯或压力释放可能误动跳闸，故延时间隔≥30s。C密度继电器监视SF6密度、D温度计测油温，与油泵启动冲击无关，不选。记忆点：油泵逐台启、间隔30s，就是防油流冲击让瓦斯和压力释放误动。"
+ },
+ {
+  "id": 170,
+  "type": "multi",
+  "stem": "（  ）电流互感器、（  ）电压互感器出现电容单元渗漏油情况时，应退出运行。",
+  "options": {
+   "A": "正立式",
+   "B": "倒立式",
+   "C": "电容式",
+   "D": "电磁式"
+  },
+  "answer": "BC",
+  "explain": "答案 BC。倒立式电流互感器（倒置式CT）和电容式电压互感器（CVT）内部带电容屏、电容单元，电容单元密封在绝缘油中，一旦渗漏油会使油位下降、绝缘受潮、电容特性改变，必须退出运行处理；而正立式电流互感器和电磁式电压互感器没有电容单元结构，不在此条规定内。题干要求的是有电容单元的倒立式CT和电容式PT，故选BC。记忆点：有电容单元的是倒立式CT和电容式PT，渗漏油就退运，正立式和电磁式没这结构。"
+ },
+ {
+  "id": 171,
+  "type": "multi",
+  "stem": "变压器非电量保护装置包括（  ）、油流速动继电器。",
+  "options": {
+   "A": "温度计",
+   "B": "油位指示计",
+   "C": "压力释放阀",
+   "D": "气体继电器"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。非电量保护反映变压器油、气、温度、压力等非电气量变化：温度计监测上层油温、油位指示计反映油位高低、压力释放阀在内部压力骤增时动作泄压、气体继电器反应内部故障产气与油流冲击，四者共同构成非电量保护。A温度计、B油位指示计、C压力释放阀、D气体继电器分别覆盖温度、油位、压力、气体四类量的监视与保护，缺一不可。记忆点：非电量保护看的是油温、油位、气压、气体四样，全都不经电气量。"
+ },
+ {
+  "id": 172,
+  "type": "multi",
+  "stem": "避雷器泄漏电流指示值（  ）时，应开展D类检修。",
+  "options": {
+   "A": "交流泄漏电流指示值纵横比增大10%",
+   "B": "交流泄漏电流指示值纵横比增大20%",
+   "C": "交流泄漏电流指示值纵横比增大100%",
+   "D": "交流泄漏电流指示值异常大幅降低"
+  },
+  "answer": "BCD",
+  "explain": "答案 BCD。避雷器泄漏电流在线监测值发生显著变化说明内部工况异常：纵横比增大20%（B）、增大100%（C）说明阻性电流分量明显上升、阀片老化或受潮加剧，异常大幅降低（D）则可能是监测装置失准或内部元件异常，三种情况都达到开展D类检修（不停电检测维护）的条件。A增大10%尚属正常波动范围，未达到需开展检修的阈值，故不选。记忆点：纵横比是阻性电流与容性电流的比值，它大涨或异常降都说明阀片状态出问题，10%只是提示、20%起才进检修。"
+ },
+ {
+  "id": 173,
+  "type": "multi",
+  "stem": "红外热成像检测发现电流互感器瓷套整体运行温度增高，且上部温升高于2K，应（  ）。",
+  "options": {
+   "A": "必要时开展A类检修",
+   "B": "必要时安排停电检查，根据检查结果进行相应处理",
+   "C": "必要时开展C类检修，进行处理",
+   "D": "加强D类检修，跟踪监测分析"
+  },
+  "answer": "BD",
+  "explain": "答案 BD。红外检测发现CT瓷套整体温升增高且上部温升高于2K，提示内部介质损耗增大、绝缘可能劣化，属需跟踪的异常。处理原则：必要时安排停电检查，根据检查结果进行相应处理（B）；同时加强D类检修、跟踪监测分析（D），动态掌握温升变化趋势。A必要时开展A类检修、C必要时开展C类检修均为越级处置，温升增高尚未确诊内部故障前不应直接安排A、C类检修，故不选。记忆点：瓷套整体温升异常先跟踪监测，确诊后再决定停电检修级别，不能一上来就大修。"
+ },
+ {
+  "id": 174,
+  "type": "multi",
+  "stem": "SF6电压互感器充气速率不宜过快，以气（  ）不结霜为宜。",
+  "options": {
+   "A": "瓶头",
+   "B": "减压阀",
+   "C": "充气管",
+   "D": "SF6气瓶"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。SF6电压互感器充气时速率不宜过快，以气瓶头、减压阀、充气管不结霜为宜：气流过快时气体节流膨胀吸热，会在瓶头、减压阀、充气管表面结霜，说明流速过高、充气过快，可能使水分凝露、阀件冻裂或影响充气计量。D气瓶本身是储存容器，不因充气流速而结霜，故不选。记忆点：充气快不快看三个过气环节（瓶头、减压阀、充气管）有没有结霜，结霜就是流速过大的信号。"
+ },
+ {
+  "id": 175,
+  "type": "multi",
+  "stem": "D类检修项目包含（  ）金属部件防腐处理、箱体维护等不停电工作。",
+  "options": {
+   "A": "专业巡视",
+   "B": "带电水冲洗",
+   "C": "冷却系统部件更换工作",
+   "D": "辅助二次元器件更换$铁芯绝缘电阻测试"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。D类检修指不停电进行的专业巡视、维护保养等作业，包含专业巡视（A）、带电水冲洗（B）、冷却系统部件更换工作（C）、辅助二次元器件更换与铁芯绝缘电阻测试（D）等不停电工作，均在设备运行状态下开展。四项都属于D类检修项目，答案全选。记忆点：D类检修等于不停电，凡是带电状态下能做的巡视、水冲洗、换冷却部件、换辅助元件都归D类。"
+ },
+ {
+  "id": 176,
+  "type": "multi",
+  "stem": "变压器C类检修周期设备符合哪些条件的，检修可以在周期调整后的基础上最多延迟1个年度（  ）。",
+  "options": {
+   "A": "巡视中未见可能危及该设备安全运行的任何异常",
+   "B": "带电检测（如有）显示设备状态良好",
+   "C": "上次试验与其前次（或交接）试验结果相比无明显差异",
+   "D": "上次检修以来，没有经受严重的不良工况"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。变压器C类检修周期调整后最多延迟1个年度，必须同时满足四项条件：巡视中未见可能危及安全的任何异常（A）、带电检测显示设备状态良好（B）、上次试验与前次或交接试验结果无明显差异（C）、上次检修以来没有经受严重的不良工况（D），即设备状态平稳、无劣化趋势、无过载短路等冲击。四项条件缺一即不能延迟检修周期，故全选。记忆点：延迟检修是有前提的状态评价结果，要求巡视无异常、检测良好、历次试验平稳、无恶劣工况四关全过。"
+ },
+ {
+  "id": 177,
+  "type": "multi",
+  "stem": "变压器铁心检修时铁心与（  ）均应保持良好绝缘。",
+  "options": {
+   "A": "上下夹件",
+   "B": "方铁",
+   "C": "压板",
+   "D": "底脚板间"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。变压器铁心检修时，铁心与上下夹件、方铁、压板、底脚板间均应保持良好绝缘：上下夹件（A）、方铁（B）、压板（C）固定并压紧铁心叠片，底脚板（D）支撑铁心，若这些金属件与铁心间绝缘破坏，会形成铁心多点接地或短路，产生环流发热。四者与铁心之间都必须绝缘良好，答案全选。记忆点：铁心靠一点接地运行，与它相邻的夹件、方铁、压板、底脚板全是潜在接地点，检修时每处绝缘都要查。"
+ },
+ {
+  "id": 178,
+  "type": "multi",
+  "stem": "MR有载分接开关定期检修包括（  ）、检查保护继电器、驱动轴、电机传动机构，检查油滤清器及电压调节器、更换切换开关油工作内容。",
+  "options": {
+   "A": "拆卸及重新安装切换开关",
+   "B": "检查并清洗切换开关油箱及部件，清洗切换开关小油枕",
+   "C": "测量触头磨损、测量过渡电阻、测量切换开关的动作顺序",
+   "D": "测量选择开关触头接触电阻"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。MR有载分接开关定期检修围绕切换开关与传动机构展开：拆卸及重新安装切换开关（A）、检查并清洗切换开关油箱及部件、清洗切换开关小油枕（B）、测量触头磨损、过渡电阻、切换开关动作顺序（C），加上其他相关部件检查与换油工作。D测量选择开关触头接触电阻属选择开关检修项目，MR定期检修不把选择开关纳入，故不选。记忆点：MR定期检修盯紧切换开关——拆装清洗换油、量触头磨损、测过渡电阻与动作顺序，选择开关另算。"
+ },
+ {
+  "id": 179,
+  "type": "multi",
+  "stem": "变压器铁心多点接地，可能出现在（  ）部位。",
+  "options": {
+   "A": "变压器铁心与夹件间绝缘空隙内",
+   "B": "夹件绝缘处；器身下垫脚绝缘处；油箱底与铁心下轭铁间",
+   "C": "上铁轭夹件与钟罩间；钢压圈与铁心柱间；铁轭大螺杆的钢护套处",
+   "D": "铁心接地片与夹件间"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。铁心多点接地多发生在铁心与其邻近金属件间绝缘破坏处：铁心与夹件间绝缘空隙内（A）、夹件绝缘处、器身下垫脚绝缘处、油箱底与铁心下轭铁间（B）、上铁轭夹件与钟罩间、钢压圈与铁心柱间、铁轭大螺杆的钢护套处（C）都是常见位置。D铁心接地片与夹件间正是铁心正常一点接地的设置处，接地片接地属正常设计，不是多点接地故障部位，故不选。记忆点：多点接地是铁心与夹件、垫脚、压圈等不该碰的地方碰上了，而接地片那一点是本来就该接的。"
+ },
+ {
+  "id": 180,
+  "type": "multi",
+  "stem": "应用“三比值”法判断变压器内部故障时，应注意（  ）。",
+  "options": {
+   "A": "根据各组分含量达到注意值时即可用“三比值”法判断故障性质",
+   "B": "具体情况具体分析，不能死搬硬套",
+   "C": "应注意设备结构与运行情况",
+   "D": "特征气体的比值异常时应加强监视"
+  },
+  "answer": "BCD",
+  "explain": "答案 BCD。应用三比值法判断变压器内部故障，前提是气体各组分含量已超过注意值，但不能死搬硬套：要具体情况具体分析（B）、注意设备结构与运行情况（C）、特征气体比值异常时应加强监视（D），综合油色谱历史数据与设备工况判断。A说含量达到注意值即可直接判断故障性质，把三比值法当成唯一判据，忽视了其局限性与辅助地位，说法过于绝对，故不选。记忆点：三比值法是辅助判据不是金标准，先看含量超注意值、再结合结构和运行情况综合下结论。"
+ },
+ {
+  "id": 181,
+  "type": "multi",
+  "stem": "泄漏电流带电检测主要是测量避雷器的全电流和阻性电流基波峰值，根据这两个值的变化来判断避雷器内部是否（ ）、金属氧化物阀片是否发生（ ）等。",
+  "options": {
+   "A": "受潮",
+   "B": "老化",
+   "C": "脏污",
+   "D": "劣化"
+  },
+  "answer": "AD",
+  "explain": "答案 AD。避雷器泄漏电流带电检测测量全电流与阻性电流基波峰值，阻性电流上升反映阀片受潮或劣化：阀片受潮后阻性电流明显增大，阀片劣化（老化）同样使阻性电流分量增大，故通过两值变化判断内部是否受潮（A）、阀片是否劣化（D）。B老化与D劣化意思相近但用词不同，本题以劣化为准；C脏污主要反映瓷套表面污秽状况，靠外观检查与污秽度监测判断，不靠泄漏电流带电检测判断，故不选。记忆点：阻性电流是避雷器健康的晴雨表，受潮和劣化都会让它变大。"
+ },
+ {
+  "id": 182,
+  "type": "multi",
+  "stem": "避雷器全电流测试时，电流取样方式有（  ）。",
+  "options": {
+   "A": "放电计数器短接法",
+   "B": "末屏电流法",
+   "C": "检修电源法",
+   "D": "钳形电流传感器法"
+  },
+  "answer": "AD",
+  "explain": "答案 AD。避雷器全电流测试时电流取样方式有放电计数器短接法（A）和钳形电流传感器法（D）：短接法把放电计数器两端短接使全电流全部经测量回路流过，钳形法用钳形电流传感器直接卡在接地引下线上测量。B末屏电流法是变压器、电容式套管末屏引出的电流测量方式，与避雷器无关；C检修电源法并非电流取样方式，故均不选。记忆点：测避雷器全电流两条路——短接计数器或钳表卡引下线，末屏那是套管的事。"
+ },
+ {
+  "id": 183,
+  "type": "multi",
+  "stem": "母线电容电流检测结果使接地时通过故障点的(  )尽可能小，同时应保证电网正常运行和事故情况下中性点位移电压不应高于额定电压的(  )%。",
+  "options": {
+   "A": "残流",
+   "B": "15",
+   "C": "20",
+   "D": "残压"
+  },
+  "answer": "AB",
+  "explain": "答案 AB。母线电容电流检测用于消弧线圈调谐：接地时通过故障点的残流应尽可能小（A），电弧才易熄灭；同时正常运行时中性点位移电压不应高于额定相电压的15%（B），防止谐振过电压危害绝缘。C20超出15%允许值，D残压不是本处考核量，故不选。记忆点：消弧线圈整定两头受限——残流尽量小、位移电压不超15%相电压，本质是灭弧需求与过电压限制之间的平衡。"
+ },
+ {
+  "id": 184,
+  "type": "multi",
+  "stem": "《变电检测管理规定》：标准作业卡的编制原则为（ ），可并行开展的任务或不是由同一小组人员完成的任务不宜编制为一张作业卡，避免标准作业卡繁杂冗长、不易执行。",
+  "options": {
+   "A": "文字简洁",
+   "B": "任务单一",
+   "C": "步骤清晰",
+   "D": "语句简练"
+  },
+  "answer": "BCD",
+  "explain": "答案 BCD。标准作业卡的编制原则为任务单一、步骤清晰、语句简练：任务单一（B）保证一张卡对应一项明确工作，步骤清晰（C）便于按步骤执行，语句简练（D）避免冗余。A文字简洁与语句简练语义重复，且不是该规定的标准用词，故不选。原则意在避免作业卡繁杂冗长、不易执行，可并行开展或由不同小组完成的任务不宜编成一张卡。记忆点：标准作业卡讲求单一、清晰、简练，宁可多分几张卡也别贪大求全。"
+ },
+ {
+  "id": 185,
+  "type": "multi",
+  "stem": "超声波检测，如果发现信号异常，则在该气室进行多点检测，延长检测时间不少于30s并记录多组数据进行（）。",
+  "options": {
+   "A": "信号对比",
+   "B": "幅值对比",
+   "C": "趋势分析",
+   "D": "诊断分析"
+  },
+  "answer": "BC",
+  "explain": "答案 BC。超声波检测发现信号异常时，应在该气室多点检测、延长检测时间不少于30s并记录多组数据，用于进行幅值对比（B）和趋势分析（C）：对比不同测点、不同时刻信号幅值的变化，判断缺陷是否发展。A信号对比、D诊断分析用词不规范，不是规程规定的标准分析手段，故不选。记忆点：异常信号抓证据——多点测、延时长、记多组，目的就是比幅值、看趋势。"
+ },
+ {
+  "id": 186,
+  "type": "multi",
+  "stem": "当怀疑避雷器泄漏电流存在异常时，应排除各种因素的干扰,并结合(   )进行综合分析判断，必要时应开展停电诊断试验。",
+  "options": {
+   "A": "红外精确测温",
+   "B": "超声波测试",
+   "C": "高频局放测试",
+   "D": "超高频局放测试"
+  },
+  "answer": "AC",
+  "explain": "答案 AC。怀疑避雷器泄漏电流异常时，应排除干扰因素，并结合红外精确测温（A）和高频局放测试（C）综合分析判断：泄漏电流异常常伴随发热和内部放电特征，红外测温查发热部位，高频局放测内部放电，必要时再开展停电诊断试验。B超声波测试多用于GIS、开关柜等设备内部颗粒、电晕检测，D超高频局放测试用于GIS内部绝缘缺陷，二者对避雷器泄漏电流判断针对性不强，故不选。记忆点：查避雷器异常用红外配高频局放，一个看发热、一个看放电。"
+ },
+ {
+  "id": 187,
+  "type": "multi",
+  "stem": "电容器电容量测量方法包括（  ）",
+  "options": {
+   "A": "末端加压法",
+   "B": "电压电流表法",
+   "C": "电容电感测试仪法",
+   "D": "回路法"
+  },
+  "answer": "BC",
+  "explain": "答案 BC。电容器电容量测量方法主要有电压电流表法（B）和电容电感测试仪法（C）：电压电流表法通过施加工频电压测电流换算电容量，电容电感测试仪可直接读出电容值。A末端加压法、D回路法不是电容量测量的标准方法，故不选。记忆点：测电容两招——仪表直读或加电压量电流换算，没有所谓末端加压、回路法。"
+ },
+ {
+  "id": 188,
+  "type": "multi",
+  "stem": "露点法测量SF6气体湿度，测量时缓慢开启调节阀，仔细调节气体（）。测量过程中保持测量流量稳定，并随时检测被测设备的气体压力，防止设备压力异常下降。",
+  "options": {
+   "A": "温度",
+   "B": "压力",
+   "C": "流速",
+   "D": "密度"
+  },
+  "answer": "BC",
+  "explain": "答案 BC。露点法测量SF6气体湿度时，应缓慢开启调节阀，仔细调节气体压力（B）和流速（C），测量中保持流量稳定，并随时检测被测设备气体压力，防止压力异常下降。A温度是露点法的测量对象而非调节量，D密度无法直接调节，故均不选。记忆点：露点法操作要点是慢开阀、稳压力、恒流速，温度和密度不是拿来调的。"
+ },
+ {
+  "id": 189,
+  "type": "multi",
+  "stem": "避雷器工频参考电压试验说法正确的是（）。",
+  "options": {
+   "A": "试验过程中应无放电或击穿现象",
+   "B": "将测试数据与初始值或出厂试验值进行比较，当有明显降低时就应对避雷器加强监视",
+   "C": "66kV及以上的避雷器，工频参考电压比初值降低超过10%时，应查明原因，若确系老化或受潮造成的，宜退出运行。",
+   "D": "一般情况下，工频参考电压峰值与避雷器直流参考电压（UnmA）相等"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。避雷器工频参考电压试验的判断要求：试验过程中应无放电或击穿现象（A）；测试数据与初始值或出厂值比较，明显降低时应加强监视（B）；66kV及以上避雷器工频参考电压比初值降低超过10%，查明原因确系老化或受潮造成时宜退出运行（C）；一般情况下工频参考电压峰值与避雷器直流参考电压（U1mA）相等（D）。四项表述均正确，答案全选。记忆点：工频参考电压就是阀片伏安特性饱和点的位置，它明显下降提示老化受潮，降超10%宜退运。"
+ },
+ {
+  "id": 190,
+  "type": "multi",
+  "stem": "变压器铁心接地电流检测结果应符合以下要求（    ）。",
+  "options": {
+   "A": "1000kV变压器：≤300mA（注意值）",
+   "B": "1000kV变压器：≤100mA（注意值）",
+   "C": "1000kV以下变压器：≤300mA（注意值）",
+   "D": "1000kV以下变压器：≤100mA（注意值）"
+  },
+  "answer": "AD",
+  "explain": "答案 AD。变压器铁心接地电流检测结果要求：1000kV变压器不大于300mA（注意值，A），1000kV以下变压器不大于100mA（注意值，D），且与历史数值比较无较大变化。B把1000kV的注意值写成100mA，C把1000kV以下写成300mA，两档数据颠倒，故不选。记忆点：电压等级越高注意值越松——1000kV限300mA、1000kV以下限100mA，别把两档记反。"
+ },
+ {
+  "id": 191,
+  "type": "single",
+  "stem": "当操作发生疑问时，应立即停止操作并向(     )报告。",
+  "options": {
+   "A": "值班调度员",
+   "B": "值班负责人",
+   "C": "发令人",
+   "D": "防误专责人"
+  },
+  "answer": "C",
+  "explain": "答案 C。安规规定：操作中发生疑问时，应立即停止操作并向发令人报告，弄清问题后方可继续操作，严禁擅自更改操作票。操作票的执行指令来自发令人，疑问的澄清权也在发令人，故向发令人（C）报告。A值班调度员只在涉及调度命令的环节下达指令，B值班负责人是现场管理角色，D防误专责人负责防误管理，三者都不是操作疑问的直接报告对象，故不选。记忆点：操作疑问止步问发令人，谁发令谁负责解释，不能越级乱问。"
+ },
+ {
+  "id": 192,
+  "type": "single",
+  "stem": "电容器喷射式高压熔断器熔断（不平衡保护动作），根据调控指令停电并做好措施，注意（ ）放电。",
+  "options": {
+   "A": "逐台",
+   "B": "逐个",
+   "C": "逐相",
+   "D": "逐次"
+  },
+  "answer": "A",
+  "explain": "答案 A。电容器喷射式高压熔断器熔断（不平衡保护动作）时，该故障电容器可能仍带有残余电荷，根据调控指令停电并做好措施后，应注意逐台（A）放电：每台电容器都要单独放电，防止残余电荷伤人。B逐个是形容数量众多的小件物品，C逐相是按相别放电，D逐次按次数放电，都不是针对电容器放电的正确量词用法，故不选。记忆点：电容器是成台设备，熔断一台就放一台的电，逐台放电才能清完残余电荷。"
+ },
+ {
+  "id": 193,
+  "type": "single",
+  "stem": "中型变压器指三相最大额定容量不超过（ ）MVA，单相最大额定容量不超过（ ）MVA的电力变压器。",
+  "options": {
+   "A": "80/26.7",
+   "B": "90/30",
+   "C": "100/33.3",
+   "D": "110/36.7"
+  },
+  "answer": "C",
+  "explain": "答案 C。按容量划分，中型变压器指三相最大额定容量不超过100MVA、单相最大额定容量不超过33.3MVA的电力变压器，故两空分别填100、33.3。A80/26.7、B90/30、D110/36.7均与中型变压器的划分标准不符：80、90、110都偏离100这一界限，对应单相容量也随之不对。记忆点：中型变压器以三相100MVA为界，单相正好是三相的三分之一即33.3MVA，3倍关系可以互相校验。"
+ },
+ {
+  "id": 194,
+  "type": "single",
+  "stem": "发生小电流接地系统母线单相接地故障时，在故障母线未停电或故障点未找到的情况下，（ ）不得进入设备区。",
+  "options": {
+   "A": "检修人员",
+   "B": "检修或运维人员",
+   "C": "运维人员",
+   "D": "检修人员和运维人员"
+  },
+  "answer": "C",
+  "explain": "答案 C。小电流接地系统发生母线单相接地时，在故障母线未停电或故障点未找到的情况下，运维人员不得进入设备区：接地故障可能引发间歇性弧光、产生异位升压或过电压，进入设备区检查有触电风险，只能通过试拉选线等远方手段查找。A检修人员、D检修人员和运维人员本来就不具备进入带电查找的条件，表述过宽；B检修或运维人员表述不准确，规程限定的是运维人员不得进入设备区，故不选。记忆点：母线单相接地未处理前，连运维人员都不得进设备区，先选线停电再查。"
+ },
+ {
+  "id": 195,
+  "type": "single",
+  "stem": "330kV～500kV变压器铁心、夹件接地电流测试的周期为（ ）。",
+  "options": {
+   "A": "每月至少一次",
+   "B": "每三个月至少一次",
+   "C": "每六个月至少一次",
+   "D": "每一年至少一次"
+  },
+  "answer": "B",
+  "explain": "答案 B。变压器铁心、夹件接地电流测试周期按电压等级区分：750～1000kV每月不少于一次，330～500kV每三个月不少于一次，35～110kV每年不少于一次。故330～500kV的测试周期为每三个月至少一次（B）。A每月是750kV及以上档的周期，C每六个月、D每一年均不适用于330～500kV档，故不选。记忆点：接地电流测试电压越高查得越勤，330～500kV居中档每季一次。"
+ },
+ {
+  "id": 196,
+  "type": "single",
+  "stem": "二次设备屏柜及屏柜上装置、压板、切换端子、控制开关、信号指示等的（   ）应规范，与运行规程和典型操作票一致。",
+  "options": {
+   "A": "命名和标识",
+   "B": "命名",
+   "C": "标识",
+   "D": "命名或标识"
+  },
+  "answer": "A",
+  "explain": "答案 A。二次设备屏柜及屏柜上装置、压板、切换端子、控制开关、信号指示等的命名和标识应规范，与运行规程和典型操作票一致：命名与标识两者必须同时规范，缺一不可。B只提命名、C只提标识，都只覆盖一半；D命名或标识是二选一，与规程要求的二者都规范不符，故均不选。记忆点：屏柜上的东西既要名字对（命名）也要标志清（标识），两个都要与运行规程、典型操作票对得上。"
+ },
+ {
+  "id": 197,
+  "type": "single",
+  "stem": "变压器过载时巡视，应（ ）检查并记录负载电流。",
+  "options": {
+   "A": "定期",
+   "B": "随时",
+   "C": "定时",
+   "D": "按专用运行规程要求"
+  },
+  "answer": "C",
+  "explain": "答案 C。变压器过载运行时，应定时（C）检查并记录负载电流：过载属异常工况，需按固定时间间隔定时巡视、记录电流和温度，掌握过载程度与持续时间。A定期语义泛泛，未突出过载时按固定时间间隔检查的要求；B随时没有时间规律，不便于记录对比；D按专用运行规程要求未落实到本题的过载检查场景上，故均不选。记忆点：过载时负载电流要定时查、定时记，才能算准过载倍数和时间，决定能否继续运行。"
+ },
+ {
+  "id": 198,
+  "type": "single",
+  "stem": "对于熔断器未安装于隔离手车上的，更换前应拉开电压互感器一次隔离开关，对熔断器两侧（ ）后进行更换。",
+  "options": {
+   "A": "验电并接地",
+   "B": "验电",
+   "C": "接地",
+   "D": "短路"
+  },
+  "answer": "A",
+  "explain": "答案 A。对于熔断器未安装于隔离手车上的，更换前应拉开电压互感器一次隔离开关，对熔断器两侧验电并接地（A）后进行更换：确认两侧均无电压、并做好接地保护，防止反送电和残余电荷触电。B只验电不接地，无法隔离意外来电；C只接地不验电，接地时可能带电台接地线；D短路不是检修安全措施，故均不选。记忆点：换未装手车上的熔断器，先验电后接地，验电加接地两步都不能省。"
+ },
+ {
+  "id": 199,
+  "type": "single",
+  "stem": "110kV及以上中性点有效接地系统中投运或停运变压器的操作，中性点应（ ）。",
+  "options": {
+   "A": "先接地",
+   "B": "后接地",
+   "C": "不接地",
+   "D": "拉开"
+  },
+  "answer": "A",
+  "explain": "答案 A。110kV及以上中性点有效接地系统中，投运或停运变压器的操作，中性点应先接地（A）：投、停变压器时操作断路器会产生操作过电压，中性点先接地可限制暂态过电压、防止中性点绝缘损坏，待操作完成后再按调度要求恢复。B后接地、C不接地都违背先接地原则，D拉开更不可能，故均不选。记忆点：有效接地系统里变压器投停，中性点先接地再操作，用接地把操作过电压箍住。"
+ },
+ {
+  "id": 200,
+  "type": "single",
+  "stem": "母线短路失压，可按照（ ）指令处理试送母线。线路对侧有电源时应由线路对侧电源对故障母线试送电。",
+  "options": {
+   "A": "运维负责人",
+   "B": "当值负责人",
+   "C": "值班调控人员",
+   "D": "工区领导"
+  },
+  "answer": "C",
+  "explain": "答案 C。母线短路失压后，应按值班调控人员（C）的指令处理试送母线：母线试送涉及系统运行方式与并列条件，须由调度统一指挥，且线路对侧有电源时应由线路对侧电源对故障母线试送电。A运维负责人、D工区领导是运维管理角色，B当值负责人不是调度指令主体，均无权决定试送母线，故不选。记忆点：母线失压后谁送电听调度的，值班调控人员一句话，运维执行不能自作主张。"
+ },
+ {
+  "id": 201,
+  "type": "single",
+  "stem": "三绕组降压变压器停电操作时，按照（ ）的操作顺序进行；变压器送电时操作顺序相反。",
+  "options": {
+   "A": "低压侧、中压侧、高压侧",
+   "B": "中压侧、低压侧、高压侧",
+   "C": "高压侧、中压侧、低压侧",
+   "D": "中压侧、高压侧、低压侧"
+  },
+  "answer": "A",
+  "explain": "答案 A。三绕组降压变压器停电操作按低压侧、中压侧、高压侧（A）的顺序进行，送电时顺序相反（先高压、再中压、后低压）：停电先断开负荷侧（低压），逐级断开，最后断开电源侧（高压），使各侧断路器切除的是本级故障、缩小停电范围；送电先合电源侧，再逐级合负荷侧。B、C、D顺序均不符合先负荷侧后电源侧的原则，故不选。记忆点：降压变停电从下往上断（低到中到高），送电从上往下合（高到中到低），永远先电源后负荷。"
+ },
+ {
+  "id": 202,
+  "type": "single",
+  "stem": "变压器本体（ ）设置油面过高和过低信号，有载调压开关（ ）设置油面过高和过低信号。",
+  "options": {
+   "A": "应，应",
+   "B": "应，宜",
+   "C": "宜、应",
+   "D": "宜、宜"
+  },
+  "answer": "B",
+  "explain": "答案 B。按规程用词，变压器本体应设置油面过高和过低信号（强制性要求），有载调压开关宜设置油面过高和过低信号（推荐性要求），故两空分别填应、宜（B）。A两空都填应，对有载调压开关要求过严；C宜、应把两者颠倒；D两空都填宜，把本体的强制要求降格，故均不选。记忆点：本体的油位信号是应设（必须），调压开关的油位信号是宜设（推荐），强制与推荐别混。"
+ },
+ {
+  "id": 203,
+  "type": "single",
+  "stem": "跌落式熔断器更换时，下面说法错误的为（ ）。",
+  "options": {
+   "A": "跌落式熔断器更换时，先拉中间相，后拉边相",
+   "B": "如有风时先拉背风的边相，后拉迎风的边相",
+   "C": "更换完后送电时，先送中间相，后送边相",
+   "D": "更换完后送电时，先送边相，后送中间相"
+  },
+  "answer": "C",
+  "explain": "答案 C。跌落式熔断器操作顺序：停电（更换）时先拉中间相、后拉边相，有风时先拉背风边相、后拉迎风边相；送电时先送边相、后送中间相，与停电顺序相反。C说送电时先送中间相、后送边相，恰好说反，是错误的，故本题选C。A先拉中间相后拉边相、B有风先拉背风相、D送电先送边相后送中间相均正确。记忆点：跌落熔断器停送电顺序相反——停电先中间后边相，送电先边相后中间相，防止相间电弧短路。"
+ },
+ {
+  "id": 204,
+  "type": "single",
+  "stem": "开关柜内手车开关拉出后，隔离带电部位的挡板封闭后禁止开启，并设置“（ ）”的标示牌。",
+  "options": {
+   "A": "止步，高压危险！",
+   "B": "禁止合闸，有人工作。",
+   "C": "禁止分闸",
+   "D": "在此工作"
+  },
+  "answer": "A",
+  "explain": "答案 A。开关柜手车拉出后，隔离带电部位的挡板封闭后禁止开启，并设置止步，高压危险！（A）标示牌，警示人员不得接近、不得开启挡板。B禁止合闸，有人工作是挂在检修设备或操作机构上的标示牌，C禁止分闸是防误操作类标示，D在此工作是检修工作位置标示，三者均不用于挡板封闭处的警示，故不选。记忆点：挡板背后是带电静触头，止步高压危险最贴切，其余三类牌子用途不同别混用。"
+ },
+ {
+  "id": 205,
+  "type": "single",
+  "stem": "变电站应配置与实际相符的组合电器气室分隔图，标明气室分隔情况、气室编号，汇控柜上有本间隔的（ ）。",
+  "options": {
+   "A": "分隔示意图",
+   "B": "双重编号",
+   "C": "设备铭牌",
+   "D": "主接线示意图"
+  },
+  "answer": "D",
+  "explain": "答案 D。变电站应配置与实际相符的组合电器气室分隔图，标明气室分隔情况和气室编号；汇控柜上应有本间隔的主接线示意图（D），便于运维人员核对设备位置与间隔关系。A分隔示意图对应的是变电站层面的气室分隔图，B双重编号是设备命名，C设备铭牌标示设备参数，三者都不是汇控柜上应配置的内容，故不选。记忆点：气室分隔图放站里、主接线示意图放汇控柜上，一图管全站、一图标间隔。"
+ },
+ {
+  "id": 206,
+  "type": "single",
+  "stem": "油浸式电流互感器瓷套等整体温升增大、且上部温度偏高，温差为（ ），可判断为内部绝缘降低，应立即汇报值班调控人员申请停运处理。",
+  "options": {
+   "A": "1-2K",
+   "B": "2-3K",
+   "C": "1-3K",
+   "D": "3-4K"
+  },
+  "answer": "B",
+  "explain": "答案 B。油浸式电流互感器瓷套等整体温升增大、且上部温度偏高，温差为2-3K时，可判断为内部绝缘降低，应立即汇报值班调控人员申请停运处理（B）。A1-2K、C1-3K、D3-4K均不是规程规定的判据温差：1-2K尚未达到提示水平，3-4K已远超判据，故不选。记忆点：整体温升升高加顶部偏高是介质损耗增大的热像特征，温差卡在2-3K这个档上就该申请停运。"
+ },
+ {
+  "id": 207,
+  "type": "single",
+  "stem": "并联电容器组运维细则中，电容器围栏应设置（ ），防止形成环流，造成围栏发热。",
+  "options": {
+   "A": "接地",
+   "B": "放电线圈",
+   "C": "连接点",
+   "D": "断开点"
+  },
+  "answer": "D",
+  "explain": "答案 D。并联电容器组围栏应设置断开点（D），防止围栏金属构件与大地形成闭合回路，在强磁场下感应出环流、造成围栏发热。A接地反而会提供环流通路，与防止环流的目的事与愿违；B放电线圈用于电容器放电，C连接点是正常导体的接点，均与围栏防环流无关，故不选。记忆点：围栏要设断开点把回路切开，环流没了围栏自然不发热，接地在此处是帮倒忙。"
+ },
+ {
+  "id": 208,
+  "type": "single",
+  "stem": "备自投装置闭锁功能应完善，确保不发生备用电源自投到故障元件上、造成事故扩大，备自投装置母线失压启动延时应（ ）最长的外部故障切除时间。",
+  "options": {
+   "A": "大于",
+   "B": "小于",
+   "C": "等于",
+   "D": "不小于"
+  },
+  "answer": "A",
+  "explain": "答案 A。备自投装置母线失压启动延时应大于（A）最长的外部故障切除时间：若延时小于或等于外部故障切除时间，外部故障尚未切除时备自投就启动，可能把备用电源投入到故障元件上，造成事故扩大。B小于、C等于、D不小于均不符合该整定原则，故不选。记忆点：备自投宁可慢半拍，延时要大于最长外部故障切除时间，等故障彻底切除再投，别把备用电源送进故障点。"
+ },
+ {
+  "id": 209,
+  "type": "single",
+  "stem": "若遇危及人身、电网和设备安全等紧急情况需要解锁操作，可由（   ）下令紧急使用解锁工具（钥匙），解锁工具（钥匙）使用后应及时填写相关记录。",
+  "options": {
+   "A": "变电运维班负责人",
+   "B": "发电厂当值值长",
+   "C": "变电运维班当值负责人或发电厂当值值长",
+   "D": "变电运维班当值负责人"
+  },
+  "answer": "C",
+  "explain": "答案 C。遇危及人身、电网和设备安全的紧急情况需要解锁操作时，可由变电运维班当值负责人或发电厂当值值长（C）下令紧急使用解锁工具（钥匙），用后及时填写相关记录。A只提变电运维班负责人、D只提变电运维班当值负责人，漏掉发电厂当值值长；B只提发电厂当值值长，漏掉变电运维班当值负责人，均不完整，故不选。记忆点：紧急解锁的命令权在当值负责人——变电站找当值负责人、电厂找值长，两人二选一即可下令。"
+ },
+ {
+  "id": 210,
+  "type": "single",
+  "stem": "暂态地电压局部放电测试现场出现明显异常情况时（ ），应立即停止测试工作并撤离现场。",
+  "options": {
+   "A": "如异音、电压波动等",
+   "B": "如异音、系统接地等",
+   "C": "如电压波动、系统接地等",
+   "D": "如异音、电压波动、系统接地等"
+  },
+  "answer": "D",
+  "explain": "答案 D。暂态地电压局部放电测试现场出现明显异常情况时，如异音、电压波动、系统接地等（D），应立即停止测试工作并撤离现场：异音提示设备内部可能放电击穿，电压波动与系统接地都可能是设备故障的征兆，继续测试有触电和设备损坏风险。A、B、C分别只列举其中部分情况，覆盖不全，故不选。记忆点：现场三条危险信号——异音、电压波动、系统接地，任见一条立即停测撤离。"
+ },
+ {
+  "id": 211,
+  "type": "single",
+  "stem": "蓄电池放电后对电池进行均衡充电试验，检查充电机的（ ）和均充电压值。",
+  "options": {
+   "A": "恒流值",
+   "B": "浮充电流值",
+   "C": "限流值",
+   "D": "输出电流值"
+  },
+  "answer": "C",
+  "explain": "答案 C。蓄电池放电后进行均衡充电试验，检查充电机的限流值（C）和均充电压值：限流值决定均充时的电流上限，防止充电电流过大损坏电池。A恒流值是充电方式参数而非检查对象，B浮充电流值对应浮充电状态，D输出电流值是泛指、不够准确，故均不选。记忆点：均充试验查两数——限流值和均充电压值，一个管电流上限、一个管充电电压。"
+ },
+ {
+  "id": 212,
+  "type": "single",
+  "stem": "为防止串联谐振过电压烧损电压互感器，倒闸操作时，不宜使用带断口（ ）的断路器投切带电磁式电压互感器的空母线。",
+  "options": {
+   "A": "电阻",
+   "B": "电容器",
+   "C": "电抗器",
+   "D": "避雷器"
+  },
+  "answer": "B",
+  "explain": "答案 B。为防止串联谐振过电压烧损电压互感器，倒闸操作时不宜使用带断口电容器（B）的断路器投切带电磁式电压互感器的空母线：断口电容与电磁式PT的电感构成LC回路，在特定频率下可能发生串联谐振，产生危及PT绝缘的过电压。A电阻、C电抗器、D避雷器都不是断口上引起谐振的元件，故不选。记忆点：断口电容加电磁式PT是串联谐振的组合，投切空母线时避开带断口电容的断路器，防止谐振过电压烧PT。"
+ },
+ {
+  "id": 213,
+  "type": "single",
+  "stem": "隔离开关电动操动机构操作电压应在额定电压的（ ）之间。",
+  "options": {
+   "A": "95%～110%",
+   "B": "85%～100%",
+   "C": "80%～110%",
+   "D": "85%～110%"
+  },
+  "answer": "D",
+  "explain": "答案 D。隔离开关电动操动机构操作电压应在额定电压的85%～110%之间（D）：低于85%机构合闸力矩不足、动作不可靠，高于110%则可能损坏电气元件，故要求电机在85%～110%额定电压范围内可靠分合闸。A95%～110%下限过高，B85%～100%上限不足，C80%～110%下限偏低，均不符合标准规定范围，故不选。记忆点：电动机构电压窗口85%～110%，低了没劲、高了伤件，与断路器机构合闸的要求一致。"
+ },
+ {
+  "id": 214,
+  "type": "single",
+  "stem": "以下哪项不属于电流互感器二次回路开路的现象？",
+  "options": {
+   "A": "监控系统发出告警信息，相关电流、功率指示降低或为零。",
+   "B": "相关继电保护装置发出“TA断线”告警信息。",
+   "C": "本体发出较大噪声，开路处有放电现象。",
+   "D": "电度表反转。"
+  },
+  "answer": "D",
+  "explain": "答案 D。电流互感器二次回路开路的现象：监控系统发出告警信息、相关电流功率指示降低或为零（A），继电保护装置发出TA断线告警（B），本体发出较大噪声、开路处有放电现象（C），均为二次开路典型现象。D电度表反转不是CT二次开路的特征——开路时电流消失、电度表停转或转速变慢，不会反转；反转通常是相序接反或功率流向改变所致，故本题选D。记忆点：CT二次开路三现象——表计指示掉、TA断线告警、本体发噪声，电度表反转不沾边。"
+ },
+ {
+  "id": 215,
+  "type": "single",
+  "stem": "常规变电站断路器保护告警信息，重合闸控制字整定出错属于（    ）",
+  "options": {
+   "A": "危急缺陷",
+   "B": "严重缺陷",
+   "C": "一般缺陷",
+   "D": "紧急缺陷"
+  },
+  "answer": "A",
+  "explain": "答案 A。常规变电站断路器保护告警信息中，重合闸控制字整定出错属于危急缺陷（A）：控制字错误会导致重合闸拒动或误动，直接威胁断路器重合功能与电网安全，故障性质危急，须尽快处理。B严重缺陷、C一般缺陷均低估了整定错误的风险等级，D紧急缺陷用于人身安全立即受威胁等更紧急情形，故不选。记忆点：定值和控制字是保护的灵魂，整错会拒动误动，直接定危急缺陷，不能拖。"
+ },
+ {
+  "id": 216,
+  "type": "single",
+  "stem": "运维到位指各级变电运维人员应把（ ）作为运维阶段工作目标，严格执行各项运维细则，按规定开展巡视、操作、维护、检测、消缺工作，当好设备主人，把设备运维到最佳状态。",
+  "options": {
+   "A": "运维安全",
+   "B": "工作效率",
+   "C": "运维到位",
+   "D": "工作规范"
+  },
+  "answer": "C",
+  "explain": "答案 C。运维到位指各级变电运维人员应把运维到位（C）作为运维阶段工作目标，严格执行各项运维细则，按规定开展巡视、操作、维护、检测、消缺工作，当好设备主人，把设备运维到最佳状态。A运维安全、B工作效率、D工作规范都是工作要求的内容，但不是本题所指的阶段工作目标本身，故不选。记忆点：运维到位既是名词也是目标，把设备管到最佳状态就是四个字——运维到位。"
+ },
+ {
+  "id": 217,
+  "type": "single",
+  "stem": "某日，运行人员在执行10kV工业线线路转检修任务时，线路停电前和停电后，线路的带电显示装置三相指示灯均点亮（线路实际已停电），该装置应按（ ）缺陷上报处理。",
+  "options": {
+   "A": "一般",
+   "B": "严重",
+   "C": "危急",
+   "D": "以上都不是"
+  },
+  "answer": "B",
+  "explain": "答案 B。线路停电前后带电显示装置三相指示灯均点亮（线路实际已停电），说明装置误指示、失去正确指示无电状态的功能，可能误导人员判断、并导致带电闭锁功能失效，属影响安全的重要缺陷，按严重缺陷（B）上报处理。A一般缺陷低估其危害，C危急缺陷用于直接危及人身设备安全的紧急缺陷，该装置虽误指示但未造成事故，定级为严重缺陷更恰当，故不选。记忆点：带电显示装置是停电判据的辅助依据，它假亮会误导人，按严重缺陷上报。"
+ },
+ {
+  "id": 218,
+  "type": "single",
+  "stem": "变电站设备故障致使站用电源消失时，应根据（ ）指令倒换运行方式。",
+  "options": {
+   "A": "调控人员",
+   "B": "运维负责人",
+   "C": "运维值班长",
+   "D": "D变电站站长或运维班班长"
+  },
+  "answer": "A",
+  "explain": "答案 A。变电站设备故障致使站用电源消失时，应根据调控人员（A）指令倒换运行方式：站用电倒换涉及系统运行方式、备用电源选择，须由调控人员统一指挥。B运维负责人、C运维值班长、D变电站站长或运维班班长都是现场管理角色，无权决定站用电运行方式倒换，故不选。记忆点：站用电消失先听调度的，倒换方式一句话，现场人员按令执行。"
+ },
+ {
+  "id": 219,
+  "type": "single",
+  "stem": "智能终端：一种智能组件。与一次设备采用（）连接，与保护、测控等二次设备采用光纤连接，实现对一次设备（如：断路器、刀闸、主变压器等）的测量、控制等功能。",
+  "options": {
+   "A": "光缆",
+   "B": "电缆",
+   "C": "光纤",
+   "D": "数据线"
+  },
+  "answer": "B",
+  "explain": "答案 B。智能终端与一次设备采用电缆（B）连接，与保护、测控等二次设备采用光纤连接：智能终端就地采集一次设备状态、执行控制命令，一次侧连接用电缆（硬接线），二次侧通信用光纤。A光缆、C光纤都是通信介质，用于二次设备间连接，不用于智能终端与一次设备的硬接线连接；D数据线不是电力二次系统的标准连接方式，故不选。记忆点：智能终端一头电缆接一次设备（采样控制）、一头光纤接二次设备（通信传输），电缆对硬接、光纤对通信。"
+ },
+ {
+  "id": 220,
+  "type": "single",
+  "stem": "接地开关的传动连杆及导电臂(管)上应按规定设置（ ）标识。",
+  "options": {
+   "A": "接地",
+   "B": "带电",
+   "C": "三角",
+   "D": "双重"
+  },
+  "answer": "A",
+  "explain": "答案 A。接地开关的传动连杆及导电臂（管）上应按规定设置接地（A）标识：传动连杆和导电臂属于接地开关的可动接地部件，应涂设接地标识，便于运行人员识别并警示不得带电操作。B带电标识适用于带电导体，C三角标识不是接地标识，D双重标识指双重名称编号，均不符合，故不选。记忆点：接地开关的杆臂上涂接地标识，一眼认出是接地部件，防误把接地开关当带电设备操作。"
+ },
+ {
+  "id": 221,
+  "type": "single",
+  "stem": "隔离开关支持瓷瓶、传动部件有严重损坏时，严禁（ ）该隔离开关。",
+  "options": {
+   "A": "操作",
+   "B": "拉开",
+   "C": "合上",
+   "D": "靠近"
+  },
+  "answer": "A",
+  "explain": "答案 A。隔离开关支持瓷瓶、传动部件有严重损坏时，严禁操作（A）该隔离开关：瓷瓶严重损坏时操作会使机构受力、瓷瓶断裂倾倒，造成短路或伤及人员；传动部件损坏时操作可能拉不开、合不上或不到位，反而扩大事故。B拉开、C合上都是具体操作方向，D靠近是人员行为，三者都不如操作这一总括性禁止准确，故不选。记忆点：瓷瓶裂、传动坏，这刀闸就碰不得，严禁操作三个字是硬杠。"
+ },
+ {
+  "id": 222,
+  "type": "single",
+  "stem": "并联电容器组外熔断器的（ ）应不小于电容器额定电流的1.43倍选择，并不宜大于额定电流的1.55倍。",
+  "options": {
+   "A": "额定电流",
+   "B": "最大电流",
+   "C": "短路电流",
+   "D": "负载电流"
+  },
+  "answer": "A",
+  "explain": "答案 A。并联电容器组外熔断器的额定电流（A）应不小于电容器额定电流的1.43倍选择，并不宜大于额定电流的1.55倍：熔断器额定电流须能承受电容器允许的最大过电流（1.43倍额定电流），又要保证内部故障时能快速熔断，故取1.43～1.55倍。B最大电流、C短路电流、D负载电流都不是熔断器选型依据，故不选。记忆点：外熔丝额定电流按电容器额定电流的1.43～1.55倍选，既要扛得住过载又不拖慢保护动作。"
+ },
+ {
+  "id": 223,
+  "type": "single",
+  "stem": "在进行开关柜（ ）时，应首先检查带电显示装置指示正常，证明其完好性。",
+  "options": {
+   "A": "送电操作",
+   "B": "维护",
+   "C": "带电检测",
+   "D": "停电操作"
+  },
+  "answer": "D",
+  "explain": "答案 D。进行开关柜停电操作时，应首先检查带电显示装置指示正常（指示无电），证明其完好性（D）：带电显示装置指示正常说明设备确实无电、装置本身可靠，之后才能继续停电操作。A送电操作时带电显示装置指示有电属正常状态，不用于验证装置完好；B维护、C带电检测与验证装置完好性的前提不符，故均不选。记忆点：停电操作第一步先看带电显示装置有没有正确指示无电，既验电又验装置，两全其美。"
+ },
+ {
+  "id": 224,
+  "type": "single",
+  "stem": "对中性点直接接地变压器，发生（ ）短路故障后，应检查变压器中性点成套装置、接地开关及接地引下线有无烧蚀、伤痕、断股。",
+  "options": {
+   "A": "对称",
+   "B": "不对称",
+   "C": "对称或不对称",
+   "D": "所有"
+  },
+  "answer": "B",
+  "explain": "答案 B。对中性点直接接地的变压器，发生不对称（B）短路故障后，应检查中性点成套装置、接地开关及接地引下线有无烧蚀、伤痕、断股：不对称短路（单相、两相接地短路）时故障电流经中性点流入大地，装置与引下线流过较大故障电流，易受损。A对称短路（三相短路）电流不经中性点；C对称或不对称、D所有均扩大了检查范围，不符合规程规定，故不选。记忆点：中性点装置查不对称短路——只有不对称故障才有电流从中性点流过，烧蚀断股最可能发生。"
+ },
+ {
+  "id": 225,
+  "type": "single",
+  "stem": "断路器控制回路断线的处理原则：若断路器为两套控制回路时，其中一套控制回路断线时，在不影响保护可靠跳闸的情况下，该断路器（ ）继续运行。",
+  "options": {
+   "A": "不宜",
+   "B": "可以",
+   "C": "严禁",
+   "D": "不准"
+  },
+  "answer": "B",
+  "explain": "答案 B。断路器为两套控制回路时，其中一套控制回路断线，在不影响保护可靠跳闸的情况下，该断路器可以（B）继续运行：两套回路互为备用，一套断线时另一套仍能保证保护跳闸，可维持运行并安排处理。A不宜、D不准都过于保守，C严禁更与规程允许继续运行的表述相悖，故不选；但断线缺陷须尽快处理并加强监视，若影响保护跳闸则不得继续运行。记忆点：双套控制回路是冗余设计，一套断线另一套顶住就能继续跑，前提是不影响可靠跳闸。"
+ },
+ {
+  "id": 226,
+  "type": "single",
+  "stem": "应充分利用停电时间检查（ ）机械闭锁装置。",
+  "options": {
+   "A": "手车与接地开关、隔离开关与接地开关",
+   "B": "断路器机构与手车断路器、手车与接地开关、隔离开关与接地开关",
+   "C": "断路器机构与手车断路器、隔离开关与接地开关",
+   "D": "断路器机构与手车断路器、手车与接地开关"
+  },
+  "answer": "B",
+  "explain": "答案 B。应充分利用停电时间检查断路器机构与手车断路器、手车与接地开关、隔离开关与接地开关机械闭锁装置（B）：这三组机械闭锁分别防止误操作断路器、带电合接地开关、带接地开关合隔离开关，是开关柜五防的关键闭锁，停电检修时应逐一检查其可靠性。A漏掉断路器机构与手车断路器的闭锁，C漏掉手车与接地开关的闭锁，D漏掉隔离开关与接地开关的闭锁，均不完整，故不选。记忆点：停电查机械闭锁查三对——断路器机构对上手车、手车对上接地刀、隔离刀对上接地刀。"
+ },
+ {
+  "id": 227,
+  "type": "single",
+  "stem": "正常运行时，干式站用变的绝缘系统温度为200℃，额定电流下的绕组平均温升限值为（ ）K。",
+  "options": {
+   "A": "100",
+   "B": "125",
+   "C": "135",
+   "D": "150"
+  },
+  "answer": "C",
+  "explain": "答案 C。干式站用变绝缘系统温度为200℃（N级绝缘系统）时，额定电流下绕组平均温升限值为135K（C）：200℃为允许最高温度，扣除基准环境温度40℃与一定裕度后，绕组平均温升限值定为135K。A100K、B125K均非对应200℃绝缘系统的绕组温升限值，D150K对应220℃（C级）绝缘系统，故不选。记忆点：绝缘系统200℃对应绕组平均温升135K，温升限值由允许温度、环境基准和裕度共同决定。"
+ },
+ {
+  "id": 228,
+  "type": "single",
+  "stem": "油浸式电流互感器瓷套等整体温升增大、且上部温度偏高，温差为（ ）时，可判断为内部绝缘降低，应立即汇报值班调控人员申请停运处理。",
+  "options": {
+   "A": "1-2K",
+   "B": "2-3K",
+   "C": "0-1K",
+   "D": "1K"
+  },
+  "answer": "B",
+  "explain": "答案 B。油浸式电流互感器瓷套等整体温升增大、且上部温度偏高，温差为2-3K时，可判断为内部绝缘降低，应立即汇报值班调控人员申请停运处理（B）。A1-2K未达到判据、C0-1K更小、D1K均不足以判定内部绝缘降低，故不选。记忆点：整体温升加顶部偏高是介质损耗增大的热像特征，温差达2-3K即按内部绝缘降低申请停运，与206题同源。"
+ },
+ {
+  "id": 229,
+  "type": "single",
+  "stem": "SF6电流互感器投运前，应检查无漏气，气体压力指示与（ ）规定相符，三相气压应调整一致。",
+  "options": {
+   "A": "制造厂",
+   "B": "出厂",
+   "C": "铭牌",
+   "D": "国家"
+  },
+  "answer": "A",
+  "explain": "答案 A。SF6电流互感器投运前，应检查无漏气，气体压力指示与制造厂（A）规定相符，三相气压应调整一致：SF6设备的气体压力定额、温度压力特性由制造厂给定，投运前必须按制造厂规定核对。B出厂指出厂试验状态，C铭牌虽标注参数但压力规定以制造厂技术文件为准，D国家规定不针对具体设备，故均不选。记忆点：SF6设备压力以制造厂规定为基准，投运前核压力、调三相一致，防漏气投运。"
+ },
+ {
+  "id": 230,
+  "type": "single",
+  "stem": "电容器允许在（ ）±5%波动范围内长期运行。",
+  "options": {
+   "A": "电压",
+   "B": "电流",
+   "C": "额定电压",
+   "D": "额定电流"
+  },
+  "answer": "C",
+  "explain": "答案 C。电容器允许在额定电压（C）±5%波动范围内长期运行：电压超过额定值会加剧介质老化、缩短寿命，故规定在额定电压±5%范围内可长期运行，超出则须限制运行时间。A电压、B电流表述不完整，D额定电流对应的是电流而非电压波动，故均不选。记忆点：电容器耐过压能力弱，长期运行电压窗口只有额定电压±5%，超了就伤介质。"
+ },
+ {
+  "id": 231,
+  "type": "single",
+  "stem": "电流互感器二次侧严禁开路，备用的二次绕组应（ ）。",
+  "options": {
+   "A": "接地",
+   "B": "短接接地",
+   "C": "断开",
+   "D": "戴绝缘罩"
+  },
+  "answer": "B",
+  "explain": "答案 B。电流互感器二次侧严禁开路，备用的二次绕组应短接接地（B）：备用绕组不短接等同二次开路，会感应出危险高电压；短接后感应电势相互抵消，再接地防止一、二次绝缘击穿时高压窜入二次。A只接地不短接，二次仍开路；C断开正是禁止的开路状态；D戴绝缘罩只防人员接触、不解决开路高压问题，故均不选。记忆点：CT备用绕组短接接地两件套，短接消开路高压、接地防绝缘击穿窜压。"
+ },
+ {
+  "id": 232,
+  "type": "single",
+  "stem": "110V蓄电池组的绝缘电阻不小于（ ）MΩ。",
+  "options": {
+   "A": "0.4",
+   "B": "0.3",
+   "C": "0.1",
+   "D": "0.2"
+  },
+  "answer": "C",
+  "explain": "答案 C。110V蓄电池组的绝缘电阻不小于0.1MΩ（C）：直流系统绝缘电阻过低会引发接地故障、保护误动风险，110V系统规定绝缘电阻不小于0.1MΩ，220V系统则为不小于0.2MΩ。A0.4、B0.3、D0.2均超过110V系统的合格下限，其中0.2是220V系统的限值，故不选。记忆点：蓄电池绝缘电阻与电压等级挂钩，220V限0.2、110V限0.1，数值随电压翻倍而翻倍。"
+ },
+ {
+  "id": 233,
+  "type": "single",
+  "stem": "站用交流电源柜各级开关动、热稳定、（ ）和级差配合应配置合理。",
+  "options": {
+   "A": "开断容量",
+   "B": "出线回数",
+   "C": "保护接地",
+   "D": "二次回路"
+  },
+  "answer": "A",
+  "explain": "答案 A。站用交流电源柜各级开关的动、热稳定、开断容量（A）和级差配合应配置合理：开关要能承受短路时的动热稳定冲击、能开断预期短路电流，并与上、下级形成级差配合，保证选择性。B出线回数是接线规模参数，C保护接地是安全措施，D二次回路是控制测量回路，均不是开关自身配合配置的参数，故不选。记忆点：开关配合三件事——动热稳定扛得住、开断容量断得开、级差配合有选择。"
+ },
+ {
+  "id": 234,
+  "type": "single",
+  "stem": "自然循环风冷（ONAF）变压器，顶层油温不宜经常超过（ ）。",
+  "options": {
+   "A": "95℃",
+   "B": "80℃",
+   "C": "70℃",
+   "D": "85℃"
+  },
+  "answer": "D",
+  "explain": "答案 D。自然循环风冷（ONAF）变压器，顶层油温不宜经常超过85℃（D）：油浸变压器上层油温一般不宜经常超过85℃，最高不得超过95℃，超限会加速绝缘油老化、缩短寿命。A95℃是最高允许温度而非不宜经常超过值，B80℃、C70℃偏保守、非规程规定值，故不选。记忆点：顶层油温正常不超85℃、最高不超95℃，85是日常红线、95是保命线。"
+ },
+ {
+  "id": 235,
+  "type": "single",
+  "stem": "检修后或长期停用的母线，投运前须用（ ）对母线充电。",
+  "options": {
+   "A": "带保护的断路器",
+   "B": "断路器",
+   "C": "隔离开关"
+  },
+  "answer": "A",
+  "explain": "答案 A。检修后或长期停用的母线，投运前须用带保护的断路器（A）对母线充电：用带速断保护（充电保护）的断路器充电，若母线仍有故障，保护立即跳闸切除，防止故障扩大损坏设备。B不带保护功能的断路器充电，故障时无法快速切除；C隔离开关无灭弧能力、严禁带负荷投切，不能用于充电，故不选。记忆点：母线充电必须用带保护的断路器，有故障就跳、没故障才投运，隔离开关绝不能干这活。"
+ },
+ {
+  "id": 236,
+  "type": "single",
+  "stem": "穿墙套管送电前，应（ ），各项检查项目合格，各项指标满足要求，方可投运",
+  "options": {
+   "A": "试验合格",
+   "B": "外观完好",
+   "C": "绝缘正常"
+  },
+  "answer": "A",
+  "explain": "答案 A。穿墙套管送电前，应试验合格（A），各项检查项目合格、各项指标满足要求，方可投运：试验是检验套管绝缘性能的硬指标，试验合格是投运的前提。B外观完好、C绝缘正常都是检查项目之一，属试验合格之外的检查内容，不能替代试验合格这一总前提，故不选。记忆点：套管投运前提是试验合格，外观和绝缘正常只是其中的检查项，试验一票定生死。"
+ },
+ {
+  "id": 237,
+  "type": "single",
+  "stem": "在对断路器进行红外检测精测时，110kV断路器周期为（ ）",
+  "options": {
+   "A": "3个月",
+   "B": "6个月",
+   "C": "12个月",
+   "D": "1个月"
+  },
+  "answer": "B",
+  "explain": "答案 B。断路器红外检测精测周期按电压等级区分：110kV断路器为每6个月（B）一次，即每年至少两次精确测温。500kV及以上周期更短（约1个月），220～330kV约3个月，35kV及以下约1年。A3个月、C12个月、D1个月均与110kV档周期不符，故不选。记忆点：红外精测电压越高查得越勤，110kV居中档半年一次。"
+ },
+ {
+  "id": 238,
+  "type": "single",
+  "stem": "运维人员（ ）进行一次照明装置的检查维护",
+  "options": {
+   "A": "两月",
+   "B": "每季度",
+   "C": "每月",
+   "D": "半年"
+  },
+  "answer": "B",
+  "explain": "答案 B。运维人员每季度（B）进行一次照明装置的检查维护：变电站照明是运维基础保障，规定每季度检查维护一次，确保正常照明与事故照明完好可用。A两月、C每月周期过短，D半年周期过长，均不符合规程规定的季度周期，故不选。记忆点：照明检查跟着季度走，一季度一查，不多不少。"
+ },
+ {
+  "id": 239,
+  "type": "single",
+  "stem": "运行中的电流互感器二次侧只允许有一个接地点，独立的、与其他电流互感器的二次回路没有电气联系的二次回路应在（ ）。",
+  "options": {
+   "A": "开关场一点接地",
+   "B": "保护屏内一点接地",
+   "C": "开关场、保护屏两点接地",
+   "D": "开关场两点接地"
+  },
+  "answer": "A",
+  "explain": "答案 A。运行中的电流互感器二次回路只允许有一个接地点，独立的、与其他CT二次回路没有电气联系的二次回路应在开关场一点接地（A）：独立回路在开关场（CT端子箱处）接地，接地点少而集中，避免多点接地形成地电位差环流。B保护屏内一点接地用于与其他回路有联系的公共回路，C两点接地、D开关场两点接地违反一点接地原则，故不选。记忆点：CT独立二次回路接地点在开关场端子箱，一点接地保平安，多点接地会引入地电位差电流。"
+ },
+ {
+  "id": 240,
+  "type": "single",
+  "stem": "新安装的阀控密封蓄电池组，应进行全核对性放电试验。以后每隔（ ）年进行一次核对性放电试验",
+  "options": {
+   "A": "一",
+   "B": "两",
+   "C": "三",
+   "D": "四"
+  },
+  "answer": "B",
+  "explain": "答案 B。新安装的阀控密封蓄电池组应进行全核对性放电试验，以后每隔两年（B）进行一次核对性放电试验：核对性放电用于检验电池实际容量、发现落后电池。运行满4年后电池容量可能明显下降，部分规程将周期缩短为每年一次。A一年、C三年、D四年均与规定周期不符，故不选。记忆点：新装全核对、以后两年一核对，电池老化后才加密到一年一核对。"
+ },
+ {
+  "id": 241,
+  "type": "single",
+  "stem": "隔离开关运维细则中要求，隔离开关导电回路长期工作温度不宜超过（ ）℃。",
+  "options": {
+   "A": "60",
+   "B": "70",
+   "C": "80",
+   "D": "85"
+  },
+  "answer": "C",
+  "explain": "答案 C。隔离开关运维细则要求导电回路长期工作温度不宜超过80℃：触头接触电阻大、长期通流发热，超过80℃会加速触头氧化、弹性元件退火，接触电阻进一步增大形成恶性循环，故定为运行监视上限。A60、B70偏低，属正常运行一般监视值；D85已超过80℃上限，属超限运行。记忆点：隔离开关触头长期工作温度上限80℃，达到即减负荷或停用，再往上就进严重缺陷档。"
+ },
+ {
+  "id": 242,
+  "type": "single",
+  "stem": "到货验收由项目（ ）组织，运检部选派相关专业技术人员参加。",
+  "options": {
+   "A": "运检部",
+   "B": "建设部",
+   "C": "管理单位",
+   "D": "物资部"
+  },
+  "answer": "C",
+  "explain": "答案 C。到货验收由项目管理单位组织，运检部选派相关专业技术人员参加：设备到货质量由项目管理单位牵头把关，运检部门派出懂专业、熟悉运维要求的人员共同验收，核查货物清点、包装外观、附件资料是否与装箱单相符。A运检部是参加方而非组织方；B建设部负责工程建设管理；D物资部负责采购供应与台账，都不是验收组织主体。记忆点：项目单位管组织、运检部派专家、物资部供配合，到货质量三方共把关。"
+ },
+ {
+  "id": 243,
+  "type": "single",
+  "stem": "在额定电压下对站用变的冲击合闸试验，冲击合闸宜在站用变（）进行，应无异常现象。",
+  "options": {
+   "A": "高压侧",
+   "B": "低压侧",
+   "C": "各侧",
+   "D": "中压侧"
+  },
+  "answer": "A",
+  "explain": "答案 A。站用变冲击合闸试验在额定电压下进行，宜在站用变高压侧合闸：由高压侧施加全电压，励磁涌流直接冲击高压绕组，考核变压器机械强度，同时检验涌流衰减初期是否引起保护误动，考核最充分。B低压侧、D中压侧合闸涌流冲击不直接、考核不充分；C各侧说法笼统。冲击合闸一般进行5次，每次间隔约5min，应无异常现象。记忆点：冲击合闸从高压侧打全电压，涌流冲击考核最直接。"
+ },
+ {
+  "id": 244,
+  "type": "single",
+  "stem": "当任一台站用变退出时，备用站用变应能（    ）至失电的工作母线段继续供电。",
+  "options": {
+   "A": "自动切换",
+   "B": "手动切换",
+   "C": "禁止切换",
+   "D": "手动转换"
+  },
+  "answer": "A",
+  "explain": "答案 A。站用电可靠性要求备用站用变能自动投入：当任一台站用变故障或检修退出时，备用电源自动投入装置（备自投）检测工作母线段失压后，自动把备用站用变切换至失电的工作母线段继续供电，缩短停电时间。B手动切换、D手动转换都需人工干预，停电时间延长；C禁止切换与设置备用电源的初衷相悖。记忆点：备自投就是让备用站用变无缝顶上，工作变失电自动切换。"
+ },
+ {
+  "id": 245,
+  "type": "single",
+  "stem": "倒闸操作由（）填用操作票。",
+  "options": {
+   "A": "负责人",
+   "B": "操作人员",
+   "C": "监护人",
+   "D": "班站长"
+  },
+  "answer": "B",
+  "explain": "答案 B。变电安规规定倒闸操作由操作人填用操作票：操作人接受操作任务后，按运行方式和防误要求填写操作票，监护人负责审核把关，值班负责人批准，形成发令、操作、监护的闭环。A负责人、C监护人负责审核监护不直接填票；D班站长属审批管理层次。记忆点：谁操作谁填票，监护人审、值长批，票面责任落到人。"
+ },
+ {
+  "id": 246,
+  "type": "single",
+  "stem": "采用间接验电判断时，至少应有（）的指示发生对应变化，且所有这些确定的指示均已同时发生对应变化，才能确认该设备已无电。",
+  "options": {
+   "A": "两个非同样原理或非同源",
+   "B": "三个非同样原理或非同源",
+   "C": "两个非同样原理和非同",
+   "D": "三个非同样原理和非同源"
+  },
+  "answer": "A",
+  "explain": "答案 A。间接验电判断时，至少应有两个非同样原理或非同源的指示发生对应变化，且所有这些确定的指示均已同时发生对应变化，才能确认设备已无电：两个指示在原理或源头上相互独立，才可避免单一信号误报、同源回路同时出错，任一指示有电都不得工作。B三个指示要求过于苛刻；C两个非同样原理和非同源把或字改成和、同时满足反而更严，不符规程用词；D同C。记忆点：间接验电双指示、原理或源不同，同时变化才可信。"
+ },
+ {
+  "id": 247,
+  "type": "single",
+  "stem": "停电拉闸操作应按照（）的顺序依次进行。",
+  "options": {
+   "A": "断路器（开关）—电源侧隔离开关（刀闸）—负荷侧隔离开关（刀闸）",
+   "B": "断路器（开关）—负荷侧隔离开关（刀闸）—电源侧隔离开关（刀闸）",
+   "C": "负荷侧隔离开关（刀闸）—电源侧隔离开关（刀闸）—断路器（开关）",
+   "D": "电源侧隔离开关（刀闸）—负荷侧隔离开关（刀闸）—断路器（开关）"
+  },
+  "answer": "B",
+  "explain": "答案 B。停电拉闸按断路器、负荷侧隔离开关、电源侧隔离开关顺序进行：先拉断路器切断负荷电流，再拉负荷侧刀闸、后拉电源侧刀闸，万一断路器未真正断开发生带负荷拉刀闸，电弧发生在负荷侧，由断路器保护切除，事故范围最小；若先拉电源侧刀闸，故障点落在母线侧，会扩大为母线停电。A、C、D顺序均违反先断断路器、负荷侧先于电源侧的停电原则。记忆点：停电先断断路器、负荷侧先行，送电顺序正好反过来。"
+ },
+ {
+  "id": 248,
+  "type": "single",
+  "stem": "隔离开关刀口设备缺陷判断为一般缺陷的为（）。",
+  "options": {
+   "A": "相对温差大于35%，但热点温度未达到严重缺陷温度值",
+   "B": "热点温度70℃，相对温差大于80%",
+   "C": "热点温度大于90℃，相对温差大于80%",
+   "D": "热点温度大于130℃，相对温差大于95%"
+  },
+  "answer": "A",
+  "explain": "答案 A。隔离开关刀口缺陷分级按相对温差与热点温度双判据：相对温差大于35%但热点温度未达到严重缺陷温度值，属一般缺陷，应加强监视、跟踪发展。B热点70℃相对温差大于80%、C热点90℃相对温差大于80%已入严重缺陷档；D热点130℃相对温差大于95%达危急缺陷标准，都不能算一般缺陷。记忆点：温差35%起算一般，80%/90℃入严重，95%/130℃即危急，逐级从严。"
+ },
+ {
+  "id": 249,
+  "type": "single",
+  "stem": "在某次红外测温过程中，发现某GIS间隔的出线套管A相接头的最高温度为56℃，测试时的环境温度为35℃，正常B相接头的最高温度为45℃，则A相接头的缺陷性质为（     ）。",
+  "options": {
+   "A": "一般缺陷",
+   "B": "严重缺陷",
+   "C": "紧急缺陷",
+   "D": "无缺陷"
+  },
+  "answer": "A",
+  "explain": "答案 A。A相接头最高温度56℃、环境35℃、正常B相45℃：发热点温升21K、正常点温升10K，相对温差δ=(21-10)/21≈52%，大于35%但小于80%；且热点温度56℃远低于接头类严重缺陷热点温度80～90℃的判据，故判定为一般缺陷。B严重缺陷需热点温度超标或δ≥80%，此处均未达到；C危急缺陷需δ≥95%或温度更高；D无缺陷与相对温差已超35%不符。记忆点：红外看温差也看温度，温差52%只到一般缺陷档。"
+ },
+ {
+  "id": 250,
+  "type": "single",
+  "stem": "应使用（）取气体继电器的气样。",
+  "options": {
+   "A": "干燥玻璃瓶",
+   "B": "医用注射器",
+   "C": "油桶",
+   "D": "玻璃注射器"
+  },
+  "answer": "D",
+  "explain": "答案 D。取气体继电器气样用玻璃注射器：将全玻璃注射器经三通阀、乳胶管与气体继电器放气嘴相连，先用继电器内气体冲洗管路并排空，再抽取10～20mL气样，取下后以胶头密封、避光保存，尽快送色谱分析。A干燥玻璃瓶无法密封取气、易混入空气使气样失真；B医用注射器含橡胶件会吸附气体组分影响分析；C油桶是盛油器具不能取气。记忆点：取气全程密封用玻璃注射器，防空气混入、防组分吸附。"
+ },
+ {
+  "id": 251,
+  "type": "single",
+  "stem": "“××线××重合闸动作”信息属于哪一类告警信息（）。",
+  "options": {
+   "A": "事故信息",
+   "B": "异常信息",
+   "C": "变位信息",
+   "D": "越限信息"
+  },
+  "answer": "A",
+  "explain": "答案 A。重合闸动作是线路故障、断路器跳闸后自动重合的过程，属故障引发的保护及安全自动装置动作信息，归入事故信息，需调控员实时监视、立即处理。B异常信息指运行参数或状态异常但不影响当前运行；C变位信息指断路器、刀闸位置状态变化；D越限信息指电气量越限告警，都不符合重合闸动作的性质。记忆点：保护、重合闸动作出口即事故信息，与位置变位、越限报警分门别类。"
+ },
+ {
+  "id": 252,
+  "type": "single",
+  "stem": "六氟化硫设备交接验收指标中规定无电弧分解物隔室的含水量为（   ）。",
+  "options": {
+   "A": "≤150",
+   "B": "≤300",
+   "C": "≤350",
+   "D": "≤450"
+  },
+  "answer": "B",
+  "explain": "答案 B。交接验收指标规定SF6设备无电弧分解物隔室（非灭弧室）含水量≤300μL/L：该隔室不承担开断电弧任务，气体分解产物少，微水限值比灭弧室放宽。A150是有电弧分解物隔室（灭弧室）的交接限值，更严；C350、D450均超过300μL/L，不满足交接验收要求。记忆点：有电弧隔室交接150、无电弧隔室交接300，运行中分别放宽到300、500，四个数成组记忆。"
+ },
+ {
+  "id": 253,
+  "type": "single",
+  "stem": "变电站一键顺控改造中母线和各间隔宜使用电压互感器数据，无电压互感器时应增加具备（   ）的三相带电显示装置。",
+  "options": {
+   "A": "遥信、自检功能",
+   "B": "遥信、闭锁功能",
+   "C": "遥测、自检功能",
+   "D": "遥测、闭锁功能"
+  },
+  "answer": "A",
+  "explain": "答案 A。一键顺控改造中母线和各间隔宜使用电压互感器数据作为位置确认判据；无电压互感器时，应增加具备遥信、自检功能的三相带电显示装置：遥信把带电显示结果上送监控后台供顺控逻辑判别，自检功能保证装置自身故障能被及时发现、防止误判。B闭锁功能由防误系统实现、C遥测、D遥测用于测量而非位置确认，都不是带电显示装置作判据所必需的。记忆点：无PT时带电显示装置补位，要能上送遥信还要会自检。"
+ },
+ {
+  "id": 254,
+  "type": "single",
+  "stem": "防误逻辑规则应满足变电站不同运行方式下倒闸操作的“（ ）”要求。",
+  "options": {
+   "A": "安全",
+   "B": "一键顺控",
+   "C": "五防",
+   "D": "风险管控"
+  },
+  "answer": "C",
+  "explain": "答案 C。防误逻辑规则必须满足变电站不同运行方式下倒闸操作的五防要求，即防带负荷拉合刀闸、防误分合断路器、防带电挂接地线、防带接地线合闸、防误入带电间隔：运行方式改变时防误逻辑随之联动，但五防底线不能破。A安全、B一键顺控、D风险管控都不是防误逻辑规则直接对应的要求层级。记忆点：防误逻辑的根是五防，运行方式怎么变、五防不能破。"
+ },
+ {
+  "id": 255,
+  "type": "single",
+  "stem": "（    ）及以上电压等级断路器必须具备双跳闸线圈机构。",
+  "options": {
+   "A": "110kV",
+   "B": "220kV",
+   "C": "330kV",
+   "D": "500kV"
+  },
+  "answer": "B",
+  "explain": "答案 B。220kV及以上电压等级断路器必须具备双跳闸线圈机构：为适应继电保护双重化配置，两套保护分别作用于两个跳闸线圈，任一套保护或一组直流电源故障时另一套仍能可靠跳闸。A110kV及以下保护单重化即可，不强制双跳圈；C330kV、D500kV虽同样要求，但题干问最低起点，选220kV。记忆点：双跳圈配保护双重化，起点220kV，两个线圈各自独立。"
+ },
+ {
+  "id": 256,
+  "type": "single",
+  "stem": "III类严重违章按（    ）安全事件惩处。",
+  "options": {
+   "A": "四级",
+   "B": "五级",
+   "C": "六级",
+   "D": "七级"
+  },
+  "answer": "D",
+  "explain": "答案 D。按国家电网反违章惩处规定，Ⅰ至Ⅲ类严重违章分别按五至七级安全事件惩处，故Ⅲ类严重违章按七级安全事件惩处：违章分级与安全事件等级挂钩，级别越高惩处越重。A四级、B五级、C六级对应更高等级惩处，对Ⅲ类过重；Ⅰ类按五级、Ⅱ类按六级。记忆点：Ⅰ、Ⅱ、Ⅲ类违章对五、六、七级事件，逐类降一级。"
+ },
+ {
+  "id": 257,
+  "type": "single",
+  "stem": "直流电源系统蓄电池的评判中，220V蓄电池组的绝缘电阻（ ）。",
+  "options": {
+   "A": "不小于0.1MΩ",
+   "B": "不小于0.2MΩ",
+   "C": "不小于0.5MΩ",
+   "D": "不小于1MΩ"
+  },
+  "answer": "B",
+  "explain": "答案 B。220V蓄电池组的绝缘电阻不应小于0.2MΩ：直流系统电压越高，相同绝缘电阻下泄漏电流越大、对地电位威胁越大，限值随电压等级提高；对应地110V蓄电池组不小于0.1MΩ。A0.1MΩ是110V组的要求，用到220V上偏低；C0.5MΩ、D1MΩ超出规程规定、过于严格。记忆点：110V组0.1MΩ、220V组0.2MΩ，电压高一档限值翻倍。"
+ },
+ {
+  "id": 258,
+  "type": "single",
+  "stem": "变压器现场温度计指示、控制室温度显示装置、监控系统的温度基本保持一致，误差一般不超过（ ）。",
+  "options": {
+   "A": "3℃",
+   "B": "5℃",
+   "C": "7℃",
+   "D": "10℃"
+  },
+  "answer": "B",
+  "explain": "答案 B。变压器现场温度计指示、控制室温度显示装置、监控系统的温度应基本保持一致，误差一般不超过5℃：三者分处就地、控制室、监控后台，测温原理与传输环节不同，误差不超过5℃即认为对应正常。A3℃偏严，受环境与传输误差影响难稳定达到；C7℃、D10℃偏差过大，说明测温回路存在异常。记忆点：就地、远方、监控三表温差≤5℃，超过即查测温回路。"
+ },
+ {
+  "id": 259,
+  "type": "single",
+  "stem": "开关柜红外检测周期：新安装及A、B类检修重新投运后（ ）周内。",
+  "options": {
+   "A": "1",
+   "B": "2",
+   "C": "3",
+   "D": "4"
+  },
+  "answer": "A",
+  "explain": "答案 A。开关柜红外检测周期规定新安装及A、B类检修重新投运后1周内进行首次精确测温：新投运或大修后接触面处于磨合期，最易暴露接头接触不良、紧固不到位等发热隐患，需尽早测温建档。B2、C3、D4周推迟首检，缺陷可能已发展。记忆点：新投或大修后一周内首测建档，给开关柜立体温档案。"
+ },
+ {
+  "id": 260,
+  "type": "single",
+  "stem": "铁心对地绝缘电阻测试应采用（）V兆欧表测量，持续时间为1min，应无闪络及击穿现象。",
+  "options": {
+   "A": "500",
+   "B": "1000",
+   "C": "1500",
+   "D": "2000"
+  },
+  "answer": "B",
+  "explain": "答案 B。变压器铁心对地绝缘电阻测试用1000V兆欧表测量，持续1min，应无闪络及击穿：铁心对地绝缘属低压辅助回路性质，用1000V即可有效检出绝缘受潮、铁心碰壳等缺陷；电压过高会损伤较薄的铁心绝缘。A500V偏低，对绝缘缺陷检出灵敏度不足；C1500V、D2000V偏高，易损伤铁心对地绝缘。记忆点：绕组主绝缘用2500V，铁心对地用1000V，电压按绝缘等级走。"
+ },
+ {
+  "id": 261,
+  "type": "single",
+  "stem": "防小动物挡板应编号，标志清楚，外观完好、无破损，防鼠板高度不低于( )cm",
+  "options": {
+   "A": "30",
+   "B": "40",
+   "C": "50",
+   "D": "60"
+  },
+  "answer": "B",
+  "explain": "答案 B。防小动物挡板应编号、标志清楚，外观完好、无破损，防鼠板高度不低于40cm：40cm能有效阻挡老鼠等小动物攀越进入配电室，防止小动物引发短路，是规程统一要求。A30cm偏低，老鼠易跳过或攀越；C50、D60虽防鼠效果更好，但不是规程规定的标准值，且过高影响运维人员通行。记忆点：防鼠板统一高度40cm，够防鼠又不绊脚。"
+ },
+ {
+  "id": 262,
+  "type": "single",
+  "stem": "一键顺控一次设备改造中隔离开关应具备遥控操作功能，其位置信号的采集应采用（   ）。",
+  "options": {
+   "A": "单位置接点遥信",
+   "B": "单点遥信",
+   "C": "双位置接点遥信",
+   "D": "双点遥信"
+  },
+  "answer": "C",
+  "explain": "答案 C。一键顺控改造中隔离开关位置信号采集应采用双位置接点遥信：双位置接点由分、合两个位置接点组成，能反映合到位与分到位两种确定状态，防止单一接点粘连、接触不良造成位置误判，是位置双确认的可靠性基础。A单位置接点遥信、B单点遥信只能反映一种状态，无法判别机构是否卡滞；D双点遥信表述不规范，规程对隔离开关位置采集的叫法是双位置接点遥信。记忆点：刀闸位置要双确认，双位置接点遥信才可靠。"
+ },
+ {
+  "id": 263,
+  "type": "single",
+  "stem": "泡沫灭火器适用于扑灭的火灾类型是（）。",
+  "options": {
+   "A": "一般固体和可燃液体火灾",
+   "B": "气体火灾",
+   "C": "电气火灾",
+   "D": "金属火灾"
+  },
+  "answer": "A",
+  "explain": "答案 A。泡沫灭火器适用于扑救一般固体物质火灾和可燃液体（油类）火灾：泡沫覆盖燃烧物表面，隔绝空气并冷却降温。B气体火灾需干粉、二氧化碳等，泡沫会被气流吹散无效；C电气火灾时泡沫含水导电，扑救带电设备会触电，应先断电或用二氧化碳、干粉；D金属火灾（钠、镁等）遇水剧烈反应，泡沫反而加剧燃烧。记忆点：泡沫专治固体和油类，电气、气体、金属火灾都不能用。"
+ },
+ {
+  "id": 264,
+  "type": "single",
+  "stem": "强制性防止电气误操作措施是指在设备的电动操作控制回路中（   ）受闭锁回路控制的接点，在设备的手动操控部件上加装受闭锁回路控制的锁具，防误锁具的操作不得有走空程现象。",
+  "options": {
+   "A": "并联",
+   "B": "串联",
+   "C": "并联或串联",
+   "D": "并联和串联"
+  },
+  "answer": "B",
+  "explain": "答案 B。强制性防止电气误操作措施要求在设备电动操作控制回路中串联受闭锁回路控制的接点：闭锁接点串入回路，闭锁未解除时接点断开、电动操作回路被切断，从原理上保证误操作无法执行；若并联则闭锁接点被短接、闭锁失效。C并联或串联、D并联和串联的表述与强制性措施串联的要求不符。记忆点：闭锁接点必串联，断开即断电，并联等于撤了防误。"
+ },
+ {
+  "id": 265,
+  "type": "single",
+  "stem": "新投运和解体检修后的开关柜的暂态地电压局部放电检测，应在投运后（ ）个月内进行一次运行电压下的检测，记录开关柜每一面的测试数据作为初始数据，以后测试中作为参考。",
+  "options": {
+   "A": "1",
+   "B": "2",
+   "C": "3月",
+   "D": "6"
+  },
+  "answer": "A",
+  "explain": "答案 A。新投运和解体检修后的开关柜暂态地电压（TEV）局放检测，应在投运后1个月内进行一次运行电压下的检测，记录开关柜每一面的测试数据作为初始数据：投运初期内部绝缘缺陷最易暴露，尽早建立基准数据供日后纵向比对，此后测试以此参考。B2、C3月、D6均推迟首检建档时机，缺陷可能已发展扩大。记忆点：新投或解体检修后1个月内做TEV首测建档，与红外1周内首测互补。"
+ },
+ {
+  "id": 266,
+  "type": "multi",
+  "stem": "断路器（    ）中，应进行行程曲线测试，并同时测量分/合闸线圈电流波形。",
+  "options": {
+   "A": "出厂试验",
+   "B": "交接试验",
+   "C": "例行试验",
+   "D": "特性试验"
+  },
+  "answer": "BC",
+  "explain": "答案 BC。断路器交接试验及例行试验中，应进行行程曲线测试，并同时测量分/合闸线圈电流波形：行程曲线反映动触头运动特性，线圈电流波形反映操动机构电磁铁动作过程，两者结合可诊断机构卡涩、线圈异常等缺陷，是十八项反措对断路器状态检测的明确要求。A出厂试验是制造厂内检验，不归入交接、例行范畴；D特性试验是上述两类试验中包含的项目统称，不是与之并列的试验类别。记忆点：交接、例行测行程曲线加线圈电流波形，出厂试验在厂里做不算入内。"
+ },
+ {
+  "id": 267,
+  "type": "multi",
+  "stem": "易燃易爆物品应存放在特种材料库房，设置“严禁烟火”标志，并有专人负责管理：单位应对从业人员进行(  )。",
+  "options": {
+   "A": "安全教育",
+   "B": "法制教育",
+   "C": "岗位技术培训",
+   "D": "集中考试"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。易燃易爆物品存放在特种材料库房、设严禁烟火标志、专人负责管理；单位应对从业人员进行安全教育、法制教育和岗位技术培训：三者分别解决安全意识、守法意识和操作技能，是危险品从业人员的必备培训内容。D集中考试是检验培训效果的手段，不是培训内容本身，故不选。记忆点：危化从业人员三训：安全、法制、技术，考试只是验证。"
+ },
+ {
+  "id": 268,
+  "type": "multi",
+  "stem": "出现运行规程中没有的特殊运行方式调整或非典型操作任务操作时，使用的操作票应经（    ）审核。",
+  "options": {
+   "A": "运行专责人员",
+   "B": "班长",
+   "C": "专职工程师",
+   "D": "值班负责人"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。出现运行规程中没有的特殊运行方式调整或非典型操作任务时，使用的操作票应经运行专责人员、班长、专职工程师审核：非典型操作风险高，需运行技术管理层面层层把关，防止步骤错误引发误操作。D值班负责人是倒闸操作的当值审批人，负责执行层面的批准，不在上述技术审核之列。记忆点：非典型操作票要专责、班长、专职工程师三方会审，值班负责人只管批执行。"
+ },
+ {
+  "id": 269,
+  "type": "multi",
+  "stem": "变电倒闸操作勘察人员应认真核对倒闸操作范围内（  ）等信息。",
+  "options": {
+   "A": "设备设施运行状态",
+   "B": "隐患",
+   "C": "缺陷",
+   "D": "保护及安全自动装置（压板）投退范围"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。变电倒闸操作勘察人员应认真核对倒闸操作范围内设备设施运行状态、隐患、缺陷、保护及安全自动装置（压板）投退范围等信息：运行状态决定操作步骤，隐患缺陷提示风险点，压板投退范围决定二次操作内容，四者都是编制操作票、制定预控措施的依据，缺一不可。记忆点：操作勘察四核对：状态、隐患、缺陷、压板投退范围，一项都不能少。"
+ },
+ {
+  "id": 270,
+  "type": "multi",
+  "stem": "变压器下列哪些保护装置应投信号（ ）。",
+  "options": {
+   "A": "本体轻瓦斯",
+   "B": "真空型有载调压开关轻瓦斯（油中熄弧型有载调压开关不宜投入轻瓦斯）",
+   "C": "有载重瓦斯",
+   "D": "压力释放阀"
+  },
+  "answer": "ABD",
+  "explain": "答案 ABD。变压器下列保护装置应投信号：本体轻瓦斯动作于信号报警；真空型有载调压开关轻瓦斯投信号（油中熄弧型有载调压开关不宜投入轻瓦斯）；压力释放阀动作于信号报警。C有载重瓦斯反映有载开关内部严重故障，应投跳闸位置而非信号，防止故障扩大。记忆点：轻瓦斯发信、重瓦斯跳闸；真空型有载轻瓦斯发信，油中熄弧型不宜投。"
+ },
+ {
+  "id": 271,
+  "type": "multi",
+  "stem": "允许隔离开关操作的范围（ ）",
+  "options": {
+   "A": "拉、合消弧线圈",
+   "B": "拉、合电压互感器、避雷器或220kV及以下电压等级空载母线",
+   "C": "拉、合与运行断路器并联的旁路电流",
+   "D": "拉、合电压在10kV及以下时，电流小于70的环路均衡电流"
+  },
+  "answer": "CD",
+  "explain": "答案 CD。允许隔离开关操作的范围：拉合与运行断路器并联的旁路电流（断路器在合位、电流经旁路刀闸分流，拉合前后电流不中断）；拉合电压在10kV及以下、电流小于70A的环路均衡电流。A拉合消弧线圈属感性大电流，严禁用刀闸拉合；B拉合电压互感器、避雷器及220kV及以下空载母线会产生涌流、电弧，不属本题规程允许的刀闸操作范围。记忆点：刀闸只允许旁路电流和10kV以下小环路电流，其他带载操作都严禁。"
+ },
+ {
+  "id": 272,
+  "type": "multi",
+  "stem": "直流母线电压异常处理，下列做法正确的是（ ）",
+  "options": {
+   "A": "检查充电装置输出电压和蓄电池充电方式，综合判断直流母线电压是否异常",
+   "B": "因蓄电池未自动切换至浮充电运行方式导致直流母线电压异常，应手动调整到浮充电运行方式",
+   "C": "因充电装置故障导致直流母线电压异常，应停用该充电装置，并更换新装置，或调整直流系统运行方式，由另一段直流系统带全站负荷",
+   "D": "检查直流母线电压正常后，联系检修人员处理"
+  },
+  "answer": "ABD",
+  "explain": "答案 ABD。直流母线电压异常处理：A先检查充电装置输出电压和蓄电池充电方式，综合判断母线电压是否真的异常，防止误判断；B因蓄电池未自动切换至浮充电方式导致电压异常，应手动调回浮充电运行方式；D检查母线电压正常后，联系检修人员进一步处理查找根因。C因充电装置故障导致电压异常，应停用故障装置并启用备用充电机或调整运行方式，题述立即更换新装置不是现场运行人员的处理手段，故不选。记忆点：直流母线电压异常先查充电机和浮充方式，装置故障换备机，别急着换新。"
+ },
+ {
+  "id": 273,
+  "type": "multi",
+  "stem": "如端子箱内有凝露，正确的处理措施有（ ）。",
+  "options": {
+   "A": "检查驱潮加热装置运行是否正常，如果驱潮加热装置故障，应及时更换",
+   "B": "如果防凝露装置正常，应查找受潮原因，如箱体密封损坏，应及时处理箱体密封",
+   "C": "如果是天气原因造成箱体凝露，可开启箱门通风干燥并做好防小动物措施，必要时使用干燥的抹布均匀地擦除，擦拭的过程应快速，并做好防范措施",
+   "D": "如箱体凝露危及设备安全运行时，向值班调控人员申请停运处理"
+  },
+  "answer": "ABD",
+  "explain": "答案 ABD。端子箱内有凝露：A先查驱潮加热装置是否正常，故障及时更换；B装置正常则查找受潮原因，箱体密封损坏及时处理；D如凝露危及设备安全运行，向值班调控人员申请停运处理。C说可开启箱门通风干燥并用干燥抹布擦拭——运行中端子箱内为带电二次回路，开启箱门通风易进小动物、再次受潮，用抹布擦拭易碰触带电端子、带入潮气，不是规范处理措施，故不选。记忆点：凝露处理先查加热、再治密封，运行中严禁开箱乱擦，严重就申请停电。"
+ },
+ {
+  "id": 274,
+  "type": "multi",
+  "stem": "（ ）等防火、防爆重点场所应采用防爆型的照明、通风设备。",
+  "options": {
+   "A": "酸性蓄电池室",
+   "B": "油处理室",
+   "C": "大物流仓储",
+   "D": "油罐室"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。按防止电力建设工程施工安全事故三十项重点要求，酸性蓄电池室、油处理室、油罐室、大物流仓储等防火、防爆重点场所必须采用防爆型的照明、通风设备，其控制开关必须安装在室外：这些场所或逸出氢气（蓄电池室）、或存油品油雾（油处理室、油罐室）、或堆放大量物料（大物流仓储），空气中可能存在可燃气体或粉尘，普通电气设备产生火花会引发爆炸。记忆点：蓄电池室、油处理室、油罐室、大物流仓储四类场所，防爆灯加防爆风机，开关装在室外。"
+ },
+ {
+  "id": 275,
+  "type": "multi",
+  "stem": "对现场的安全设施，应加强管理，及时（    ）,确保其安全性能和功能满足相关标准、规定和规程要求。",
+  "options": {
+   "A": "完善",
+   "B": "定期维护",
+   "C": "保养",
+   "D": "更换"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。对现场的安全设施，应加强管理，及时完善、定期维护、保养，确保其安全性能和功能满足相关标准、规定和规程要求：安全设施（遮栏、标示牌、接地线等）要随现场变化及时完善补充，并定期维护保养保持完好。D更换不是日常管理动词，设施损坏到不能修复时才更换，不属题述及时管理的并列内容。记忆点：安全设施管三件事：完善、维护、保养，坏透了才换。"
+ },
+ {
+  "id": 276,
+  "type": "multi",
+  "stem": "对于油浸站用(接地)变本体呼吸器中，（  ）应报一般缺陷。",
+  "options": {
+   "A": "负荷或环境温度明显变化下，呼吸器较长时间不呼吸",
+   "B": "硅胶桶玻璃破损，引起硅胶变色加速",
+   "C": "硅胶罐干燥器损坏",
+   "D": "硅胶潮解变色部分超过总量的2/3"
+  },
+  "answer": "BCD",
+  "explain": "答案 BCD。油浸站用（接地）变本体呼吸器应报一般缺陷的情形：B硅胶桶玻璃破损引起硅胶变色加速，C硅胶罐干燥器损坏，D硅胶潮解变色部分超过总量的2/3，三者都表明呼吸器失效或即将失效，需安排检修更换。A负荷或环境温度明显变化下呼吸器较长时间不呼吸——采用胶囊式或隔膜式油枕的变压器靠胶囊伸缩平衡油位，呼吸器基本不呼吸属正常现象，不构成缺陷，故不选。记忆点：呼吸器缺陷看硅胶：变色超2/3、玻璃破、干燥器坏；胶囊式油枕不呼吸是正常的。"
+ },
+ {
+  "id": 277,
+  "type": "multi",
+  "stem": "金属氧化物避雷器（  ），试验数据严重超标，无法继续运行的定为危急缺陷。",
+  "options": {
+   "A": "工频放电电压不合格",
+   "B": "电导电流及串联组合元件的非线性因数差值不合格",
+   "C": "绝缘电阻不合格",
+   "D": "交流泄漏电流超标"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。金属氧化物避雷器工频放电电压不合格、电导电流及串联组合元件的非线性因数差值不合格、绝缘电阻不合格、交流泄漏电流超标，且试验数据严重超标、无法继续运行的，均定为危急缺陷：这些项目分别反映阀片老化劣化、并联元件特性不一致、内部受潮等问题，数据严重超标说明避雷器已失去正常限压能力，随时可能失效爆炸。记忆点：避雷器四项试验任一严重超标都算危急，阀片劣化、受潮、特性不一致都要命。"
+ },
+ {
+  "id": 278,
+  "type": "multi",
+  "stem": "火灾报警应报告哪些内容（ ）",
+  "options": {
+   "A": "地点，火势",
+   "B": "燃烧物和大约数量、范围",
+   "C": "报警人姓名及电话号码",
+   "D": "公安消防部门需要了解的其他情况。"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。火灾报警应报告：起火地点与火势、燃烧物及大约数量和范围、报警人姓名及电话号码、公安消防部门需要了解的其他情况：报警信息完整才能让消防力量快速准确到场处置。A地点火势、B燃烧物数量范围、C报警人联系方式、D其他情况，四者缺一不可。记忆点：报火警五要素：地点、火势、燃烧物、联系人、其他情况，说全了救得快。"
+ },
+ {
+  "id": 279,
+  "type": "multi",
+  "stem": "二次设备防误应做到（   ）。",
+  "options": {
+   "A": "防止误碰、误动运行的二次设备",
+   "B": "防止误（漏）投或停继电保护及安全自动装置",
+   "C": "防止误整定、误设置继电保护及安全自动装置的定值",
+   "D": "防止继电保护及安全自动装置操作顺序错误。"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。二次设备防误应做到：防止误碰、误动运行的二次设备；防止误（漏）投或停继电保护及安全自动装置；防止误整定、误设置继电保护及安全自动装置的定值；防止继电保护及安全自动装置操作顺序错误：四项分别针对误碰、误投停、误整定、顺序错，是二次防误的完整要求，保护误动拒动都可能引发电网事故。记忆点：二次防误四防：误碰误动、误投停、误整定、顺序错。"
+ },
+ {
+  "id": 280,
+  "type": "multi",
+  "stem": "电气设备操作控制功能可按（   ）的分层操作原则考虑。无论设备处在哪一层操作控制，都应具备防误闭锁功能。",
+  "options": {
+   "A": "远方操作",
+   "B": "站控层",
+   "C": "间隔层",
+   "D": "设备层"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。电气设备操作控制功能可按远方操作、站控层、间隔层、设备层的分层操作原则考虑，无论设备处在哪一层操作控制，都应具备防误闭锁功能：远方操作是最上层，站控层为变电站监控后台，间隔层为间隔测控装置，设备层为设备本体就地操作，分层控制既满足集中监控又保留就地应急手段，各层都应配置防误闭锁。记忆点：操作分四层：远方、站控、间隔、设备，层层都要防误闭锁。"
+ },
+ {
+  "id": 281,
+  "type": "multi",
+  "stem": "基建设备与运行设备接引后，其（）应加锁。",
+  "options": {
+   "A": "隔离开关（刀闸）操作手柄",
+   "B": "端子箱",
+   "C": "网门",
+   "D": "机构箱"
+  },
+  "answer": "AC",
+  "explain": "答案 AC。基建设备与运行设备接引后（待用间隔），其隔离开关（刀闸）操作手柄、网门应加锁：此时设备虽未投运但已与运行母线电气接通，属带电或可能来电设备，手柄加锁防止误分合刀闸，网门加锁防止误入间隔触电。B端子箱、D机构箱不在该条款加锁范围内。记忆点：基建接引后刀闸手柄和网门必加锁，防误操作、防误入间隔。"
+ },
+ {
+  "id": 282,
+  "type": "multi",
+  "stem": "大型倒闸操作，（    ）人员应提前到位配合。",
+  "options": {
+   "A": "一次检修人员",
+   "B": "二次检修人员",
+   "C": "管理人员",
+   "D": "机具班人员"
+  },
+  "answer": "AB",
+  "explain": "答案 AB。大型倒闸操作，一次检修人员、二次检修人员应提前到位配合：大型操作涉及主设备分合与保护压板投退，一旦操作中设备异常或保护配合出现问题，需一次、二次检修人员现场即时处理。C管理人员、D机具班人员不是操作配合的必需专业力量。记忆点：大型操作一次、二次检修到场压阵，出了设备问题能当场处理。"
+ },
+ {
+  "id": 283,
+  "type": "multi",
+  "stem": "()倒闸操作可不编制预控措施卡。",
+  "options": {
+   "A": "事故紧急处理",
+   "B": "拉合断路器的单一操作",
+   "C": "投退单一保护压板",
+   "D": "投退保护通道"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。以下倒闸操作可不编制预控措施卡：事故紧急处理（时间紧迫，先处置后补措施）、拉合断路器的单一操作、投退单一保护压板、投退保护通道，这些均属步骤单一、风险较低或应急性操作，执行操作票并履行监护即可，不需另行编制预控措施卡。记忆点：事故紧急、单一操作、单一压板、保护通道四类轻量操作免预控卡。"
+ },
+ {
+  "id": 284,
+  "type": "multi",
+  "stem": "停运中的电压互感器投入运行后，应立即检查以下哪些内容。（ ）",
+  "options": {
+   "A": "电压指示情况",
+   "B": "电流指示情况",
+   "C": "本体有无异常现象",
+   "D": "接头是否发热"
+  },
+  "answer": "AC",
+  "explain": "答案 AC。停运中的电压互感器投入运行后，应立即检查电压指示情况（确认三相电压正常、无异常）和本体有无异常现象（声响、气味、渗漏等）：PT投入后其二次电压随即建立，电压指示是判断PT及一次回路是否正常的最直接信号。B电流指示是电流互感器回路的内容，与PT投入无关；D接头是否发热需带负荷运行一段时间后才会显现，不属于投入瞬间立即检查项。记忆点：PT投运瞬间看电压、听本体，电流和发热不是它的检查点。"
+ },
+ {
+  "id": 285,
+  "type": "multi",
+  "stem": "高压熔断器过热的现象有（ ）。",
+  "options": {
+   "A": "打火",
+   "B": "熔断器变色",
+   "C": "温升异常",
+   "D": "外观出现裂纹"
+  },
+  "answer": "BC",
+  "explain": "答案 BC。高压熔断器过热的现象有熔断器变色（瓷件、熔管表面变色）和温升异常（红外测温明显偏高）：过热说明接触不良或过载，熔体、熔管长期过热会加速老化甚至误熔断。A打火是接触不良放电或熔断瞬间的弧光现象，属故障表象而非过热现象；D外观出现裂纹是机械损伤或热应力开裂，也不是过热本身的表现。记忆点：熔断器过热看变色和温升，打火裂纹是另类故障。"
+ },
+ {
+  "id": 286,
+  "type": "multi",
+  "stem": "SF6电流互感器密度继电器应（ ）能将表计、控制电缆接线端子遮盖。",
+  "options": {
+   "A": "便于运维人员观察",
+   "B": "调整",
+   "C": "维护",
+   "D": "防雨罩应安装牢固"
+  },
+  "answer": "AD",
+  "explain": "答案 AD。SF6电流互感器密度继电器应便于运维人员观察（表计读数一目了然），防雨罩应安装牢固，能将表计、控制电缆接线端子遮盖，防止雨水侵入造成表计进水、电缆绝缘下降。B调整、C维护是运维动作，不是对密度继电器安装状态的要求。记忆点：密度继电器一要看得见、二要防雨罩罩得住，表计电缆都护住。"
+ },
+ {
+  "id": 287,
+  "type": "multi",
+  "stem": "下列（ ）属于开关柜手车断路器不能分、合闸的处理方法。",
+  "options": {
+   "A": "检查手车断路器储能是否正常",
+   "B": "检查手车断路器控制方式把手位置是否正确",
+   "C": "检查手车二次插头是否插好、有无接触不良",
+   "D": "检查操作步骤是否正确，电气闭锁是否正常。"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。开关柜手车断路器不能分、合闸的处理方法：A检查储能是否正常（未储能不能合闸）；B检查控制方式把手位置是否正确（就地、远方切换）；C检查手车二次插头是否插好、有无接触不良（二次回路断链）；D检查操作步骤是否正确、电气闭锁是否正常（闭锁未解除禁止操作）。四项由简到繁覆盖储能、控制方式、二次连接、闭锁四大常见原因。记忆点：手车不能分合闸按储能、把手、插头、闭锁顺序逐项查。"
+ },
+ {
+  "id": 288,
+  "type": "multi",
+  "stem": "鸟类活动频繁的变电站，应在设备构支架合适的位置上安装必要的（ ）",
+  "options": {
+   "A": "防鸟装置",
+   "B": "驱鸟装置",
+   "C": "鸟窝",
+   "D": "标识牌"
+  },
+  "answer": "AB",
+  "explain": "答案 AB。鸟类活动频繁的变电站，应在设备构支架合适的位置上安装必要的防鸟装置、驱鸟装置：防止鸟类在带电设备上筑巢、排泄引发短路闪络。C鸟窝是问题本身而非措施；D标识牌用于警示，不能驱鸟防鸟。记忆点：防鸟靠装置，装防鸟器、驱鸟器，鸟窝要清不要留。"
+ },
+ {
+  "id": 289,
+  "type": "multi",
+  "stem": "每半年对箱体内的（ ）进行一次检查维护",
+  "options": {
+   "A": "熔断器",
+   "B": "空气开关",
+   "C": "接触器",
+   "D": "插座"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。每半年对箱体内的熔断器、空气开关、接触器、插座进行一次检查维护：箱内二次元件定期检查确保接触良好、动作可靠、无过热老化，防止端子箱、机构箱内元件故障引发保护或操作失灵。记忆点：箱内四件套：熔断器、空开、接触器、插座，半年一检。"
+ },
+ {
+  "id": 290,
+  "type": "multi",
+  "stem": "断路器红外检测范围包括断路器引线、线夹、灭弧室、外绝缘及二次回路检测重点为断路器（ ）",
+  "options": {
+   "A": "引线",
+   "B": "线夹",
+   "C": "灭弧室",
+   "D": "二次回路"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。断路器红外检测范围包括断路器引线、线夹、灭弧室、外绝缘及二次回路，检测重点为断路器引线、线夹、灭弧室、二次回路：引线线夹是发热高发部位，灭弧室反映内部接触与通流状态，二次回路检查端子发热，四个选项均属检测范围与重点。记忆点：断路器红外四重点：引线、线夹、灭弧室、二次回路。"
+ },
+ {
+  "id": 291,
+  "type": "multi",
+  "stem": "断路器全面巡视是在例行巡视基础上增加（ ）项目",
+  "options": {
+   "A": "抄录断路器油位",
+   "B": "SF6气体压力、液压（气动）操动机构压力",
+   "C": "断路器动作次数",
+   "D": "操动机构电机动作次数"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。断路器全面巡视是在例行巡视基础上增加的项目：抄录断路器油位（油断路器）、SF6气体压力及液压（气动）操动机构压力、断路器动作次数、操动机构电机动作次数：这些数据反映断路器本体与机构的运行寿命和密封状态，需记录台账跟踪趋势。记忆点：全面巡视多记四本账：油位、气压、动作次数、电机次数。"
+ },
+ {
+  "id": 292,
+  "type": "multi",
+  "stem": "断路器油位过高如测温结果正常，则可能由于（ ）、（ ）或（ ）假油位造成，应联系检修人员处理，并加强监视",
+  "options": {
+   "A": "气温过高",
+   "B": "检修后补油过多",
+   "C": "假油位",
+   "D": "油位观察窗模糊"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。断路器油位过高如测温结果正常，可能由于气温过高（热胀使油位升高）、检修后补油过多（注油超量）、假油位（油位计故障或指示失真）造成，应联系检修人员处理并加强监视：三者都不反映真实故障发热。D油位观察窗模糊会导致看不清油位，而不是油位偏高的原因。记忆点：油位高但测温正常，想到热胀、补多、假油位三回事。"
+ },
+ {
+  "id": 293,
+  "type": "multi",
+  "stem": "电压互感器停用操作，应注意哪些事项：",
+  "options": {
+   "A": "二次回路空开或熔断器在拉开相应一次隔离开关后再操作",
+   "B": "按继电保护和自动装置有关规定要求变更运行方式，防止继电保护误动和拒动",
+   "C": "将二次回路主熔断器或二次空气开关断开，防止电压反送"
+  },
+  "answer": "BC",
+  "explain": "答案 BC。电压互感器停用操作注意事项：B按继电保护和自动装置有关规定变更运行方式，防止保护误动和拒动（PT退出前先处理失压可能导致的保护问题）；C将二次回路主熔断器或二次空气开关断开，防止电压反送，从二次侧反充电会使一次侧感应出高电压。A说二次回路空开或熔断器在拉开相应一次隔离开关后再操作，顺序反了，必须先断开二次回路、再拉一次隔离开关，否则存在反送电危险，故不选。记忆点：PT停用先断二次防反送、先变保护防误动，顺序不能反。"
+ },
+ {
+  "id": 294,
+  "type": "multi",
+  "stem": "以下电压互感器红外检测周期正确的是：（ ）",
+  "options": {
+   "A": "35kV及以下：1年",
+   "B": "新投运后1周内（但应超过48小时）",
+   "C": "220kV：3个月",
+   "D": "110（66）kV：一年"
+  },
+  "answer": "AC",
+  "explain": "答案 AC。电压互感器红外检测周期正确：35kV及以下为1年；220kV为3个月（一季度一次）。B新投运后1周内（但应超过48小时）不是PT红外检测周期的规范表述，新投首检时限各规程口径不一；D110（66）kV应为半年一次，写一年周期偏长、不能及时发现问题。记忆点：PT红外周期按电压分层：35kV一年、110kV半年、220kV一季度。"
+ },
+ {
+  "id": 295,
+  "type": "multi",
+  "stem": "关于站用变运行温度，说法正确的是（ ）。",
+  "options": {
+   "A": "油浸式站用变的上层油温不超过85℃",
+   "B": "油浸式站用变温升不超过50K",
+   "C": "正常运行时，油浸式站用变上层油温不宜经常超过85℃",
+   "D": "正常运行时，干式站用变的绝缘系统温度为105℃，额定电流下的绕组平均温升限值为60K"
+  },
+  "answer": "CD",
+  "explain": "答案 CD。关于站用变运行温度：C正常运行时油浸式站用变上层油温不宜经常超过85℃，上限虽可到95℃，但经常超85℃会加速绝缘油老化；D正常运行时干式站用变的绝缘系统温度为105℃，额定电流下绕组平均温升限值为60K。A把不宜经常超过的85℃说成绝对不超过，且漏掉不宜经常的限定；B油浸式站用变上层油温升限值为55K，50K不是标准值。记忆点：油浸上层油温不宜经常超85℃、温升55K；干式绝缘105℃、绕组平均温升60K。"
+ },
+ {
+  "id": 296,
+  "type": "multi",
+  "stem": "电缆竖井中应分层设置（ ），电缆沟每隔一定的距离（ ）应采取防火隔离措施。",
+  "options": {
+   "A": "防火隔板",
+   "B": "防火墙",
+   "C": "40米",
+   "D": "60米",
+   "E": "80米"
+  },
+  "answer": "AD",
+  "explain": "答案 AD。电缆竖井中应分层设置防火隔板，电缆沟每隔60米应采取防火隔离措施：竖井上下贯通，分层设防火隔板防止某一层起火沿竖井蔓延；电缆沟较长时每隔60米设一道防火隔离，把火灾限制在局部区段。B防火墙是隔离措施的具体形式，本题第一空填防火隔板；C40米、E80米不是电缆沟防火隔离的规范间距，非阻燃电缆宜每隔60米设隔断。记忆点：竖井分层防火隔板、沟道每隔60米设隔离，分段阻断延燃。"
+ },
+ {
+  "id": 297,
+  "type": "multi",
+  "stem": "开关弹簧未储能常见原因有哪些？（  ）",
+  "options": {
+   "A": "开关正常合闸后发出该信息",
+   "B": "储能行程开关损坏",
+   "C": "储能电机故障",
+   "D": "电机控制回路故障"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。开关弹簧未储能常见原因：A开关正常合闸后发出该信息（合闸后储能电机启动补能是正常过程，信号异常可能是监视误发）；B储能行程开关损坏（到位后不能复位、补能信号丢失）；C储能电机故障（不转、卡死）；D电机控制回路故障（无电源、接触器坏）。四项都可能导致储能不到位或储能监视异常。记忆点：弹簧储能异常四查：行程开关、电机本体、控制回路、合闸后补能信号。"
+ },
+ {
+  "id": 298,
+  "type": "multi",
+  "stem": "（ ）GIS室吊装平台大门宜采用电动卷帘门，并充分考虑抗风能力，高度、宽度满足抢修要求。",
+  "options": {
+   "A": "110kV",
+   "B": "220kV",
+   "C": "300kV",
+   "D": "35kV"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。110kV、220kV、300kV GIS室吊装平台大门宜采用电动卷帘门，并充分考虑抗风能力，高度、宽度满足抢修要求：110kV及以上GIS室设备体积大，检修时需吊装进出，电动卷帘门升降方便，满足大型设备与工器具抢修运输。D35kV GIS室设备尺寸小，一般不需大型吊装通道，不强制采用。记忆点：GIS室吊装大门110kV及以上用电动卷帘门，抗风要够、门洞要容得下设备。"
+ },
+ {
+  "id": 299,
+  "type": "multi",
+  "stem": "户外高压熔断器更换过程中（ ）。",
+  "options": {
+   "A": "登高作业应使用合格的绝缘梯",
+   "B": "应有专人扶梯",
+   "C": "登高者使用合格的安全带",
+   "D": "应使用扳手或螺丝刀拆卸无弹簧侧熔断器套管侧盖"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。户外高压熔断器更换过程中：A登高作业应使用合格的绝缘梯；B应有专人扶梯；C登高者使用合格的安全带；D应使用扳手或螺丝刀拆卸无弹簧侧熔断器套管侧盖，有弹簧侧有弹射危险，必须从无弹簧侧拆。四项都是户外更换高压熔断器的安全与技术要点，缺一不可。记忆点：换户外熔断器：绝缘梯、专人扶、安全带、无弹簧侧先拆，四件事都做到。"
+ },
+ {
+  "id": 300,
+  "type": "multi",
+  "stem": "（ ）期间应增加开关柜红外精确检测？",
+  "options": {
+   "A": "迎峰度夏（冬）",
+   "B": "大负荷",
+   "C": "检修结束送电",
+   "D": "保电期间"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。迎峰度夏（冬）、大负荷、检修结束送电、保电期间应增加开关柜红外精确检测：这些时段负荷重、设备发热量大，或设备状态刚发生变化，最易暴露接触不良等发热缺陷，故加密检测频次。记忆点：高峰、大负荷、刚送电、保电，四个时段加密红外精确检测。"
+ },
+ {
+  "id": 301,
+  "type": "multi",
+  "stem": "变电站所用电停电或全站交流电源失电，直流电源蓄电池带全站直流电源负载期间特殊巡视检查，内容为（ ）。",
+  "options": {
+   "A": "蓄电池带负载时间严格控制在规程要求的时间范围内",
+   "B": "直流控制母线、动力母线电压、蓄电池组电压值在规定范围内",
+   "C": "各支路直流断路器位置正确",
+   "D": "各支路的运行监视信号完好、指示正常"
+  },
+  "answer": "ABCD",
+  "explain": "答案 ABCD。站用电停电或全站交流电源失电、直流电源蓄电池带全站直流负载期间，特殊巡视内容：A蓄电池带负载时间严格控制在规程要求范围内，防止过放损伤电池；B直流控制母线、动力母线电压、蓄电池组电压在规定范围内；C各支路直流断路器位置正确；D各支路运行监视信号完好、指示正常。四项全面覆盖电池、母线、支路、信号，确保直流供电可靠。记忆点：蓄电池带全站负荷巡四样：放电时长、母线电压、支路开关、监视信号。"
+ },
+ {
+  "id": 302,
+  "type": "multi",
+  "stem": "组合电器声响异常伴有振动声时，检查组合电器（ ）紧固螺栓有无松动，必要时联系检修人员处理。",
+  "options": {
+   "A": "套管",
+   "B": "外壳",
+   "C": "接地",
+   "D": "带电显示装置"
+  },
+  "answer": "BC",
+  "explain": "答案 BC。组合电器声响异常伴有振动声时，检查组合电器外壳、接地紧固螺栓有无松动，必要时联系检修人员处理：外壳螺栓松动会引起机械振动异响，接地螺栓松动会造成接地不良、外壳电位升高。A套管、D带电显示装置一般不出现螺栓松动引起异响振动的问题。记忆点：声响异常带振动，先查外壳和接地螺栓松没松。"
+ },
+ {
+  "id": 303,
+  "type": "multi",
+  "stem": "变压器熄灯巡视项目有（ ）。",
+  "options": {
+   "A": "引线、接头、套管末屏无放电",
+   "B": "引线、接头、套管末屏无发红迹象",
+   "C": "套管无闪络、放电",
+   "D": "变压器声响均匀、正常"
+  },
+  "answer": "ABC",
+  "explain": "答案 ABC。变压器熄灯巡视项目：A引线、接头、套管末屏无放电，B引线、接头、套管末屏无发红迹象，C套管无闪络、放电：熄灯巡视在夜间黑暗环境下专门观察放电火花、电晕辉光、过热发红等发光发热现象。D变压器声响均匀、正常是常规巡视内容，熄灯巡视看的是视觉现象而非听觉，故不选。记忆点：熄灯巡视用眼睛找放电发光和发红，听声音交给常规巡视。"
+ },
+ {
+  "id": 304,
+  "type": "multi",
+  "stem": "主设备及设备构架接地引下线均应符合（ ）的要求",
+  "options": {
+   "A": "热稳定校核",
+   "B": "机械强度",
+   "C": "动稳定校核",
+   "D": "绝缘强度"
+  },
+  "answer": "AB",
+  "explain": "答案 AB。主设备及设备构架接地引下线应符合热稳定校核、机械强度的要求：接地引下线要流过短路故障电流，需满足热稳定校核防止熔断；同时作为机械构件要满足机械强度防止断裂。C动稳定校核针对设备整体短路受力，不是接地引下线的专门要求；D绝缘强度与接地导体（低电位导体）无关。记忆点：接地引下线两要求：热稳定扛住短路电流、机械强度扛住外力。"
+ },
+ {
+  "id": 305,
+  "type": "judge",
+  "stem": "如母联断路器设有断口均压电容且母线电压互感器为电磁式的，为了避免拉开母联断路器后可能产生串联谐振而引起过电压，应先拉开母联断路器，再停用母线电压互感器；复役时相反。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。如母联断路器设有断口均压电容且母线电压互感器为电磁式的，为避免拉开母联断路器后产生串联铁磁谐振过电压，应先将母线电压互感器停用（断开PT、切断电感L），再拉开母联断路器，破坏断口电容C与PT电感L构成串联谐振的条件；复役时相反，先合母联断路器、后投入母线PT。题述先拉母联再停PT、复役相反，顺序正好颠倒，故错误。记忆点：电容C遇电感L会谐振，先停PT切断电感，再拉母联才安全。"
+ },
+ {
+  "id": 306,
+  "type": "judge",
+  "stem": "电流互感器本体热点温度超过55℃，应加强监视，按缺陷处理流程上报。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。电流互感器本体热点温度超过55℃，应加强监视，按缺陷处理流程上报：55℃是CT本体热点温度的一般缺陷预警值，达到即表明内部可能接触不良、过负荷或绝缘受潮，需上报并按缺陷流程跟踪处理；引线接头超过90℃同样上报。题述正确。记忆点：CT本体热点55℃是一道坎，越过就要上报监视。"
+ },
+ {
+  "id": 307,
+  "type": "judge",
+  "stem": "当断路器开断额定电流的次数比其允许额定电流开断次数少一次时，应向值班调控人员申请退出该断路器的重合闸。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按断路器运维细则，当断路器开断短路（故障）电流次数比其允许开断次数少一次时，应向值班调控人员申请退出该断路器的重合闸，以便在剩余一次开断能力内避免重合失败扩大事故。题述写的是开断额定电流，开断额定电流（正常负荷电流）不消耗短路开断能力、不计入开断次数，不构成退出重合闸的依据，故说法错误。记忆点：只有开断短路电流才计入寿命，额定电流开断不算数，别把两者混为一谈。"
+ },
+ {
+  "id": 308,
+  "type": "judge",
+  "stem": "不得将两台变压器的中性点同时接到一台消弧线圈上。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。不得将两台变压器的中性点同时接到一台消弧线圈上：消弧线圈只能接在一台变压器中性点上运行，若两台变压器中性点并接同一消弧线圈，运行方式改变时中性点位移、消弧线圈调谐均受影响，故障时两台中性点电流分配不明、可能产生过电压，故严禁。题述正确。记忆点：消弧线圈一台只能供一台变压器中性点，两台并接会乱套。"
+ },
+ {
+  "id": 309,
+  "type": "judge",
+  "stem": "变电运维管理规定中，智能巡检机器人巡视结果异常时，应进行复测，如复测结果仍有问题，立即安排人员进行现场核实。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按Q/GDW 11516变电站智能机器人巡检系统运维规范，机器人巡检发出设备告警信息后，运维人员应及时通过机器人监控系统核实，必要时到现场确认，并按缺陷严重程度分类处理：严重、危急缺陷及时到站复核，一般缺陷跟踪复测。题述机械地按先复测、复测仍有问题再安排现场核实的固定顺序执行，与规定不符，故错误。记忆点：机器人告警后及时核实、必要时到站，按缺陷级别分类处置，不是一律先复测。"
+ },
+ {
+  "id": 310,
+  "type": "judge",
+  "stem": "SF6电压互感器压力表偏出正常压力区时，应及时上报并查明原因，压力降低应进行补气处理。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。SF6电压互感器压力表偏出正常压力区时，应及时上报并查明原因，压力降低应进行补气处理：SF6气体既是绝缘介质又是灭弧介质，压力偏低说明气体泄漏或温度变化，绝缘裕度下降，应查明原因并补气恢复。题述正确。记忆点：SF6压力掉出正常区，先查漏再补气，绝缘靠气体撑着。"
+ },
+ {
+  "id": 311,
+  "type": "judge",
+  "stem": "直流回路可采用交流空气断路器。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。直流回路严禁采用交流空气断路器。交流断路器与直流断路器灭弧原理不同：交流电弧在电流过零时自然熄灭，而直流电流无自然过零点，只能靠拉长电弧、增大弧阻强迫熄弧，交流空气断路器开断直流时电弧难以熄灭、触头烧损甚至引起短路。故反措明确直流回路应使用专用直流空气断路器，分断能力按直流条件考核。记忆点：直流无过零点，交流断路器拿去断直流断不开，必须专用直流断路器。"
+ },
+ {
+  "id": 312,
+  "type": "judge",
+  "stem": "油浸式站用变的上层油温不超过95℃，温升不超过50K。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。油浸式站用变上层油温上限不是95℃而是100℃、温升上限不是50K而是55K；正常运行中上层油温不宜经常超过85℃。规程给的100℃/55K是热稳定极限，85℃是长期经济运行的控制值，三个数要分清。记忆点：极限100℃、温升55K是底线，经常性控制值85℃；题目把上限和温升各压低一档，故错。"
+ },
+ {
+  "id": 313,
+  "type": "judge",
+  "stem": "无人值班变电站，强油循环风冷变压器的冷却装置全停，宜投信号。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。DL/T572规定强油循环风冷变压器冷却装置全停，有人值班站宜投信号，无人值班站条件具备时宜投跳闸。无人值班站无人值守，冷却器全停后只发信号无法及时处置，变压器在额定负载下最多运行20min（最长不超过1h）就会过热，故应直接跳闸。记忆点：有人值班投信号可人工处置，无人值班投跳闸防过热损坏，关键看有没有人盯。"
+ },
+ {
+  "id": 314,
+  "type": "judge",
+  "stem": "顺控操作因故中止后，可转就地手动操作。手动操作时由原五防主机或监控主机实现防误闭锁功能。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。一键顺控操作因故中止后转就地手动操作时，防误闭锁功能应由就地防误闭锁装置（就地五防、电脑钥匙）实现，而不是由原五防主机或监控主机实现——就地手动操作时，远方五防主机无法实时感知现场动作、无法就地闭锁。记忆点：就地操作配就地防误，电脑钥匙随身带防误规则，远方主机管不到就地手摇。"
+ },
+ {
+  "id": 315,
+  "type": "judge",
+  "stem": "变压器非电量保护装置采用就地安装方式时，应采用电缆跳闸。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。Q/GDW441规定变压器非电量保护（重瓦斯、压力释放、油温油位等）就地安装时，应采用电缆直接跳闸，不经过智能终端、合并单元及过程层GOOSE网络，保证非电量保护动作的绝对可靠性、不受网络和智能装置影响。记忆点：非电量保护是变压器最后防线，就地安装加电缆直跳，最朴素也最可靠，不走网络。"
+ },
+ {
+  "id": 316,
+  "type": "judge",
+  "stem": "停用防误闭锁装置应经设备运维管理单位批准。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。防误闭锁装置是防止误操作的第一道防线，不得随意退出或停用；确需停用时，应经设备运维管理单位批准，并落实相应防误措施后方可停用，且停用时间宜短。反措强调防误装置与一次设备同步投运、同步维护，任何单位和个人都无权擅自摘锁运行。记忆点：防误装置停用是大事，必须运维管理单位批准，谁都不能擅自摘锁。"
+ },
+ {
+  "id": 317,
+  "type": "judge",
+  "stem": "一级动火工作票一般应提前10h小时办理。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。DL5027规定一级动火工作票一般应提前8h办理，不是10h。一级动火区火灾危险性大，须提前审批、落实防火措施和动火人员，故规程给出提前8h的办理时限；提前时间过短，消防监护、措施落实和审批都来不及。记忆点：一级动火票提前8h，给足审批和布置防火措施的时间。"
+ },
+ {
+  "id": 318,
+  "type": "judge",
+  "stem": "油浸变压器有载开关储油柜有轻微渗油，未形成油滴属于一般缺陷。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。Q/GDW1906将有载开关储油柜轻微渗油、未形成油滴定性为一般缺陷；渗油只是表面湿润、程度轻，不影响短期运行，应记录在案、加强监视并安排计划检修；若形成油滴或滴油加快则升级为严重缺陷。记忆点：渗油与滴油是分界，未成滴＝一般，成滴＝升级，按油迹轻重定级。"
+ },
+ {
+  "id": 319,
+  "type": "judge",
+  "stem": "不承担跳合闸控制任务的二次设备均可不与一次设备同期投入。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。反措要求二次设备应与一次设备同期投入运行，不论其是否承担跳合闸控制任务。测控、计量、故障录波、远动等不直接跳闸的设备若滞后投入，会造成监视、量测、信息上送缺失，同样威胁安全运行。记忆点：一次投产二次同步，保护、测控、计量、录波一个都不能少，不能因为不跳闸就缓投。"
+ },
+ {
+  "id": 320,
+  "type": "judge",
+  "stem": "开关场的就地端子箱内应设置截面不小于100mm2的裸铜排，并使用截面不小于80mm2的铜排（缆）与电缆沟道内的等电位接地网连接。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按反措和等电位接地网敷设原则，开关场就地端子箱内应设截面不小于100mm²的裸铜排，并用截面不小于100mm²的铜排（缆）与电缆沟道内等电位接地网连接。题目把连接铜排截面写成80mm²，偏小，故错。记忆点：箱内裸铜排和连接铜排都是100mm²，一个100一个80是不对称的错法。"
+ },
+ {
+  "id": 321,
+  "type": "judge",
+  "stem": "开关柜一般运行规定要求进入开关室对开关柜进行巡视期间禁止远方操作开关,巡视完毕离开开关室后告知调控中心将电压自动控制（AVC）恢复至自动投切状态。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。进入开关室对开关柜巡视期间禁止远方操作开关，防止开关动作误伤柜前巡视人员；巡视完毕离开开关室后应告知调控中心，将电压自动控制（AVC）恢复至自动投切状态。巡视期间AVC可能被切至手动，离开后必须恢复，否则电压失去自动调节。记忆点：人在柜前禁远方、人走恢复AVC自动，两个动作首尾呼应。"
+ },
+ {
+  "id": 322,
+  "type": "judge",
+  "stem": "可以使用隔离开关或高压熔断器拉开油位异常升高的电压互感器。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。电压互感器油位异常升高说明内部可能放电产气、油体积膨胀或内部故障，此时禁止用隔离开关或高压熔断器直接拉开——隔离开关不能带负荷拉合、不能开断故障电流，高压熔断器也切不断短路电流，强行拉开会拉弧短路、扩大事故。正确做法是用断路器切除。记忆点：PT油位异常升高＝内部有故障，必须断路器切除，隔离开关、熔断器只能断正常小电流。"
+ },
+ {
+  "id": 323,
+  "type": "judge",
+  "stem": "空心电抗器内部有鸟窝或异物,在保证安全距离的情况下，可采用不停电方法用绝缘棒将异物挑离。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。空心电抗器绕组间间隙大，内部有鸟窝或异物时，在保证安全距离的前提下，可采用不停电方法用绝缘棒将异物挑离，避免异物引起匝间短路或放电；若无法安全挑除再考虑停电处理。记忆点：空心电抗器内部异物，安全距离够就用绝缘棒带电挑，够不到才停电。"
+ },
+ {
+  "id": 324,
+  "type": "judge",
+  "stem": "Q/GDW 10231-2016无人值守变电站技术导则规定，变电站内信息采集应以电气间隔为单元进行连续采集。断路器、隔离开关和接地开关的位置采集应采取双接点方式。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。Q/GDW10231规定断路器、隔离开关、接地开关的位置采集宜采取双接点方式，新建变电站应采取双接点方式。题目把在运、新建一律写成“应”采取双接点，把“宜”和“应”混为一谈，在运站是推荐而非强制。记忆点：新建站应双接点、在运站宜双接点，双接点提高位置采集可靠性，既有站不强求一步到位。"
+ },
+ {
+  "id": 325,
+  "type": "judge",
+  "stem": "在条件许可时，无人值守变电站的变压器应按照ONAN、ONAF、OFAF、ODAF次序选择变压器冷却方式。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。条件许可时无人值守变电站变压器冷却方式按ONAN、ONAF、OFAF、ODAF次序选择，即自然油自然风冷、自然油强迫风冷、强迫油强迫风冷、强迫导向油强迫风冷，冷却能力逐级增强，适应无人值守高可靠、低维护需求。记忆点：第一个字母O是油，第二、四字母N/A分别指自然/强迫风冷，第三字母F/A指强迫/导向油循环，冷却能力依次增强。"
+ },
+ {
+  "id": 326,
+  "type": "judge",
+  "stem": "无人值守变电站的操作控制可按远方操作、站控层、间隔层、设备级的分层操作原则考虑，各层均应具备防误闭锁功能。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。无人值守变电站的操作控制可按远方操作、站控层、间隔层、设备级的分层操作原则考虑，各层均应具备防误闭锁功能，确保无论在哪个层面操作都有防误保障。分层操作只是控制权的分工，防误闭锁是硬底线，不能因为操作层面不同就放松。记忆点：分层操作不降防误，四层各装各的锁，从远方到就地都不裸奔。"
+ },
+ {
+  "id": 327,
+  "type": "judge",
+  "stem": "无人值守变电站保护功能压板应采用软压板方式，具备远方操作功能。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。Q/GDW10231规定保护功能压板宜采用软压板方式并具备远方操作功能，题目写成“应”采用，把推荐性要求说成强制性；且检修压板采用硬压板、不参与远方操作，题目未作区分。记忆点：功能压板宜软、检修压板硬，远方操作靠软压板，检修隔离靠硬压板。"
+ },
+ {
+  "id": 328,
+  "type": "judge",
+  "stem": "无人值守变电站的断路器、隔离开关、接地开关的主回路应接触良好，操动机构、储能机构、辅助接点应可靠。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。无人值守变电站的断路器、隔离开关、接地开关主回路应接触良好，操动机构、储能机构、辅助接点应可靠，这是无人值守对一次设备可靠性的基本要求——设备无人看管，任何卡涩、拒动都会导致操作失败甚至事故。记忆点：无人值守设备可靠性要求更高，主回路通流、机构动作、辅助接点信号三者都要可靠。"
+ },
+ {
+  "id": 329,
+  "type": "judge",
+  "stem": "智能变电站中的电子式互感器的二次转换器（A/D 采样回路）、合并单元（MU）、光纤连接、智能终端、出口继电器、过程层网络交换机等设备内任一个元件损坏不应引起保护动作跳闸。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。Q/GDW441规定电子式互感器二次转换器、合并单元、光纤连接、智能终端、出口继电器、过程层网络交换机等设备内任一个元件损坏，除出口继电器外，不应引起保护误动作跳闸。题目漏了“误”和“除出口继电器外”两个关键限定：元件损坏只应告警或拒动，不应误动；出口继电器本身损坏可能直接导通跳闸回路，属例外。记忆点：坏一个元件只准告警不准误跳，唯独出口继电器损坏除外。"
+ },
+ {
+  "id": 330,
+  "type": "judge",
+  "stem": "断路器失灵启动、解复压闭锁、启动变压器保护联跳各侧及变压器保护跳母联 (分段)信号采用GOOSE网络传输方式。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。Q/GDW441规定断路器失灵启动、解复压闭锁、启动变压器保护联跳各侧、变压器保护跳母联（分段）等信号采用GOOSE网络传输方式。这些属跨间隔、跨装置的联锁启动信号，用GOOSE实时性和可靠性好，可省去大量硬接线。记忆点：失灵启动、解复压闭锁、启动联跳这类联动信号走GOOSE，是智能站的典型做法。"
+ },
+ {
+  "id": 331,
+  "type": "judge",
+  "stem": "控制柜应具备温度、湿度的采集、调节功能，柜内温度控制在-10~50℃,湿度保持在 80%以下，并可通过智能终端 GOOSE接口上送温度、湿度信息。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。Q/GDW441规定智能控制柜应具备温度、湿度的采集和调节功能，柜内温度控制在-10～50℃，湿度保持在90%以下，并通过智能终端GOOSE接口上送。题目把湿度写成80%以下，与规程90%不符，故错。记忆点：控制柜温度-10～50℃、湿度90%以下，湿度比80%宽松一档，别记成80。"
+ },
+ {
+  "id": 332,
+  "type": "judge",
+  "stem": "每台变压器、高压并联电抗器配置一套本体智能终端，本体智能终端包含完整的变压器、高压并联电抗器本体信息交互功能 (非电量动作报文、调档及及测温等)，并可提供用于闭锁调压、 启动风冷、启动充氮灭火等出口接点。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。Q/GDW441规定每台变压器、高压并联电抗器配置一套本体智能终端，包含完整的本体信息交互功能（非电量动作报文、调档、测温），并可提供用于闭锁调压、启动风冷、启动充氮灭火等出口接点。记忆点：一台主变或高抗配一套本体智能终端，非电量、调档、测温全包，还能输出闭锁调压、启风冷、启充氮灭火出口。"
+ },
+ {
+  "id": 333,
+  "type": "judge",
+  "stem": "发生六级以上人身、电网、设备和信息系统事件，应立即按资产关系或管理关系逐级上报至公司总部",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。按国家电网有限公司安全事故调查规程，发生六级以上人身、电网、设备和信息系统事件，应立即按资产关系或管理关系逐级上报至公司总部。六级是需上报总部的起算门槛，事件越早、越准确地逐级上报，越有利于统一指挥处置和原因调查。记忆点：六级以上事件立即逐级上报总部，六是上报总部的起算级别。"
+ },
+ {
+  "id": 334,
+  "type": "judge",
+  "stem": "防误装置的防误规则不得通过拓扑生成。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。反措规定防误规则判别依据可包含断路器、隔离开关、接地开关、网门、压板、接地线及就地锁具等一二次设备状态信息，以及电压、电流等状态信息，若防误规则通过拓扑生成，则应加强校核——即拓扑生成防误规则是允许的，前提是加强校核。题目说“不得通过拓扑生成”，与反措相反。记忆点：拓扑生成防误规则可以，但必须加强校核，不是一刀切禁止。"
+ },
+ {
+  "id": 335,
+  "type": "judge",
+  "stem": "顺控操作因故停止，转常规倒闸操作时，仍应有完善的防误闭锁功能。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。顺控操作因故停止转常规倒闸操作时，仍应有完善的防误闭锁功能，不能因为顺控转人工就放松防误。反措要求无论远方顺控还是就地人工操作，防误闭锁必须全程有效，转操作方式只是操作手段变化，防误底线不变。记忆点：顺控也好人工也罢，防误闭锁始终在线，转方式不转防误。"
+ },
+ {
+  "id": 336,
+  "type": "judge",
+  "stem": "一次、二次检修人员应结合设备检修调试联锁回路，及时消除防误装置和联锁回路缺陷，减少倒闸操作过程中突发异常情况。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。一次、二次检修人员应结合设备检修调试联锁回路，及时消除防误装置和联锁回路缺陷，减少倒闸操作过程中突发异常情况。检修与防误消缺结合，把隐患消灭在操作前，防误装置不能带病运行，联锁回路不能带缺投运。记忆点：检修顺便试联锁、消缺陷，防误装置别带病运行。"
+ },
+ {
+  "id": 337,
+  "type": "judge",
+  "stem": "操作人员具备正常操作和设备强制对位权限，不应具备“修改防误闭锁逻辑” 权限。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按防误系统权限最小化原则，操作人员只应具备正常操作权限；设备强制对位是绕开位置校核的特殊权限，必须按审批流程临时授予，不能作为操作人员常备权限；修改防误闭锁逻辑权限应由防误装置专责人掌握。题目把强制对位列为操作人员常备权限，与权限最小化相悖。记忆点：操作员只配正常操作，强制对位要临时批、改逻辑归专责，权限越界就是隐患。"
+ },
+ {
+  "id": 338,
+  "type": "judge",
+  "stem": "当操作发生疑问时，应立即停止操作并向发令人报告，并禁止单人滞留在操作现场。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。当操作发生疑问时，应立即停止操作并向发令人报告，并禁止单人滞留在操作现场——疑问不清不操作，报告后听候指令，严禁擅自更改操作票或继续操作，操作人和监护人不得同时离开；单人滞留现场易发生误动或人身风险。记忆点：有疑问先停、报告、不单人滞留，三件事缺一不可。"
+ },
+ {
+  "id": 339,
+  "type": "judge",
+  "stem": "每两年至少对变电站消防给水及消火栓系统的消防水池进行全面清洗一次。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。变电站消防给水及消火栓系统运行管理要求每两年至少对消防水池进行全面清洗一次，保证水质、水位和消防供水可靠。水池长期不清洗会淤积污物、滋生微生物，影响消防泵取水和喷淋灭火效果，故规程给出两年一洗的硬周期。记忆点：消防水池两年一洗，水池干净、水量充足才顶用。"
+ },
+ {
+  "id": 340,
+  "type": "judge",
+  "stem": "在已完成电缆防火措施的电缆孔洞等处新敷设或拆除电缆，必须修复防火封堵措施。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。DL5027规定在已完成电缆防火措施的电缆孔洞等处新敷设或拆除电缆，必须及时重新做好相应的防火封堵措施，防止火灾经孔洞蔓延扩大。题目用“修复”一词不准确，规程强调的是“及时重新做好”，两者含义有差别。记忆点：动了电缆孔洞就要及时重新封堵，孔洞是火灾蔓延的通道。"
+ },
+ {
+  "id": 341,
+  "type": "judge",
+  "stem": "消防联动控制、通信和报警线路采用暗敷设时若采用经阻燃处理的电缆必须穿金属管保护。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。消防联动控制、通信和报警线路暗敷设时，应穿金属导管或难燃型刚性塑料管保护，并敷设在不燃烧体结构层内；“采用经阻燃处理电缆可不穿金属管”的规定针对的是明敷设。题目把明敷设的宽松条件套到暗敷设上，又限定“必须穿金属管”，均与规程不符。记忆点：暗敷设本来就穿管（金属管或难燃塑料管），明敷设阻燃电缆才可不穿金属管，方向别搞反。"
+ },
+ {
+  "id": 342,
+  "type": "judge",
+  "stem": "一级动火工作票的有效期为48h，二级动火工作票的有效期为120h。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。DL5027规定一级动火工作票的有效期为24h，二级动火工作票的有效期为120h。题目把一级写成48h，错；二级120h对。一级动火区火灾危险性大、后果严重，要严格控制作业时间，故有效期仅24h，超期必须重新办理。记忆点：一级动火票24h、二级动火票120h，等级越高有效期越短。"
+ },
+ {
+  "id": 343,
+  "type": "judge",
+  "stem": "城市中心站及地下站排水系统应改造为自动排水系统，并接入城市排水系统。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。设备变电〔2021〕69号要求城市中心站及地下站排水系统应改造为自动排水系统，并接入城市排水系统，提升防汛抗灾能力。城市中心站、地下站地势低、汛期易受淹，手动排水不及时会淹没设备，故必须自动化并接入市政管网。记忆点：城市中心站、地下站汛期风险高，排水要自动化，还要能排进市政管网。"
+ },
+ {
+  "id": 344,
+  "type": "judge",
+  "stem": "组合电器汇控柜柜体接地排连接脱开属于严重缺陷。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按Q/GDW1906，组合电器汇控柜柜体接地排连接脱开（设备无法接地）属一般缺陷，不是严重缺陷。柜体接地脱开会危及人身和设备安全，但未直接造成停电或设备损坏，按缺陷分级列入一般缺陷跟踪处理。记忆点：汇控柜接地排脱开＝一般缺陷，别一听接地脱开就当成严重缺陷。"
+ },
+ {
+  "id": 345,
+  "type": "judge",
+  "stem": "开关柜内电流互感器本体发热，相间温差12K，属于一般缺陷",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。开关柜内电流互感器本体发热、相间温差12K，提示本体存在一定异常（如铁芯局部短路、局部放电），但按Q/GDW1906尚未达到严重缺陷的判定值，列为一般缺陷，应记录在案、加强红外跟踪并安排停电检修验证。记忆点：12K相间温差是异常信号，但没到严重缺陷的热点温度或相对温差限值，定一般缺陷先跟踪。"
+ },
+ {
+  "id": 346,
+  "type": "judge",
+  "stem": "电容器组接线宜采用先串后并的接线方式。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。反措在防止无功补偿装置事故部分规定电容器组接线宜采用“先串后并”方式：先由多台电容器串联成串、提高耐压，再并联成组满足容量，可限制单台击穿后的故障电流冲击。注意GB50227设计规范对并联电容器组主张“先并后串”，与反措口径不同，考题依据反措判为正确。记忆点：反措说先串后并、设计规范说先并后串，考反措就答先串后并，别按设计规范背反了。"
+ },
+ {
+  "id": 347,
+  "type": "judge",
+  "stem": "变压器受到近区短路冲击跳闸后，应开展油中溶解气体组分分析、直流电阻、绕组变形及其他诊断性试验，综合判断无异常后方可投入运行。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。变压器受近区短路冲击跳闸后，绕组可能变形、绝缘受损，应开展油中溶解气体组分分析、直流电阻、绕组变形及其他诊断性试验，综合判断无异常后方可投入运行。近区短路冲击电流大、电动力强，绕组变形和匝间损伤往往隐蔽，必须试验确认。记忆点：近区短路冲击后别急着送电，油色谱、直阻、绕组变形三件套先查一遍。"
+ },
+ {
+  "id": 348,
+  "type": "judge",
+  "stem": "SF6开关设备进行抽真空处理时可以使用麦氏真空计。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。SF6开关设备抽真空处理时严禁使用麦氏真空计（水银真空计）：麦氏真空计含汞，操作不当水银会被虹吸倒灌进设备内部，造成绝缘事故且汞蒸气有毒；应使用指针式或电子液晶体真空计。记忆点：麦氏真空计带水银，抽真空禁用，防汞进设备，用指针式或电子真空计。"
+ },
+ {
+  "id": 349,
+  "type": "judge",
+  "stem": "12kV及以上开关柜内的穿柜套管、触头盒应采用双屏蔽结构，其等电位连线（均压环）应长度适中,并与母线及部件内壁可靠连接。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。反措要求24kV及以上开关柜内的穿柜套管、触头盒采用双屏蔽结构，其等电位连线（均压环）应尽量缩短（短而直），并与母线及部件内壁可靠连接。题目把电压等级写成12kV及以上、把连线写成“长度适中”，两处均与原文不符。记忆点：双屏蔽是24kV及以上的要求，均压环连线要短而直，短直才不易悬浮放电。"
+ },
+ {
+  "id": 350,
+  "type": "judge",
+  "stem": "自动调谐消弧线圈投入运行后，应定期（时间间隔不大于5年）根据实际测量的系统电容电流对其自动调谐功能的准确性进行校核。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。自动调谐消弧线圈投入运行后，应定期根据实际测量的系统电容电流对其自动调谐功能的准确性进行校核，校核时间间隔不大于3年，不是5年。电网发展使系统电容电流变化，隔太久不校核会失谐。记忆点：消弧线圈调谐校核3年一检，电容电流变了要跟着调，5年太久会失谐。"
+ },
+ {
+  "id": 351,
+  "type": "judge",
+  "stem": "一键顺控指令在执行前必须满足的初始条件，操作条件满足才允许启动指令执行，操作条件不满足禁止指令执行。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。一键顺控指令在执行前必须满足初始条件，操作条件满足才允许启动指令执行，操作条件不满足禁止执行，这是顺控启动的安全门槛，防止在不具备条件时误启动。初始条件通常包括系统方式、设备状态、防误校验等，全部满足才放行。记忆点：顺控启动前先验条件，条件满足才执行、不满足就禁止，硬性门槛不商量。"
+ },
+ {
+  "id": 352,
+  "type": "judge",
+  "stem": "分合闸位置双确认是指通过至少两个同源的状态指示在一定时间范围内发送对应变化来确认开关设备的分合闸位置。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。一键顺控分合闸位置双确认指通过至少两个异源（不同信号源、不同原理）的状态指示在一定时间范围内变化来确认开关位置，题目写成“同源”，方向相反。同源指示相互印证不足，无法可靠防误判。记忆点：双确认要“异源”不“同源”，两个不同来源互相佐证位置才可信。"
+ },
+ {
+  "id": 353,
+  "type": "judge",
+  "stem": "在设备缺陷未消除前，机器人应对该设备进行持续跟踪巡检。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。在设备缺陷未消除前，机器人应对该设备进行持续跟踪巡检，掌握缺陷发展趋势，及时预警，防止缺陷发展成事故。缺陷设备的健康状态变化快，只有连续跟踪才能捕捉恶化迹象，为计划检修和状态评价提供依据。记忆点：缺陷不消机器人就跟，缺陷跟踪不停歇，盯到消缺为止。"
+ },
+ {
+  "id": 354,
+  "type": "judge",
+  "stem": "部分巡视终端故障时，可采用其他巡视终端补充，若导致II类点位不能覆盖的情况，要恢复人工巡视作业模式。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。按智能巡视运行管理规定，只有当智能巡视无法覆盖关键巡视点位（I类点位）时才应恢复人工巡视作业模式；II类一般点位不能覆盖时，可通过其他巡视终端补充或尽快修复解决，不必整体转人工。题目把恢复人工巡视的门槛降到II类点位，不符合规定。记忆点：关键点位（I类）盖不住才转人工，II类一般点位补巡即可，别动不动就人工全上。"
+ },
+ {
+  "id": 355,
+  "type": "judge",
+  "stem": "试运行期间，智能巡视与人工例行巡视同步开展，周期按智能巡视周期执行。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。试运行期间智能巡视与人工例行巡视同步开展，目的是验证智能巡视效果，周期应按人工例行巡视周期执行，便于逐项比对、发现漏巡误判；题目说按智能巡视周期执行，失去比对意义。记忆点：试运行＝智能陪着人工跑，按人工周期同步比对，验证过关后才能独立巡。"
+ },
+ {
+  "id": 356,
+  "type": "judge",
+  "stem": "带电红外检测在夜间进行室外检测，其检测效果通常比白天好，原因是避开了阳光的反射干扰。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。DL/T664规定室外检测宜在日出之前、日落之后的夜间或阴天进行，夜间图像质量更佳，因为避开了阳光的反射干扰，测温准确度更高。白天阳光照射使瓷件、金属件表面升温，会掩盖或叠加真实热特征，夜间检测可消除这一误差源。记忆点：红外看温度怕阳光晒，夜间没反射干扰，测出来才准。"
+ },
+ {
+  "id": 357,
+  "type": "judge",
+  "stem": "操作前应先核对系统方式、设备名称、编号和位置，操作中应认真执行监护复诵制度（单人操作时不需高声唱票），宜全过程录音。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。安规规定操作中应认真执行监护复诵制度，单人操作时也应高声唱票，宜全过程录音。题目说“单人操作时不需高声唱票”，与安规相反。单人操作虽不设监护人，但操作人自己仍要唱票核对设备名称、编号和位置，防止误操作。记忆点：单人操作不设监护人，但唱票不能省，自己唱给自己听，录音留痕。"
+ },
+ {
+  "id": 358,
+  "type": "judge",
+  "stem": "雷雨时，在采取安全防护措施后，巡视人员可以接近避雷器。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。雷雨时巡视室外高压设备不得靠近避雷器和避雷针，即使采取安全防护措施也不得接近——避雷器放电时接地电流向四周扩散产生跨步电压，且阀型避雷器可能爆炸。题目说采取防护后可接近，与规定相悖。记忆点：雷雨远离避雷器和避雷针，跨步电压和爆炸风险都在，别去凑近看。"
+ },
+ {
+  "id": 359,
+  "type": "judge",
+  "stem": "两路不同站用变电源供电的负荷回路不得并列运行，站用交流环网严禁开环运行。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。两路不同站用变电源供电的负荷回路不得并列运行，站用交流环网严禁合环运行（应开环运行）。题目写成“严禁开环运行”，恰好说反。不同站用变电源并列会形成合环，产生环流损坏设备。记忆点：站用交流环网开环运行、严禁合环，不同电源不并列，“开环”是常态不是禁忌。"
+ },
+ {
+  "id": 360,
+  "type": "judge",
+  "stem": "每半年度对事故照明试验一次。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。变电运维管理规定要求事故照明每月试验检查一次，题目写成每半年，周期放太长。事故照明是事故断电时的应急照明，直接关系夜间事故处理和人员撤离安全，必须经常检验其可靠性和亮灯情况。记忆点：事故照明每月一试，应急的东西平时不试，真断电时抓瞎。"
+ },
+ {
+  "id": 361,
+  "type": "judge",
+  "stem": "某隔离开关因电气回路故障无法进行电动操作，在无法及时处理的情况下，运维人员应暂停操作，等电气回路修复后再操作。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。隔离开关因电气回路故障无法电动操作且无法及时处理时，运维人员应在确保安全的前提下转就地手动操作完成操作，而不是暂停等待电气回路修复。手动操作时注意防误和操作要领。记忆点：电动失灵转手动，就地手摇照样完成操作，不是干等着修电气回路。"
+ },
+ {
+  "id": 362,
+  "type": "judge",
+  "stem": "母线单相接地时，监控后台发出接地信号，同时母线一相电压降低或者为零，其他两相不变。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。中性点不接地系统母线单相接地时，故障相电压降低或为零，非故障相电压升高为线电压（相电压的√3倍），不是“其他两相不变”。题目只说对了一半，漏了非故障相电压升高。记忆点：单相接地故障相电压掉、非故障相电压升到线电压，电压是转移的，不可能其他相纹丝不动。"
+ },
+ {
+  "id": 363,
+  "type": "judge",
+  "stem": "全面巡视时应检查隔离开关“远方/就地”切换把手、“电动/手动”切换把手位置正确。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。全面巡视时应检查隔离开关“远方/就地”切换把手、“电动/手动”切换把手位置正确，防止把手位置错乱造成远方、就地控制失效或误操作。把手位置直接决定控制权归属，位置不对会使该远方操作的无法远方、或本应就地操作的被误远方启动。记忆点：切换把手是控制权开关，全面巡视必查位置，位置错一切皆错。"
+ },
+ {
+  "id": 364,
+  "type": "judge",
+  "stem": "设备故障跳闸后，未查找到故障原因时，应联系检修人员进行SF6电流互感器微水检测检测。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。设备故障跳闸后未查找到故障原因时，应开展相应的检查试验（如SF6气体分解产物分析、特性试验等）综合查明原因，而不是仅做SF6电流互感器微水检测；微水只反映水分含量，不能诊断放电性故障。未查明原因前不得盲目投运。记忆点：查故障原因要做气体分解产物分析和综合试验，光测微水找不出放电故障根源。"
+ },
+ {
+  "id": 365,
+  "type": "judge",
+  "stem": "室内组合电器在事故发生后10min之内，只准抢救人员进入室内。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。室内SF6组合电器事故发生后，15min内只准抢救人员进入（须戴正压式空气呼吸器等防护），15min后经检测合格方可进入，题目写成10min。SF6分解产物有毒，通风和防护需要时间。记忆点：SF6室内事故15min是门槛，15分钟内只准抢救人员进，比10min多5分钟通风防护时间。"
+ },
+ {
+  "id": 366,
+  "type": "judge",
+  "stem": "手动拉开隔离开关开始时应慢而谨慎，当触头刚刚分开的时刻应迅速拉开，然后检查动静触头断开是否到位。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。手动拉开隔离开关开始时应慢而谨慎，当触头刚刚分开的瞬间迅速拉开，以快速拉断电弧、减轻触头烧损，然后检查动静触头断开是否到位。开始慢是为了确认无异常、防误拉带电设备，触头分开瞬间快速是为了缩短燃弧时间。记忆点：手动拉刀闸慢起快分，刚分开瞬间要果断快速，弧最短、烧最轻。"
+ },
+ {
+  "id": 367,
+  "type": "judge",
+  "stem": "未安装于隔离手车上的熔断器，更换前应拉开电压互感器一次隔离开关，对熔断器两侧验电并接地后进行更换。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。未安装于隔离手车上的熔断器更换前，应拉开电压互感器一次隔离开关，对熔断器两侧验电并接地后进行更换，确保更换过程不触电、不短路。熔断器两侧都可能带电，验电确认无电、装设接地线形成保护后，检修人员才有安全作业条件。记忆点：换PT熔断器先拉一次刀闸、两侧验电再接地，验电接地两道保险。"
+ },
+ {
+  "id": 368,
+  "type": "judge",
+  "stem": "现场温度计指示的温度、控制室温度显示装置、监控系统的温度基本保持一致，误差一般不超过5℃。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。油浸式变压器现场温度计指示温度、控制室温度显示装置温度、监控系统温度三者应基本保持一致，误差一般不超过5℃；超过5℃视为温度数据异常，需核查测温回路和指示表计。温度指示是运行监视的依据，三表不一致会误导油温判断。记忆点：三处温度一杆秤，误差超5℃就异常，就地、控制室、监控三表要对得上。"
+ },
+ {
+  "id": 369,
+  "type": "judge",
+  "stem": "新安装的阀控密封蓄电池组，应进行全核对性放电试验以后每隔两年进行一次核对性放电试验。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。新安装的阀控密封蓄电池组应进行全核对性放电试验，以后每隔2年进行一次核对性放电试验，运行年限越长周期越短。全核对性放电检验电池实际容量、发现落后电池，是掌握蓄电池健康状态最可靠的手段。记忆点：新电池先全核对性放电，之后每两年核对一次，跑四年后改每年，越老越勤查。"
+ },
+ {
+  "id": 370,
+  "type": "judge",
+  "stem": "新投入或大修后（含二次回路更动）的电压互感器可以不用核相。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。新投入或大修后（含二次回路更动）的电压互感器必须核相，确认相序、相位正确后方可并列或投入运行，不能省略。核相防止PT极性、相序接反造成保护误动、计量错误或并列环流，二次回路更动后相位同样可能变。记忆点：PT新投、大修、动二次回路后一律核相，相位不对会并列出大事。"
+ },
+ {
+  "id": 371,
+  "type": "judge",
+  "stem": "蓄电池交流电源故障较长时间不能恢复时，应尽可能调整直流系统运行方式。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。充电装置交流电源故障较长时间不能恢复时，应调整站用交流电源系统运行方式，用另一台充电装置带直流负荷，而不是调整直流系统运行方式。题目把调整对象说成“直流系统运行方式”，不对。记忆点：交流电源没了去调整站用交流电源系统、换一台充电装置顶上，别去动直流系统本身。"
+ },
+ {
+  "id": 372,
+  "type": "judge",
+  "stem": "液压操动机构的断路器，在分闸、合闸远方传动操作时，现场人员应尽量避开高压管道接口。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。液压操动机构断路器分合闸传动时，高压油管承压很高（可达数十MPa），接口处泄漏时高压油会高速喷出伤人，现场人员应远离高压管道及喷油部位、保持足够安全距离，而不是站在机构附近“尽量避开接口”。题目“尽量避开”措辞留有余地，与防范要求不符。记忆点：液压机构动作时高压油喷出可伤人，人要远离管道和喷油处，不是站在旁边尽量躲。"
+ },
+ {
+  "id": 373,
+  "type": "judge",
+  "stem": "由于继电保护动作使电容器开关跳闸，在未查明原因前，可以试送一次。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。继电保护动作使电容器开关跳闸后，未查明原因前严禁试送（强送）——电容器内部故障或过电压等隐患未排除，强行送电会再次跳闸甚至爆炸。应查清原因、处理合格后方可送电，试送是拿设备安全赌博。记忆点：电容器保护跳闸先查原因，未查明不试送，强送就是赌爆炸。"
+ },
+ {
+  "id": 374,
+  "type": "judge",
+  "stem": "运行中应检查吸湿器呼吸畅通，吸湿剂潮解变色部分不应超过总量的2/3。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。运行中应检查吸湿器呼吸畅通，吸湿剂潮解变色部分不应超过总量的2/3，超过即应更换，否则吸湿失效、潮气进入变压器油，降低油绝缘。吸湿器是变压器呼吸的通气口，硅胶变色是吸潮的直观信号。记忆点：吸湿剂变色超过2/3就换，吸湿器是变压器呼吸的口罩，口罩失效就得换。"
+ },
+ {
+  "id": 375,
+  "type": "judge",
+  "stem": "运维班及变电站现场，应具备各类完整的运维记录、台账；纸质记录至少保存一年，重要记录应长期保存。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。运维班及变电站现场应具备各类完整的运维记录、台账，纸质记录至少保存一年，重要记录应长期保存，保证设备运维可追溯。运维记录是设备全寿命管理和事故分析的基础资料，保存期限要满足追溯需要。记忆点：纸质记录保一年、重要记录永久存，记录是运维的留痕证据。"
+ },
+ {
+  "id": 376,
+  "type": "judge",
+  "stem": "运维人员因故离岗连续三个月以上者，应经过培训并履行电力安全规程考试，即可上岗正式承担运维工作。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。离岗连续三个月以上的运维人员重新上岗前，须经过熟悉设备系统、运行方式的跟班实习，并经电力安全规程考试合格，在监护人监护下才能承担运维工作，不能“经培训并考试即可”独立上岗。记忆点：离岗三个月回来，跟班实习加安规考试双过关才能上岗，直接上岗是冒进。"
+ },
+ {
+  "id": 377,
+  "type": "judge",
+  "stem": "在对断路器进行例行巡视时，要检查断路器基础构架无破损、开裂、下沉，支架无锈蚀、松动或变形，无鸟巢、蜂窝等异物。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "A",
+  "explain": "答案 A。断路器例行巡视要检查基础构架无破损、开裂、下沉，支架无锈蚀、松动或变形，无鸟巢、蜂窝等异物，防止构架失稳、异物引发故障。基础支架承载断路器全部重量和分合闸冲击力，任何损伤变形都可能造成倾倒或动作异常。记忆点：断路器例行巡查看基础支架三件事：完好、无锈、无异物。"
+ },
+ {
+  "id": 378,
+  "type": "judge",
+  "stem": "在线监测设备不同于主设备，单独确定巡视周期进行巡视、检查。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。在线监测设备应与主设备同步巡视、检查，不能单独确定巡视周期——在线监测数据要结合主设备运行状态一起分析，分开巡会漏看关联异常。在线监测只是主设备状态感知的一部分，其自身健康也要随主设备一起把关。记忆点：在线监测跟着主设备同步巡，数据要结合主设备状态看，别让它们单飞。"
+ },
+ {
+  "id": 379,
+  "type": "judge",
+  "stem": "《变电验收管理规定第1分册油浸式变压器（电抗器）验收细则》：放气塞应位于套管法兰最低处，无渗漏。",
+  "options": {
+   "A": "正确",
+   "B": "错误"
+  },
+  "answer": "B",
+  "explain": "答案 B。放气塞应位于套管法兰（升高座）最高处，便于排出残存空气，且无渗漏；题目写成“最低处”，正相反。气体比油轻、聚集在最高点，放气塞装在最高处才能把气放净，装最低处只能放油不能放气。记忆点：放气塞在最高处放气、无渗漏，气轻油重、气往上走，塞子必须装在高点。"
+ }
+];
+</script>
+<script>"use strict";
+/* ================= 工具 ================= */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function $(id){return document.getElementById(id);}
+function toast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),1600);
+}
+function buzz(p){ if(navigator.vibrate){ try{navigator.vibrate(p);}catch(e){} } }
+function showView(id){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0,0); if($("quiz-area"))$("quiz-area").scrollTop=0;
+}
+const TYPE_NAME={single:"单选题",multi:"多选题",judge:"判断题",short:"简答题"};
+const TYPE_BADGE={single:["single","单选"],multi:["multi","多选"],judge:["judge","判断"],short:["short","简答"]};
+
+
+/* ================= 全局状态 ================= */
+const S={
+  view:"home",
+  mode:null,            // "practice" | "exam"
+  list:[],              // 当前题目列表（含乱序后的选项顺序）
+  idx:0,
+  dir:1,                // 切题方向：1 下一题 / -1 上一题（用于过渡动画）
+  _lastIdx:null,        // 上次渲染的题号（用于判断是否真的切题，避免点选项时整页闪动画）
+  selected:[],          // 当前题已选字母
+  answered:false,       // 练习模式当前题是否已作答
+  answers:{},           // 考试模式: 序号->所选字母数组
+  result:null,
+  practice:{type:"all", order:"seq", explain:true},
+  exam:null,
+  favs:new Set(),        // 收藏的题目id
+  practiceDone:{},       // 练习模式: 序号->{sel:[], ok:bool}（已作答记录）
+};
+/* 载入设置记忆 */
+try{
+  const p=JSON.parse(localStorage.getItem("yici_practice"));
+  if(p){S.practice={type:p.type||"all",order:p.order||"seq",explain:p.explain!==false};}
+}catch(e){}
+/* 载入收藏 */
+try{
+  JSON.parse(localStorage.getItem("yici_favs")||"[]").forEach(x=>S.favs.add(x));
+}catch(e){}
+function saveFavs(){
+  try{localStorage.setItem("yici_favs",JSON.stringify([...S.favs]));}catch(e){}
+}
+function toggleFav(){
+  if(!S.list.length) return;
+  const id=S.list[S.idx].q.id;
+  if(S.favs.has(id))S.favs.delete(id); else S.favs.add(id);
+  saveFavs();
+  updateFavBtn();
+  toast(S.favs.has(id)?"已收藏":"已取消收藏");
+}
+function updateFavBtn(){
+  const btn=$("fav-btn"); if(!btn) return;
+  const id=S.list[S.idx]?S.list[S.idx].q.id:null;
+  if(id!==null && S.favs.has(id)){btn.textContent="★";btn.classList.add("on");}
+  else{btn.textContent="☆";btn.classList.remove("on");}
+}
+
+/* ================= 恢复上次进度 ================= */
+function saveResume(){
+  if(S.mode!=="practice" || !S.list.length) return;
+  try{
+    localStorage.setItem("yici_resume", JSON.stringify({
+      type:S.practice.type, order:S.practice.order,
+      ids:S.list.map(i=>i.q.id), idx:S.idx, practiceDone:S.practiceDone, savedAt:Date.now(),
+    }));
+  }catch(e){}
+}
+function loadResume(){
+  try{const r=JSON.parse(localStorage.getItem("yici_resume")||"null"); return r&&r.ids?r:null;}
+  catch(e){return null;}
+}
+function clearResume(){ try{localStorage.removeItem("yici_resume");}catch(e){} }
+function renderResumeWrap(){
+  const w=$("resume-wrap"); if(!w) return;
+  const rp=loadResume();
+  w.innerHTML = (rp && rp.type===S.practice.type && rp.order===S.practice.order)
+    ? `<div class="setup-group">
+        <button class="btn ghost" style="width:100%;" onclick="resumePractice()">继续上次练习（第 ${Math.min(rp.idx+1,rp.ids.length)} / ${rp.ids.length} 题）</button>
+      </div>`
+    : "";
+}
+function resumePractice(){
+  const rp=loadResume();
+  if(!rp || rp.type!==S.practice.type || rp.order!==S.practice.order){toast("没有可恢复的进度");return;}
+  const byId={}; allQuestions().forEach(q=>byId[q.id]=q);
+  const qs=rp.ids.map(id=>byId[id]).filter(Boolean);
+  if(!qs.length){toast("题目数据有变化，无法恢复");clearResume();return;}
+  S.mode="practice"; S.list=buildList(qs); S.idx=Math.min(rp.idx, qs.length-1); S._lastIdx=null;
+  S.selected=[]; S.answered=false; S.practiceDone=rp.practiceDone||{};
+  $("quiz-back").onclick=()=>openSetup("practice");
+  showView("quiz"); renderQuiz();
+}
+
+/* ================= 题库读取 ================= */
+function allQuestions(){
+  return (typeof QUESTION_BANK!=="undefined" && Array.isArray(QUESTION_BANK)) ? QUESTION_BANK : [];
+}
+function renderHomeStats(){
+  const qs=allQuestions();
+  const c={single:0,multi:0,judge:0,short:0};
+  qs.forEach(q=>{c[q.type]=(c[q.type]||0)+1;});
+  $("home-stats").innerHTML=
+    `<div class="stat"><b>${qs.length}</b><span>总题数</span></div>
+     <div class="stat"><b>${c.single||0}</b><span>单选</span></div>
+     <div class="stat"><b>${c.multi||0}</b><span>多选</span></div>
+     <div class="stat"><b>${c.judge||0}</b><span>判断</span></div>
+     <div class="stat"><b>${S.favs.size}</b><span>收藏</span></div>`;
+  renderTrend();
+}
+/* ================= 考试历史趋势 ================= */
+function renderTrend(){
+  const box=$("home-trend"); if(!box) return;
+  let h=[]; try{h=JSON.parse(localStorage.getItem("yici_history")||"[]");}catch(e){}
+  if(!h.length){ box.innerHTML=""; return; }
+  const last=h.slice(-10);
+  const pct=last.map(x=>x.total?Math.round(x.correct/x.total*100):0);
+  const avg=Math.round(pct.reduce((a,b)=>a+b,0)/pct.length);
+  const max=Math.max(...pct);
+  const W=300,H=64,P=6;
+  const xs=pct.map((_,i)=>P+i*(W-2*P)/Math.max(pct.length-1,1));
+  const ys=pct.map(v=>H-P-(v/100)*(H-2*P));
+  const line=xs.map((x,i)=>`${i?"L":"M"}${x.toFixed(1)},${ys[i].toFixed(1)}`).join(" ");
+  const dots=xs.map((x,i)=>`<circle cx="${x.toFixed(1)}" cy="${ys[i].toFixed(1)}" r="2.6" style="fill:${i===pct.length-1?"var(--primary)":"var(--muted)"}"/>`).join("");
+  const lastPct=pct[pct.length-1];
+  box.innerHTML=`<div class="card trend-card">
+    <div class="trend-head"><b>📈 最近考试</b><span>平均 ${avg} 分 · 最高 ${max} 分</span></div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:64px;">
+      <line x1="${P}" y1="${ys[0]}" x2="${W-P}" y2="${ys[0]}" style="stroke:var(--border)" stroke-width="1" stroke-dasharray="3 3"/>
+      <path d="${line}" fill="none" style="stroke:var(--primary)" stroke-width="2" stroke-linecap="round"/>
+      ${dots}
+    </svg>
+    <div class="trend-note">最近一次 ${lastPct} 分 · 共 ${h.length} 次记录</div>
+  </div>`;
+}
+function saveExamHistory(r){
+  try{
+    const h=JSON.parse(localStorage.getItem("yici_history")||"[]");
+    h.push({ts:Date.now(),correct:r.score,total:r.total,wrong:r.wrong,missed:r.missed});
+    while(h.length>50) h.shift();
+    localStorage.setItem("yici_history",JSON.stringify(h));
+  }catch(e){}
+}
+function goHome(){
+  clearExamTimer();
+  S.mode=null;
+  const subBtn=$("quiz-submit"); if(subBtn) subBtn.style.display="none";
+  showView("home"); renderHomeStats();
+}
+
+/* ================= 练习模式 ================= */
+function openSetup(mode){
+  S.mode="practice";
+  const t=S.practice.type;
+  const types=[["all","全部"],["single","单选"],["multi","多选"],["judge","判断"],["fav","收藏"]];
+  $("chips-type").innerHTML=types.map(([v,l])=>
+    `<button class="chip ${t===v?"on":""}" data-t="${v}">${l}</button>`).join("");
+  document.querySelectorAll("#chips-type .chip").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll("#chips-type .chip").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); S.practice.type=b.dataset.t; savePractice(); renderResumeWrap();
+  });
+  document.querySelectorAll("#chips-order .chip").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll("#chips-order .chip").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); S.practice.order=b.dataset.o; savePractice(); renderResumeWrap();
+  });
+  document.querySelectorAll("#chips-explain .chip").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll("#chips-explain .chip").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); S.practice.explain=b.dataset.e==="1"; savePractice();
+  });
+  document.querySelectorAll("#chips-order .chip").forEach(b=>b.classList.toggle("on", b.dataset.o===S.practice.order));
+  document.querySelectorAll("#chips-explain .chip").forEach(b=>b.classList.toggle("on", (b.dataset.e==="1")===S.practice.explain));
+  renderResumeWrap();
+  showView("setup");
+}
+function savePractice(){
+  try{localStorage.setItem("yici_practice",JSON.stringify(S.practice));}catch(e){}
+}
+function startPractice(){
+  const p=S.practice;
+  let list=allQuestions();
+  if(p.type==="fav"){
+    list=list.filter(q=>S.favs.has(q.id));
+    if(!list.length){toast("还没有收藏的题目");return;}
+  }else if(p.type!=="all"){
+    list=list.filter(q=>q.type===p.type);
+  }
+  if(!list.length){toast("该范围内没有题目");return;}
+  if(p.order==="rand") list=shuffle(list);
+  S.mode="practice"; S.list=buildList(list); S.idx=0; S._lastIdx=null; S.selected=[]; S.answered=false;
+  S.practiceDone={};
+  $("quiz-back").onclick=()=>openSetup("practice");
+  showView("quiz"); renderQuiz();
+}
+function buildList(qs){
+  // 每题生成选项顺序（order[i] = 该位置显示的原始选项字母）
+  // 判断题固定 A=正确/B=错误，不随机；简答无选项；其余题型随机打乱
+  return qs.map(q=>({
+    q,
+    order: q.type==="short" ? [] : (q.type==="judge" ? ["A","B"] : shuffle(Object.keys(q.options))),
+    score: q.type==="multi" ? 2 : (q.type==="short" ? 5 : 1), // 单选/判断1分、多选2分、简答5分
+  }));
+}
+// 将原始答案字母映射为当前显示的选项字母（选项内容已随机重排、标签重分配）
+function dispAnswer(item){
+  const q=item.q;
+  const rev={}; item.order.forEach((k,i)=>rev[k]=String.fromCharCode(65+i));
+  const mapped=[...q.answer].map(k=>rev[k]);
+  if(q.type==="multi") mapped.sort(); // 多选答案字母按升序显示，避免乱序如 C、A、D
+  return mapped.join(q.type==="multi"?"、":"");
+}
+// 解析文本里引用的原始选项字母(A-Z)映射为当前显示字母（选项顺序已打乱）。
+// 只替换前后都不相邻字母/数字的孤立大写字母组合，避免误伤 kV/V/m 等单位。
+function mapExplain(item, text){
+  if(!text) return text;
+  const q=item.q;
+  const rev={}; item.order.forEach((k,i)=>rev[k]=String.fromCharCode(65+i));
+  // ① 先纠正「选项字母+内容」引用（如 C40米、E80米、B6Ω、C1.5h）：原正则因字母后紧跟
+  //    数字会跳过，这里用「选项内容作前缀」匹配替换——既改正字母，又不会误伤 SF6/F6、
+  //    GB/T、kV 等非选项字母+数字的写法（选项内容匹配不上就不动）。
+  text = text.replace(/(^|[^A-Za-z0-9])([A-Z])([0-9])/g, (m,p,ch,digit,offset,full)=>{
+    const opt = q.options && q.options[ch];
+    if(opt==null || opt==="") return m;              // 非选项字母（如 SF6 的 F）→ 保留
+    const rest = full.slice(offset + m.length - 1);  // 从该字母后的第一个数字开始
+    if(!rest.startsWith(String(opt))) return m;      // 选项内容必须是后续文本前缀才算引用
+    return p + "[" + (rev[ch]||ch) + "]" + digit; // 只换字母，选项内容剩余部分原文保留
+  });
+  // ② 原有的映射：解析文本里引用的原始选项字母映射为当前显示字母（选项顺序已打乱）。
+  //    只替换前后都不相邻字母/数字的孤立大写字母组合，避免误伤 kV/V/m 等单位；字母范围按
+  //    本题实际选项数限定（A-E/A-F），这样 IEC/GOOSE/TWJ/GB/T 等缩写的超界字母不会被当作
+  //    选项引用误映射。
+  const lastCh = item.order.length ? String.fromCharCode(64+item.order.length) : "Z";
+  return text.replace(new RegExp("(^答案\\s*|^|[^A-Za-z0-9\\[])([A-"+lastCh+"]+)(?![A-Za-z0-9])","g"), (m,p,seq)=>{
+    const mapped=[...seq].map(ch=>rev[ch]||ch);
+    if(p.startsWith("答案")){ mapped.sort(); return p+"["+mapped.join("")+"]"; } // 答案区整体加括号
+    return p+mapped.map(x=>"["+x+"]").join(""); // 正文孤立引用逐个加括号
+  });
+}
+/* ================= 渲染题目（共用） ================= */
+function renderQuiz(){
+  const item=S.list[S.idx]; const q=item.q;
+  const isExam=S.mode==="exam";
+  const pd = isExam?null:(S.practiceDone[S.idx]||null); // 练习已作答记录
+  const answered = !!pd;
+  const total=S.list.length;
+
+  $("quiz-title").textContent = isExam?"考试模式":"练习模式";
+  const [bclass,blabel]=TYPE_BADGE[q.type];
+  const badge=$("quiz-badge"); badge.className="badge "+bclass; badge.textContent=blabel;
+  $("quiz-progress").style.width=((S.idx+1)/total*100)+"%";
+  const timeEl=$("exam-time"); if(timeEl) timeEl.style.display=(isExam&&!S.result)?"inline":"none";
+  const subBtn=$("quiz-submit"); if(subBtn) subBtn.style.display=(isExam&&!S.result)?"flex":"none";
+
+  const typeName=TYPE_NAME[q.type];
+  const isNav = S._lastIdx===null || S._lastIdx!==S.idx; // 仅切题/首次渲染时播放过渡动画
+  S._lastIdx=S.idx;
+  let stem = `<div class="q-count"><span>${typeName}</span><span>第 ${S.idx+1} / ${total} 题</span></div>`;
+  const qnum = isExam ? S.idx+1 : q.id; // 考试/回顾显示顺序号，练习显示题库号
+  stem += `<div class="q-stem${isNav?" fade-in":""}"><span class="q-num">${qnum}.</span>${esc(q.stem)}</div>`;
+
+  let opts="";
+  if(q.type==="short"){
+    if(isExam && S.result){
+      // 交卷回顾：只读，展示参考答案 + 自评结果
+      const sel=S.answers[S.idx]||[];
+      const graded=sel.length>0, ok=sel[0]==="self-ok";
+      const revExplain=q.explain
+        ? `<div class="explain fade-in" style="margin-top:12px;"><b class="explain-toggle" onclick="toggleExplain(this)">📖 解析</b><div class="explain-body" style="display:block;">${esc(mapExplain(item, q.explain))}</div></div>`
+        : `<div style="margin-top:12px;font-size:13px;color:var(--muted);">暂无解析</div>`;
+      opts = `<div class="result-banner ${graded?(ok?"ok":"no"):""}" style="margin-top:12px;">${!graded?"⏭ 未作答（0 分）":(ok?"✓ 标记答对（+5 分）":"✗ 标记答错（0 分）")}</div>
+              <div class="explain" style="margin-top:12px;"><b class="explain-toggle" onclick="toggleExplain(this)">📖 参考答案</b><div class="explain-body">${esc(mapExplain(item, q.answer||q.explain||"暂无"))}</div></div>
+              ${revExplain}`;
+    }else if(isExam){
+      const sel=S.answers[S.idx]||[];
+      const graded=sel.length>0, ok=sel[0]==="self-ok";
+      opts = `<button class="btn ghost" style="width:100%;" onclick="revealShort(${S.idx})">查看参考答案</button>
+              <div id="short-ans"></div>
+              ${graded
+                ? `<div class="result-banner ${ok?"ok":"no"} banner-pop" style="margin-top:12px;">${ok?"✓ 已标记答对（+5 分）":"✗ 已标记答错（0 分）"}</div>
+                   <button class="btn gray" style="width:100%;margin-top:10px;" onclick="clearSelf(${S.idx})">取消标记</button>`
+                : `<div style="display:flex;gap:10px;margin-top:12px;">
+                     <button class="btn" style="flex:1;" onclick="selfGrade(${S.idx},true)">✓ 算答对</button>
+                     <button class="btn gray" style="flex:1;" onclick="selfGrade(${S.idx},false)">✗ 算答错</button>
+                   </div>`}`;
+    }else{
+      opts = `<button class="btn ghost" style="width:100%;" onclick="revealShort(${S.idx})">查看参考答案</button>
+              <div id="short-ans"></div>`;
+    }
+  }else{
+    const sel = isExam ? S.selected : (pd?pd.sel:S.selected);
+    opts="<div class='opts'>"+item.order.map((letter,i)=>{
+      const dl=String.fromCharCode(65+i); // 重新分配的显示标签（按选项数动态生成，无长度上限）
+      let cls="opt";
+      if(!answered && sel.includes(letter)) cls+=" selected";
+      else if(answered){
+        const isC=q.answer.includes(letter);
+        const wasS=sel.includes(letter);
+        if(isC) cls+=" correct";
+        else if(wasS) cls+=" wrong";
+        else cls+=" dim";
+      }
+      return `<button class="${cls}" onclick="pickOption('${letter}')" data-k="${letter}">
+                <span class="letter">${dl}</span><span class="txt">${esc(q.options[letter])}</span>
+              </button>`;
+    }).join("")+"</div>";
+  }
+
+  let feedback="";
+  if(isExam && S.result){
+    // 交卷回顾：显示解析（与练习模式一致的渲染，默认展开）
+    feedback=q.explain
+      ? `<div class="explain fade-in" style="margin-top:12px;"><b class="explain-toggle" onclick="toggleExplain(this)">📖 解析</b><div class="explain-body" style="display:block;">${esc(mapExplain(item, q.explain))}</div></div>`
+      : `<div style="margin-top:12px;font-size:13px;color:var(--muted);">暂无解析</div>`;
+  }else if(isExam){
+    feedback=`<div class="explain" style="display:none;"></div>`; // 考试进行中不显示反馈/解析
+  }else if(answered){
+    const ok=pd.ok;
+    const ans = dispAnswer(item);
+    const showExplain = S.practice.explain && q.explain;
+    const noExplainYet = S.practice.explain && !q.explain;
+    const expand = !ok;
+    feedback=`<div class="feedback fade-in">
+      <div class="result-banner ${ok?"ok":"no"} banner-pop">${ok?"✅ 回答正确":"❌ 回答错误，正确答案："+ans}</div>
+      ${showExplain?`<div class="explain${expand?" open":""}"><b class="explain-toggle" onclick="toggleExplain(this)">📖 解析</b><div class="explain-body" style="display:${expand?"block":"none"};">${esc(mapExplain(item, q.explain))}</div></div>`
+        :(noExplainYet?`<div style="margin-top:10px;font-size:13px;color:var(--muted);">暂无解析</div>`:"")}
+      <button class="btn gray" style="width:100%;margin-top:10px;" onclick="redoQuestion()">↺ 重新作答</button>
+    </div>`;
+  }else if(q.type==="multi"){
+    feedback=`<button class="btn mid" style="width:100%;" id="confirm-multi" ${S.selected.length?"":"disabled"} onclick="confirmMulti()">确认答案${S.selected.length?"（"+S.selected.length+"）":""}</button>`;
+  }
+
+  const animCls = isNav ? (S.dir>=0 ? "quiz-in-r" : "quiz-in-l") : "";
+  $("quiz-area").innerHTML=`<div class="${animCls}">${stem+opts+feedback}</div>`;
+  if(isNav) $("quiz-area").scrollTop=0;
+
+  /* 底部导航 */
+  let nav="";
+  if(isExam){
+    const answeredCount=Object.keys(S.answers).length;
+    nav=`<button class="btn gray small-flex" ${S.idx===0?"disabled":""} onclick="nav(-1)">上一题</button>
+         <button class="btn gray small-flex" onclick="openSheet()">答题卡 <span style="font-size:12px;opacity:.8">${answeredCount}/${total}</span></button>
+         <button class="btn small-flex" ${S.idx===total-1?"disabled":""} onclick="nav(1)">下一题</button>`;
+    $("quiz-nav").innerHTML=nav;
+  }else{
+    const doneCount=Object.keys(S.practiceDone).length;
+    nav=`<button class="btn gray small-flex" ${S.idx===0?"disabled":""} onclick="nav(-1)">上一题</button>
+         <button class="btn gray small-flex" onclick="openSheet()">答题卡 <span style="font-size:12px;opacity:.8">${doneCount}/${total}</span></button>
+         <button class="btn small-flex" onclick="nav(1)">${S.idx===total-1?"完成":"下一题"}${answered?"":" · 先作答"}</button>`;
+    $("quiz-nav").innerHTML=nav;
+  }
+  $("quiz-nav").style.display="flex";
+  updateFavBtn();
+  saveResume();
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function checkAnswer(q,choice){
+  const ans=[...q.answer].sort().join("");
+  const ch=[...choice].sort().join("");
+  return ans===ch && ch.length>0;
+}
+/* 选项点击 */
+function pickOption(letter){
+  const item=S.list[S.idx], q=item.q;
+  if(S.mode==="exam"){
+    const sel=S.selected;
+    const i=sel.indexOf(letter);
+    if(i>=0)sel.splice(i,1); else sel.push(letter);
+    if(q.type!=="multi" && sel.length>1) sel.splice(0,sel.length-1); // 单选/判断只能选1个
+    S.answers[S.idx]=sel.slice();
+    renderQuiz();
+    return;
+  }
+  // 练习模式
+  if(S.practiceDone[S.idx]) return; // 已作答，需点"重新作答"
+  if(q.type==="multi"){
+    const sel=S.selected;
+    const i=sel.indexOf(letter);
+    if(i>=0)sel.splice(i,1); else sel.push(letter);
+    renderQuiz();
+    return;
+  }
+  // 单选/判断：立即作答
+  S.selected=[letter]; S.answered=true;
+  S.practiceDone[S.idx]={sel:[letter], ok:checkAnswer(q,[letter])};
+  buzz(S.practiceDone[S.idx].ok?15:[15,40,15]);
+  renderQuiz();
+}
+function confirmMulti(){
+  if(!S.selected.length) return;
+  S.answered=true;
+  const ok=checkAnswer(S.list[S.idx].q,S.selected);
+  S.practiceDone[S.idx]={sel:S.selected.slice(), ok};
+  buzz(ok?20:[20,40,20]);
+  renderQuiz();
+}
+function redoQuestion(){
+  delete S.practiceDone[S.idx];
+  S.selected=[]; S.answered=false;
+  renderQuiz();
+}
+function selfGrade(idx, ok){
+  S.answers[idx]=ok?["self-ok"]:["self-no"];
+  renderQuiz();
+}
+function clearSelf(idx){
+  delete S.answers[idx];
+  renderQuiz();
+}
+function toggleExplain(b){
+  const box=b.parentElement;
+  const body=box.querySelector(".explain-body");
+  const open=body.style.display!=="none";
+  body.style.display=open?"none":"block";
+  box.classList.toggle("open",!open);
+}
+function revealShort(idx){
+  const item=S.list[idx];
+  const q=item.q;
+  $("short-ans").innerHTML=`<div class="explain fade-in"><b>📖 参考答案</b>${esc(mapExplain(item, q.answer||q.explain||"暂无"))}</div>`;
+}
+function nav(d){
+  S.dir=d;
+  const n=S.list.length;
+  let next=S.idx+d;
+  if(S.mode==="practice"){
+    // 若作答过：记录进度；未作答：跳到下一题（旧题保留）——这里直接切换
+  }
+  if(next<0||next>=n){
+    if(S.mode==="practice" && d>0 && S.idx===n-1){
+      toast("练习完成 🎉"); return;
+    }
+    return;
+  }
+  S.idx=next;
+  if(S.mode==="exam"){
+    S.selected=(S.answers[next]||[]).slice();
+  }else{
+    const pd=S.practiceDone[next];
+    S.selected=pd?pd.sel.slice():[];
+  }
+  S.answered=false;
+  renderQuiz();
+}
+function quizBack(){
+  if(S.mode==="exam") goHome();
+  else openSetup("practice");
+}
+
+/* ================= 考试模式 ================= */
+let examTimer=null, examLeft=0;
+function startExamTimer(){
+  clearExamTimer();
+  examLeft=60*60;
+  updateExamTime();
+  examTimer=setInterval(()=>{
+    examLeft--;
+    if(examLeft<=0){clearExamTimer(); toast("时间到，已自动交卷"); submitExam(true); return;}
+    updateExamTime();
+  },1000);
+}
+function updateExamTime(){
+  const t=$("exam-time"); if(!t) return;
+  const m=Math.floor(examLeft/60), s=examLeft%60;
+  t.textContent=`⏱ ${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  t.classList.toggle("warn", examLeft<=60);
+}
+function clearExamTimer(){ clearInterval(examTimer); examTimer=null; }
+function startExam(){
+  const byType=t=>allQuestions().filter(q=>q.type===t);
+  const pick=(arr,n)=>shuffle(arr).slice(0,n);
+  const single=pick(byType("single"),50);
+  const multi=pick(byType("multi"),15);
+  const judge=pick(byType("judge"),20);
+  if(single.length<50||multi.length<15||judge.length<20){toast("题库数量不足，无法组卷");return;}
+  const list=shuffle([...single,...multi,...judge]); // 混合题型，不含简答
+  S.mode="exam"; S.list=buildList(list); S.idx=0; S.selected=[]; S.answers={}; S.result=null;
+  $("quiz-back").onclick=()=>goHome();
+  startExamTimer();
+  showView("quiz"); renderQuiz();
+}
+function submitExam(fromTimer){
+  const total=S.list.length;
+  const answered=Object.keys(S.answers).length;
+  if(!fromTimer && answered<total && !confirm(`还有 ${total-answered} 题未作答，确定交卷？`)) return;
+  if(!fromTimer && !confirm("确定交卷？")) return;
+  clearExamTimer();
+  let okCount=0, wrong=0, missed=0, score=0, totalScore=0;
+  const detail=[];
+  for(let i=0;i<total;i++){
+    const item=S.list[i], q=item.q;
+    const pts=item.score; totalScore+=pts;
+    const ans=S.answers[i]||[];
+    if(!ans.length){detail.push("missed"); missed++; continue;}
+    const ok=(q.type==="short") ? ans[0]==="self-ok" : checkAnswer(q,ans);
+    if(ok){detail.push("correct"); okCount++; score+=pts;}
+    else{detail.push("wrong"); wrong++;}
+  }
+  S.result={score, total:totalScore, correct:okCount, wrong, missed, detail};
+  buzz([15,30,15]);
+  saveExamHistory(S.result);
+  const subBtn=$("quiz-submit"); if(subBtn) subBtn.style.display="none";
+  showResult();
+}
+function showResult(){
+  const r=S.result;
+  $("score-num").innerHTML=`${r.score}<small> / ${r.total}</small>`;
+  $("score-label").textContent = r.score===r.total?"🎉 满分！":(r.score>=r.total*0.8?"🏅 优秀":"📖 继续加油");
+  $("score-sub").innerHTML=`<span>正确 <b class="g">${r.correct}</b></span>
+                             <span>错误 <b class="r">${r.wrong}</b></span>
+                             <span>未答 <b class="m">${r.missed}</b></span>`;
+  const _grps=[["single","单选"],["multi","多选"],["judge","判断"],["short","简答"]];
+  let _rh="";
+  for(const [_t,_label] of _grps){
+    const _ids=[];
+    r.detail.forEach((_d,i)=>{ if(S.list[i] && S.list[i].q.type===_t) _ids.push(i); });
+    if(!_ids.length) continue;
+    _rh+=`<div class="sheet-group-title">${_label}（${_ids.length}）</div>`;
+    _rh+=_ids.map(i=>{
+      const d=r.detail[i];
+      const cls=d==="correct"?"correct":(d==="wrong"?"wrong":"missed");
+      return `<button class="sheet-cell ${cls}" onclick="reviewResult(${i})">${i+1}</button>`;
+    }).join("");
+  }
+  $("result-grid").innerHTML=_rh;
+  showView("result");
+}
+function reviewResult(idx){
+  // 简单跳转：回到该题的考试回顾
+  S.mode="exam"; S.idx=idx; S.answered=true;
+  // 临时以"已交卷"方式展示：不可作答
+  $("quiz-back").onclick=()=>showResult();
+  showView("quiz");
+  // 渲染后覆盖：展示正确答案与所选
+  renderQuiz();
+  const item=S.list[idx],q=item.q;
+  const sel=(S.answers[idx]||[]);
+  // 覆盖选项样式为判分样式
+  const opts=document.querySelectorAll("#quiz-area .opt");
+  opts.forEach(o=>{
+    const letter=o.dataset.k; // 原始选项字母（显示标签已重新分配）
+    o.classList.remove("selected","correct","wrong","dim");
+    const isC=q.answer.includes(letter);
+    const wasS=sel.includes(letter);
+    if(isC)o.classList.add("correct");
+    else if(wasS)o.classList.add("wrong");
+    else o.classList.add("dim");
+    o.onclick=null;
+  });
+  $("quiz-nav").innerHTML=`<button class="btn gray small-flex" ${S.idx===0?"disabled":""} onclick="navReview(-1)">上一题</button>
+    <button class="btn small-flex" onclick="showResult()">查看成绩</button>
+    <button class="btn gray small-flex" ${S.idx===r_total()-1?"disabled":""} onclick="navReview(1)">下一题</button>`;
+  $("quiz-nav").style.display="flex";
+  toast("已交卷，可查看答案与解析");
+}
+function r_total(){return S.list.length;}
+function navReview(d){
+  const i=S.idx+d;
+  if(i<0||i>=r_total())return;
+  S.idx=i;
+  reviewResult(i);
+}
+
+/* ================= 答题卡 ================= */
+function openSheet(){
+  renderSheetGrid(); $("sheet").classList.add("open");
+}
+function closeSheet(){ $("sheet").classList.remove("open"); }
+function renderSheetGrid(){
+  const grps=[["single","单选"],["multi","多选"],["judge","判断"],["short","简答"]];
+  let html="";
+  for(const [t,label] of grps){
+    const idxs=[];
+    S.list.forEach((it,i)=>{ if(it.q.type===t) idxs.push(i); });
+    if(!idxs.length) continue;
+    html+=`<div class="sheet-group-title">${label}（${idxs.length}）</div>`;
+    html+=idxs.map(i=>{
+      const item=S.list[i], q=item.q;
+      let cls="sheet-cell";
+      if(S.mode==="exam" && S.result){
+        cls+=" "+S.result.detail[i];
+      }else if(S.mode==="exam"){
+        if(S.answers[i]&&S.answers[i].length) cls+=" answered";
+      }else{
+        const pd=S.practiceDone[i];
+        if(pd){ cls+= pd.ok?" correct":" wrong"; }
+      }
+      if(i===S.idx) cls+=" current";
+      return `<button class="${cls}" onclick="jumpSheet(${i})">${i+1}</button>`;
+    }).join("");
+  }
+  $("sheet-grid").innerHTML=html;
+}
+function jumpSheet(i){
+  if(S.mode==="exam" && S.result){ closeSheet(); reviewResult(i); return; }
+  S.idx=i;
+  if(S.mode==="exam"){
+    S.selected=(S.answers[i]||[]).slice();
+  }else{
+    const pd=S.practiceDone[i];
+    S.selected=pd?pd.sel.slice():[];
+  }
+  S.answered=false;
+  closeSheet();
+  renderQuiz();
+}
+
+/* 初始化 */
+function initApp(){
+  renderHomeStats();
+  /* 答题区左右滑动切题 */
+  const area=$("quiz-area");
+  if(area){
+    let sx=0, sy=0;
+    area.addEventListener("touchstart",e=>{sx=e.touches[0].clientX; sy=e.touches[0].clientY;},{passive:true});
+    area.addEventListener("touchend",e=>{
+      const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+      if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.2) nav(dx<0?1:-1);
+    },{passive:true});
+  }
+}
+document.addEventListener("DOMContentLoaded",initApp);
+if(document.readyState!=="loading")initApp();</script>
+</body>
+</html>
